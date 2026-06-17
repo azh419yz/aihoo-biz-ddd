@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aihoo.domain.doctor.mapper.DoctorUserMapper">
+    <select id="findTeamDoctorByMdtOrderNum" resultType="com.aihoo.domain.doctor.entity.DoctorUser">
+        SELECT tdu.*
+        FROM t_doctor_user tdu
+                     LEFT JOIN t_mdt_team_doctor tmtd ON tmtd.doctor_user_id = tdu.id
+                     LEFT JOIN t_mdt_team tmt ON tmt.id = tmtd.mdt_team_id
+                     LEFT JOIN t_mdt_order tmo ON tmo.mdt_team_id = tmt.id
+        WHERE tmtd.is_main = #{isMain}
+          AND tmo.order_num = #{mdtOrderNum}
+    </select>
+</mapper>

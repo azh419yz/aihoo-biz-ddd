@@ -1,0 +1,66 @@
+server:
+  port: 8090
+spring:
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
+      chat:
+        options:
+          model: qwen-plus
+
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:}:${MYSQL_PORT:3306}/${MYSQL_DB:heoudb}?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: ${MYSQL_USERNAME:}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      database: 0
+      host: ${REDIS_HOST:}
+      password: ${REDIS_PASSWORD:}
+      port: ${REDIS_PORT:6379}
+      timeout: 10000
+      block-when-exhausted: true
+      jedis:
+        pool:
+          max-active: 1000
+          max-wait: 10000
+          min-idle: 1
+          max-idle: 100
+
+tencent:
+  sdkappid: ${TENCENT_SDKAPPID:}
+  privstr: ${TENCENT_PRIVSTR:}
+
+# 订单超时配置（单位：小时）
+order-timeout:
+  unpaid-cancel-minutes: 15
+  unsubmitted-refund-hours: 48
+  submitted-refund-hours: 48
+
+pst:
+  endpoint: pst.heouai.com
+  api:
+    generate-pdf: /api/print/async
+  parameter:
+    generate-pdf-url: https://manage.heouai.com/chufang?id=
+
+# 阿里云配置
+alicloud:
+  ak: ${ALICLOUD_AK:}
+  sk: ${ALICLOUD_SK:}
+  sms:
+    endpoint: dysmsapi.aliyuncs.com
+    sign-name: 合偶平方
+    template-code: SMS_330260285
+  oss:
+    endpoint: oss-cn-wulanchabu.aliyuncs.com
+    bucketName: aihoo-static
+    imgHeadUrl: https://static.heouai.com/
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: info
+    com.aihoo: debug
+    org.springframework.web: info

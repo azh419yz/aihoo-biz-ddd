@@ -1,0 +1,26 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:mysql://rm-0jl09152g38e79d321o.mysql.rds.aliyuncs.com:3306/heoudb?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: ${MYSQL_USERNAME:hoouser}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      database: 0
+      host: ${REDIS_HOST:127.0.0.1}
+      password: ${REDIS_PASSWORD:}
+      port: ${REDIS_PORT:6379}
+      timeout: 10000
+      block-when-exhausted: true
+      jedis:
+        pool:
+          max-active: 1000
+          max-wait: 10000
+          min-idle: 1
+          max-idle: 100
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: debug

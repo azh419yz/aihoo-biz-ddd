@@ -1,0 +1,73 @@
+server:
+  port: 8081
+spring:
+  ai:
+    dashscope:
+      api-key: ${DASHSCOPE_API_KEY:}
+      chat:
+        options:
+          model: qwen-plus
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:rm-0jl09152g38e79d32.mysql.rds.aliyuncs.com}:3306/heoudb?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: ${MYSQL_USERNAME:hoouser}
+    password: ${MYSQL_PASSWORD:}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      database: 0
+      host: ${REDIS_HOST:121.89.80.105}
+      password: ${REDIS_PASSWORD:}
+      port: 6379
+      timeout: 10000
+      block-when-exhausted: true
+      jedis:
+        pool:
+          max-active: 1000
+          max-wait: 10000
+          min-idle: 1
+          max-idle: 100
+
+alicloud:
+  ak: ${ALICLOUD_AK:}
+  sk: ${ALICLOUD_SK:}
+  auth:
+    endpoint: cloudauth.aliyuncs.com
+  sms:
+    endpoint: dysmsapi.aliyuncs.com
+    sign-name: 合偶平方
+    template-code: SMS_330260285
+  oss:
+    endpoint: https://oss-cn-wulanchabu.aliyuncs.com
+    bucketName: aihoo-admin
+    imgHeadUrl: https://static.heouai.com/
+
+wechat:
+  appId: ${WECHAT_APPID:}
+  secret: ${WECHAT_SECRET:}
+
+tencent:
+  sdkappid: ${TENCENT_SDKAPPID:1600122709}
+  privstr: ${TENCENT_PRIVSTR:}
+  adminidentifier: administrator
+
+
+chuanglan:
+  ios:
+    appId: ${CHUANGLAN_IOS_APPID:}
+    appKey: ${CHUANGLAN_IOS_APPKEY:}
+  android:
+    appId: ${CHUANGLAN_ANDROID_APPID:}
+    appKey: ${CHUANGLAN_ANDROID_APPKEY:}
+
+
+test:
+  user:
+    mobile: 18900000000
+    code: 123456
+
+logging:
+  config: classpath:logback-spring.xml
+  level:
+    root: info
+    com.aihoo: debug
+    org.springframework.web: info
