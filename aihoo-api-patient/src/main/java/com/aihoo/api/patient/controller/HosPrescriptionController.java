@@ -41,7 +41,7 @@ public class HosPrescriptionController {
                     )
             )
     )
-    public BizResult<IPage<HosPrescription>> list(PrescriptionSelectRequest request) {
+    public BizResult<IPage<HosPrescription>> list(@RequestBody PrescriptionSelectRequest request) {
         PrescriptionSelectDto dto = new PrescriptionSelectDto();
         BeanUtils.copyProperties(request, dto);
         return BizResult.success(hosPrescriptionService.getHosPrescriptionList(dto));

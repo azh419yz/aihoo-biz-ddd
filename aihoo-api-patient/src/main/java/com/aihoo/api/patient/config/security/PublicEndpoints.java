@@ -23,5 +23,6 @@ public class PublicEndpoints {
 
             "/api/v2/patientUser/sendCode",
             "/api/v2/patientUser/phoneLogin",
+            "/api/v2/patientUser/weChatLogin",
     };
 }

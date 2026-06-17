@@ -58,6 +58,4 @@ public class DoctorUser implements Serializable {
     private String isCancel;
     private String sex;
     private String age;
-    private String imUserId;
-    private String imUserSig;
 }

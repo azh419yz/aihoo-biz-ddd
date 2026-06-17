@@ -16,6 +16,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v2/patientUser")
 @RequiredArgsConstructor
+@Slf4j
 public class PatientUserController {
     private final PatientUserService patientUserService;
 
@@ -39,7 +41,7 @@ public class PatientUserController {
                     )
             )
     )
-    public BizResult<PatientUserApiVo> weChatGetOpenId(@Parameter(name = "code", description = "临时登录凭证", example = "weixincode123456") String code) {
+    public BizResult<PatientUserApiVo> weChatGetOpenId(@Parameter(name = "code", description = "临时登录凭证", example = "weixincode123456") @RequestParam(name = "code", required = true) String code) {
         return BizResult.success(toVo(patientUserService.weChatLogin(code)));
     }
 

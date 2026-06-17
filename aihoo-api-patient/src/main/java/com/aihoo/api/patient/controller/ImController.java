@@ -304,7 +304,7 @@ public class ImController extends BaseController {
 
     @PostMapping("/withdraw")
     @Operation(summary = "撤回消息")
-    public BizResult<Boolean> withdrawMsg(ImWithdrawMsgRequest imWithdrawMsgRequest) {
+    public BizResult<Boolean> withdrawMsg(@RequestBody ImWithdrawMsgRequest imWithdrawMsgRequest) {
         ImWithdrawMsgRequestDto dto = new ImWithdrawMsgRequestDto();
         BeanUtils.copyProperties(imWithdrawMsgRequest, dto);
         return BizResult.success(imMsgService.withdrawMsg(dto));
