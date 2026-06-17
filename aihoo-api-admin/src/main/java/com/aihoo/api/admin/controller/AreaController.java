@@ -1,9 +1,9 @@
 package com.aihoo.api.admin.controller;
 
-
+import com.aihoo.api.admin.vo.AreaVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.sys.model.entity.Area;
-import com.aihoo.domain.sys.model.vo.AreaVo;
+import com.aihoo.domain.sys.dto.AreaDto;
+import com.aihoo.domain.sys.entity.Area;
 import com.aihoo.domain.sys.service.AreaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,102 +11,59 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "Area", description = "运营端-地区相关接口")
 @RestController
 @RequestMapping("/api/v1/area")
 @RequiredArgsConstructor
 public class AreaController {
+
     private final AreaService areaService;
 
     @GetMapping("/l3List")
     @Operation(summary = "省市区三级联动")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, AreaVo.class},
-                            description = "省市区三级联动"
-                    )
-            )
-    )
     public BizResult<List<AreaVo>> l3List() {
-        return BizResult.success(areaService.l3List());
+        return BizResult.success(areaService.l3List().stream().map(this::toVo).collect(Collectors.toList()));
     }
 
     @GetMapping("/l2List")
     @Operation(summary = "省市二级联动")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, AreaVo.class},
-                            description = "省市二级联动"
-                    )
-            )
-    )
     public BizResult<List<AreaVo>> l2List() {
-        return BizResult.success(areaService.l2List());
+        return BizResult.success(areaService.l2List().stream().map(this::toVo).collect(Collectors.toList()));
     }
 
     @GetMapping("/provincesList")
     @Operation(summary = "查询省")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, Area.class},
-                            description = "查询省"
-                    )
-            )
-    )
     public BizResult<List<Area>> provincesList() {
         return BizResult.success(areaService.provincesList());
     }
 
     @GetMapping("/cityList")
     @Operation(summary = "查询市")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, Area.class},
-                            description = "查询市"
-                    )
-            )
-    )
     public BizResult<List<Area>> cityList(@RequestParam String parentAreaCode) {
         return BizResult.success(areaService.cityList(parentAreaCode));
     }
 
     @GetMapping("/districtList")
     @Operation(summary = "查询区/县")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, Area.class},
-                            description = "查询区/县"
-                    )
-            )
-    )
     public BizResult<List<Area>> districtList(@RequestParam String parentAreaCode) {
         return BizResult.success(areaService.districtList(parentAreaCode));
+    }
+
+    private AreaVo toVo(AreaDto dto) {
+        AreaVo vo = new AreaVo();
+        BeanUtils.copyProperties(dto, vo);
+        if (dto.getChildren() != null) {
+            vo.setChildren(dto.getChildren().stream().map(this::toVo).collect(Collectors.toList()));
+        }
+        return vo;
     }
 }

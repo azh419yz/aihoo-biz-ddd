@@ -1,6 +1,6 @@
 package com.aihoo.api.admin.config.security;
 
-import com.aihoo.domain.sys.model.entity.SysUser;
+import com.aihoo.domain.sys.entity.SysUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,8 +11,8 @@ import java.util.stream.Collectors;
 
 public class LoginUser implements UserDetails {
 
-    private SysUser sysUser;
-    private Set<String> permissions;
+    private final SysUser sysUser;
+    private final Set<String> permissions;
 
     public LoginUser(SysUser sysUser, Set<String> permissions) {
         this.sysUser = sysUser;

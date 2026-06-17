@@ -1,215 +1,154 @@
 package com.aihoo.api.admin.controller;
 
-/**
- * Created by xieyc on 2020/8/13.
- */
-
-import com.aihoo.common.BaseController;
-import com.aihoo.common.JsonResult;
+import com.aihoo.api.admin.vo.DictTypeItemVo;
+import com.aihoo.common.BizResult;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.sys.model.entity.Banner;
+import com.aihoo.domain.sys.dto.DictTypeItemDto;
 import com.aihoo.domain.sys.service.BannerService;
-import com.aihoo.enums.BrandTypeEnum;
-import com.aihoo.properties.*;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import jakarta.annotation.Resource;
+import com.aihoo.domain.sys.service.DictService;
+import com.aihoo.properties.AlipayProperties;
+import com.aihoo.properties.CaProperties;
+import com.aihoo.properties.MeiqingProperties;
+import com.aihoo.properties.TencentProperties;
+import com.aihoo.properties.TestProperties;
+import com.aihoo.properties.WechatProperties;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-/**
- * banner管理
- **/
+@Tag(name = "Banner", description = "Banner管理")
 @RestController
 @RequestMapping("/api/v1/banner")
-public class BannerController extends BaseController {
+@RequiredArgsConstructor
+public class BannerController {
 
-    @Resource
-    private BannerService bannerService;
+    private final BannerService bannerService;
+    private final DictService dictService;
 
-    /**
-     * 根据bannerId查询banner详情
-     *
-     * @param map 入参
-     * @return {}
-     */
+    private final AlipayProperties alipayProperties;
+    private final MeiqingProperties meiqingProperties;
+    private final TencentProperties tencentProperties;
+    private final TestProperties testProperties;
+    private final WechatProperties wechatProperties;
+    private final CaProperties caProperties;
+
     @PostMapping("/bannerDetails")
-    public JsonResult getBannerDetails(@RequestBody Map<String, Object> map) {
+    public BizResult<Map<String, Object>> getBannerDetails(@RequestBody Map<String, Object> map) {
         if (map.get("id") == null) {
-            return error("请传id");
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "请传id");
         }
-        try {
-            JSONObject resp = bannerService.getBannerDetails(map.get("id").toString());
-            return JsonResult.ok().put("data", resp);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return JsonResult.error();
-        }
+        Map<String, Object> data = bannerService.getBannerDetails(map.get("id").toString());
+        return BizResult.success(data);
     }
 
-
-    /**
-     * 测试配置参数注入，无用可删除
-     */
-    @Resource
-    private AlipayProperties alipayProperties;
-    @Resource
-    private MeiqingProperties meiqingProperties;
-    @Resource
-    private TencentProperties tencentProperties;
-    @Resource
-    private TestProperties testProperties;
-    @Resource
-    private WechatProperties wechatProperties;
-    @Resource
-    private CaProperties caProperties;
-
     @GetMapping("/test")
-    public void getTest() {
+    public BizResult<Void> getTest() {
         System.out.println(alipayProperties.getAppId());
         System.out.println(meiqingProperties.getAccept());
         System.out.println(tencentProperties.getPrivstr());
         System.out.println(testProperties.getCode());
         System.out.println(wechatProperties.getAppId());
         System.out.println(caProperties.getAppId());
+        return BizResult.success();
     }
 
-    /**
-     * 查询所有的医生姓名和对应id
-     *
-     * @return {}
-     */
     @PostMapping("/findDoctorAll")
-    public JsonResult findDoctorAll() {
-        try {
-            JSONArray jsonArray = bannerService.findDoctorAll();
-            return JsonResult.ok().put("data", jsonArray);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("查询出错");
-        }
+    public BizResult<List<Map<String, Object>>> findDoctorAll() {
+        return BizResult.success(bannerService.findDoctorAll());
     }
 
-    /**
-     * 查询所有的疾病和对应的id
-     *
-     * @return {}
-     */
     @PostMapping("/findDiseaseAll")
-    public JsonResult findDiseaseAll() {
-        try {
-            JSONArray jsonArray = bannerService.findDiseaseAll();
-            return JsonResult.ok().put("data", jsonArray);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("查询出错");
-        }
+    public BizResult<List<Map<String, Object>>> findDiseaseAll() {
+        return BizResult.success(bannerService.findDiseaseAll());
     }
 
-    /**
-     * 查询各种 类型对应的 类型名称  以及对应类型的code 和 name
-     * *
-     *
-     * @return {}
-     */
     @PostMapping("/getDoctorByType")
-    public JsonResult getDoctorType(@RequestBody Map<String, Object> map) {
-        if (null == map.get("type") || "".equals(map.get("type"))) {
-            return error("请填写type");
+    public BizResult<List<DictTypeItemVo>> getDoctorType(@RequestBody Map<String, Object> map) {
+        if (map.get("type") == null || "".equals(map.get("type"))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "请填写type");
         }
-        try {
-            JSONArray jsonArray = bannerService.getDoctorType(map.get("type").toString());
-            return JsonResult.ok().put("data", jsonArray);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return JsonResult.error();
-        }
+        List<DictTypeItemDto> dtos = bannerService.getDoctorType(map.get("type").toString());
+        return BizResult.success(dtos.stream().map(this::toVo).collect(Collectors.toList()));
     }
 
-    /**
-     * banner列表
-     *
-     * @return {}
-     */
     @PostMapping("/list")
-    public PageResult list(@RequestBody Map<String, Object> map) {
-        try {
-            PageResult data = bannerService.bannerList(map);
-            return data;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new PageResult<Banner>("banner列表查询出错");
-        }
+    public BizResult<PageResult<Map<String, Object>>> list(@RequestBody Map<String, Object> map) {
+        return BizResult.success(bannerService.bannerList(map));
     }
 
-    /**
-     * banner标记删除
-     *
-     * @return {}
-     */
     @PostMapping("/delete")
-    public JsonResult delete(@RequestBody Map<String, Object> map) {
-        try {
-            if (null == map.get("id")) {
-                return error("参数bannerId不能为空");
-            }
-            Boolean boo = bannerService.deleteBanner(map.get("id").toString());
-            return boo ? JsonResult.ok() : error("不存在的id" + map.get("id"));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("删除失败");
+    public BizResult<Void> delete(@RequestBody Map<String, Object> map) {
+        if (map.get("id") == null) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "参数bannerId不能为空");
         }
+        Boolean ok = bannerService.deleteBanner(map.get("id").toString());
+        return ok ? BizResult.success() : BizResult.fail(com.aihoo.common.BizResultCode.NOT_FOUND, "不存在的id" + map.get("id"));
     }
 
-    /**
-     * 新增
-     *
-     * @param map 入参
-     * @return {}
-     */
     @PostMapping("/addOrUpdate")
-    public JsonResult add(@RequestBody Map<String, Object> map) {
-        if (null == map.get("bannerType") || "".equals(map.get("bannerType").toString())) {
-            return error("banner为视频类型时，视频不能为空");
+    public BizResult<Void> add(@RequestBody Map<String, Object> map) {
+        if (map.get("bannerType") == null || "".equals(map.get("bannerType").toString())) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "banner为视频类型时，视频不能为空");
         }
         String bannerType = map.get("bannerType").toString();
-        if (bannerType.equals("VIDEO") && (null == map.get("videoUrl") || "".equals(map.get("videoUrl").toString()))) {
-            return error("请选择图片或视频类型");
+        if (bannerType.equals("VIDEO") && (map.get("videoUrl") == null || "".equals(map.get("videoUrl").toString()))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "请选择图片或视频类型");
         }
-        if (null == map.get("img") || "".equals(map.get("img"))) {
-            return error("请上传banner图片");
-        } else if (null == map.get("index")) {
-            return error("请填写序列");
-        } else if (null == map.get("type")) {
-            return error("请选择banner类型");
-        } else if (map.get("type").equals(BrandTypeEnum.DOCKER.getCode()) && StringUtils.isEmpty(map.get("otherId"))) {
-            return error("banner为医生类型时，选择医生不能为空");
-        } else if (map.get("type").equals(BrandTypeEnum.DISEASE.getCode()) && StringUtils.isEmpty(map.get("otherId"))) {
-            return error("banner为疾病类型时，选择疾病不能为空");
-        } else if (map.get("type").equals(BrandTypeEnum.TEXTAREA.getCode()) && (null == map.get("content") || null == map.get("title"))) {
-            return error("banner为富文本类型时，标题或者内容不能为空");
-        } else if (map.get("type").equals(BrandTypeEnum.MDTDOCTOR.getCode()) && (null == map.get("content") || null == map.get("title"))) {
-            return error("banner为会诊医生类型时，标题或者内容不能为空");
-        } else if (map.get("type").equals(BrandTypeEnum.MDTTEAM.getCode()) && (null == map.get("content") || null == map.get("title"))) {
-            return error("banner为会诊团队类型时，标题或者内容不能为空");
+        if (map.get("img") == null || "".equals(map.get("img"))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "请上传banner图片");
         }
-        if (BrandTypeEnum.NONE.getCode().equals(map.get("type").toString()) && !StringUtils.isEmpty(map.get("isTeam"))) {
+        if (map.get("index") == null) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "请填写序列");
+        }
+        if (map.get("type") == null) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "请选择banner类型");
+        }
+        String type = map.get("type").toString();
+        if (type.equals("DOCKER") && StringUtils.isEmpty(map.get("otherId"))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "banner为医生类型时，选择医生不能为空");
+        }
+        if (type.equals("DISEASE") && StringUtils.isEmpty(map.get("otherId"))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "banner为疾病类型时，选择疾病不能为空");
+        }
+        if (type.equals("TEXTAREA") && (map.get("content") == null || map.get("title") == null)) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "banner为富文本类型时，标题或者内容不能为空");
+        }
+        if (type.equals("MDTDOCTOR") && (map.get("content") == null || map.get("title") == null)) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "banner为会诊医生类型时，标题或者内容不能为空");
+        }
+        if (type.equals("MDTTEAM") && (map.get("content") == null || map.get("title") == null)) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "banner为会诊团队类型时，标题或者内容不能为空");
+        }
+        if (type.equals("NONE") && !StringUtils.isEmpty(map.get("isTeam"))) {
             String isTeam = map.get("isTeam").toString();
             if (isTeam.equals("0")) {
-                map.put("type", BrandTypeEnum.MDTDOCTOR.getCode());
+                map.put("type", "MDTDOCTOR");
             } else if (isTeam.equals("1")) {
-                map.put("type", BrandTypeEnum.MDTTEAM.getCode());
+                map.put("type", "MDTTEAM");
             }
         }
-        try {
-            boolean b = bannerService.addBanner(map);
-            return b ? JsonResult.ok() : error("新增失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("操作错误");
-        }
+        boolean ok = bannerService.addBanner(map);
+        return ok ? BizResult.success() : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "新增失败");
+    }
 
+    @PostMapping("/teams")
+    public BizResult<List<Map<String, Object>>> teams(@RequestBody Map<String, Object> map) {
+        return BizResult.success(bannerService.teams(map));
+    }
+
+    private DictTypeItemVo toVo(DictTypeItemDto dto) {
+        DictTypeItemVo vo = new DictTypeItemVo();
+        BeanUtils.copyProperties(dto, vo);
+        return vo;
     }
 }

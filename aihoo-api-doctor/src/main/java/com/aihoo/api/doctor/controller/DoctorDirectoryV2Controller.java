@@ -1,9 +1,10 @@
 package com.aihoo.api.doctor.controller;
 
-import com.aihoo.api.doctor.controller.request.SaveDoctorDirectoryRequest;
+import com.aihoo.api.doctor.request.SaveDoctorDirectoryRequest;
+import com.aihoo.api.doctor.vo.DoctorDirectoryVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.doctor.dto.DoctorDirectoryVo;
-import com.aihoo.domain.doctor.model.entity.DoctorDirectory;
+import com.aihoo.domain.doctor.dto.DoctorDirectoryDto;
+import com.aihoo.domain.doctor.entity.DoctorDirectory;
 import com.aihoo.domain.doctor.service.DoctorDirectoryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,17 +12,14 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
- * <p>
- *
- * </p>
- *
- * @author wyz
- * @since 2026/3/5 16:01
+ * 医生通讯录 controller（迁自 doctor-api: DoctorDirectoryV2Controller）。
  */
 @Tag(name = "doctorDirectory", description = "医生端-通讯录")
 @RestController
@@ -67,7 +65,13 @@ public class DoctorDirectoryV2Controller {
     )
     @Operation(summary = "查询医生通讯录")
     public BizResult<List<DoctorDirectoryVo>> list(String sickName) {
+        List<DoctorDirectoryDto> dtoList = doctorDirectoryService.findDoctorDirectoryList(sickName);
+        return BizResult.success(dtoList.stream().map(this::toVo).collect(Collectors.toList()));
+    }
 
-        return BizResult.success(doctorDirectoryService.findDoctorDirectoryList(sickName));
+    private DoctorDirectoryVo toVo(DoctorDirectoryDto dto) {
+        DoctorDirectoryVo vo = new DoctorDirectoryVo();
+        BeanUtils.copyProperties(dto, vo);
+        return vo;
     }
 }

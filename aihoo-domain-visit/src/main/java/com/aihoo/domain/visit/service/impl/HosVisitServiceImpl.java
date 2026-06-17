@@ -28,8 +28,10 @@ import com.aihoo.domain.patient.service.HosSickHealthRecordsService;
 import com.aihoo.domain.sys.oss.OssComponent;
 import com.aihoo.domain.visit.dto.*;
 import com.aihoo.domain.visit.entity.HosVisit;
+import com.aihoo.domain.visit.entity.HosVisitImg;
 import com.aihoo.domain.visit.entity.HosVisitLog;
 import com.aihoo.domain.visit.entity.Order;
+import com.aihoo.domain.visit.mapper.HosVisitImgMapper;
 import com.aihoo.domain.visit.mapper.HosVisitLogMapper;
 import com.aihoo.domain.visit.mapper.HosVisitMapper;
 import com.aihoo.domain.visit.mapper.HosVisitVoMapper;
@@ -59,6 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,6 +76,8 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     private PatientUserMapper patientUserMapper;
     @Resource
     private HosVisitMapper hosVisitMapper;
+    @Resource
+    private HosVisitImgMapper hosVisitImgMapper;
     @Resource
     private HosVisitVoMapper hosVisitVoMapper;
     @Resource
@@ -518,6 +523,12 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     @Override
+    public Long countByDoctorUserId(String doctorUserId) {
+        return hosVisitMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
+                .eq(HosVisit::getDoctorUserId, doctorUserId));
+    }
+
+    @Override
     public long countHosVisitByPatientUserId(String patientUserId) {
         return hosVisitMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
                 .eq(HosVisit::getPatientUserId, patientUserId));
@@ -653,5 +664,68 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
             ageSuffix = "4";
         }
         return "patient_aihoo/avatar/" + genderPrefix + ageSuffix + ".jpg";
+    }
+
+    @Override
+    public HosOrderDto visitData(String id) {
+        HosOrderDto hosOrder = new HosOrderDto();
+        HosVisit hosVisit;
+        if (id != null && id.startsWith("V")) {
+            hosVisit = hosVisitMapper.selectOne(new LambdaQueryWrapper<HosVisit>()
+                    .eq(HosVisit::getOrderNum, id));
+        } else {
+            hosVisit = hosVisitMapper.selectById(id);
+        }
+        if (hosVisit == null) {
+            return hosOrder;
+        }
+        if (StringUtils.isNotEmpty(hosVisit.getHosSickId())) {
+            HosSickHealthRecords record = hosSickHealthRecordsService.getOne(new LambdaQueryWrapper<HosSickHealthRecords>()
+                    .eq(HosSickHealthRecords::getHosSickId, hosVisit.getHosSickId())
+                    .last("limit 1"));
+            if (record != null) {
+                hosOrder.setAreaCode(record.getArea());
+                hosOrder.setAreaName(record.getAreaName());
+            }
+            hosOrder.setHosSickId(hosVisit.getHosSickId());
+        }
+
+        hosOrder.setDoctorId(hosVisit.getDoctorUserId());
+        hosOrder.setSex(hosVisit.getSex());
+        hosOrder.setAge(hosVisit.getAge());
+        hosOrder.setName(hosVisit.getName());
+        hosOrder.setPayTime(hosVisit.getPayTime());
+        hosOrder.setContent(hosVisit.getContent());
+        hosOrder.setOrderNum(hosVisit.getOrderNum());
+        hosOrder.setCreateTime(hosVisit.getCreateTime());
+        hosOrder.setPatientId(hosVisit.getPatientUserId());
+        hosOrder.setType(hosVisit.getType());
+        hosOrder.setFirstVisit(hosVisit.getFirstVisit());
+        hosOrder.setDoctorAdvice(hosVisit.getDoctorAdvice());
+        hosOrder.setOrderId(hosVisit.getId());
+        if (StringUtils.isNotEmpty(hosVisit.getPatientUserId())) {
+            PatientUser patientUser = patientUserMapper.selectById(hosVisit.getPatientUserId());
+            if (patientUser != null) {
+                hosOrder.setHeadImg(patientUser.getHeadImg());
+            }
+        }
+        List<HosVisitImg> hosVisitImgs = hosVisitImgMapper.selectByHosVisitId(id);
+        List<Object> imgList = new ArrayList<>();
+        for (HosVisitImg hosVisitImg : hosVisitImgs) {
+            imgList.add(hosVisitImg.getImg());
+        }
+        hosOrder.setImgList(imgList);
+
+        String status = hosVisit.getStatus();
+        hosOrder.setStatus(status);
+        hosOrder.setStatusName("在线复诊" + status);
+
+        if ("END".equals(status)) {
+            hosOrder.setEndTime(hosVisit.getEndTime());
+            hosOrder.setFiveStar(StringUtil.isBlank(hosVisit.getFiveStar()) ? "" : hosVisit.getFiveStar());
+        }
+        // countDown：老 doctor-api 用 TBase 取 VISIT_TIMES / DOCTOR_VISIT_TIMES 算倒计时；DDD 阶段简化为空，由 controller 按需补。
+        hosOrder.makeVisitbtnJson();
+        return hosOrder;
     }
 }

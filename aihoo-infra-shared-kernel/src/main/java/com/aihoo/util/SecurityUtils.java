@@ -86,4 +86,20 @@ public class SecurityUtils {
             return null;
         }
     }
+
+    /**
+     * 从 principal（LoginUser 包装或直接 user 对象）提取 password 字段。
+     * 通过反射 getPassword()，避免对具体域实体的硬依赖。
+     */
+    public static String extractPassword(Object principal) {
+        if (principal == null) {
+            return null;
+        }
+        try {
+            Object p = principal.getClass().getMethod("getPassword").invoke(principal);
+            return p == null ? null : p.toString();
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

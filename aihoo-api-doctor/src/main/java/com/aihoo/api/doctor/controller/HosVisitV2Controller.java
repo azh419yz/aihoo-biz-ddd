@@ -1,13 +1,13 @@
 package com.aihoo.api.doctor.controller;
 
 
-import com.aihoo.api.doctor.controller.vo.HosVisitOrderVo;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.common.JsonResult;
-import com.aihoo.domain.visit.dto.HosOrder;
+import com.aihoo.domain.visit.dto.HosOrderDto;
 import com.aihoo.domain.visit.dto.HosVisitBaseInfoVo;
 import com.aihoo.domain.visit.dto.HosVisitHealthInfoVo;
+import com.aihoo.domain.visit.dto.HosVisitOrderVo;
 import com.aihoo.domain.visit.service.HosVisitService;
 import com.alibaba.fastjson2.JSONArray;
 import com.google.common.collect.Maps;
@@ -25,12 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
- * <p>
- * 在线问诊信息表 前端控制器
- * </p>
- *
- * @author updateStatusHavemcp
- * @since 2020-09-18
+ * 医生端-问诊相关接口（迁自 doctor-api: HosVisitV2Controller）。
  */
 @Tag(name = "HosVisitV2", description = "医生端-问诊相关接口")
 @RestController
@@ -40,7 +35,6 @@ import java.util.List;
 public class HosVisitV2Controller {
 
     private final HosVisitService hosVisitService;
-
 
     @GetMapping("/healthInfo")
     @Operation(summary = "获取问诊资料-健康状况")
@@ -76,12 +70,6 @@ public class HosVisitV2Controller {
         return BizResult.success(hosVisitService.getBaseInfo(hosVisitId));
     }
 
-    /**
-     * 医生-》问诊-》详情
-     *
-     * @param id
-     * @return
-     */
     @ResponseBody
     @GetMapping("/visitData")
     @ApiResponse(
@@ -90,7 +78,7 @@ public class HosVisitV2Controller {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {HosOrder.class},
+                            oneOf = {HosOrderDto.class},
                             description = "获取详情"
                     )
             )
@@ -101,17 +89,14 @@ public class HosVisitV2Controller {
             return JsonResult.error("未传入参数id");
         }
         try {
-            HosOrder status = hosVisitService.visitData(id);
+            HosOrderDto status = hosVisitService.visitData(id);
             return JsonResult.ok().put("data", status);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("visitData 异常", e);
             return JsonResult.error();
         }
     }
 
-    /**
-     * 查看患者问诊订单
-     */
     @GetMapping("/visitList")
     @Operation(summary = "查看患者相关问诊订单")
     @ApiResponse(
@@ -128,14 +113,11 @@ public class HosVisitV2Controller {
     public BizResult<List<HosVisitOrderVo>> patientVisitList() {
         try {
             JSONArray hosVisitAndDoctorList = hosVisitService.patientList(Maps.newHashMap());
-
             List<HosVisitOrderVo> hosVisitOrderList = hosVisitAndDoctorList.toList(HosVisitOrderVo.class);
-
             return BizResult.success(hosVisitOrderList);
         } catch (Exception e) {
             log.info("异常:", e);
             return BizResult.fail(BizResultCode.INTERNAL_ERROR);
         }
     }
-
 }

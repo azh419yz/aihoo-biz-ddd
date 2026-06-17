@@ -1,17 +1,16 @@
 package com.aihoo.api.doctor.controller;
 
-import com.aihoo.api.doctor.controller.request.ChuangLanLoginRequest;
-import com.aihoo.api.doctor.controller.vo.ChuangLanLoginVo;
+import com.aihoo.api.doctor.config.properties.ChuanglanProperties;
+import com.aihoo.api.doctor.request.ChuangLanLoginRequest;
+import com.aihoo.api.doctor.util.ChuangLanFlashAuthUtil;
+import com.aihoo.api.doctor.util.CodeUtils;
+import com.aihoo.api.doctor.vo.DoctorUserVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.doctor.dto.DoctorUserVo;
-import com.aihoo.domain.doctor.model.entity.DoctorUser;
+import com.aihoo.domain.doctor.dto.DoctorUserDto;
 import com.aihoo.domain.doctor.service.DoctorUserService;
-import com.aihoo.domain.im.service.ProposalService;
-import com.aihoo.domain.prescription.service.PrescriptionService;
 import com.aihoo.domain.visit.service.HosVisitService;
-import com.aihoo.properties.ChuanglanProperties;
-import com.aihoo.util.ChuangLanFlashAuthUtil;
-import com.aihoo.util.CodeUtils;
+import com.aihoo.domain.visit.service.PrescriptionService;
+import com.aihoo.domain.visit.service.ProposalService;
 import com.alibaba.fastjson2.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -63,7 +62,7 @@ public class ChuangLanController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, ChuangLanLoginVo.class},
+                            oneOf = {BizResult.class, DoctorUserVo.class},
                             description = "返回信息发送相关结果"
                     )
             )
@@ -81,7 +80,7 @@ public class ChuangLanController {
         String appKey = req.getSource().equals("IOS") ?
                 chuanglanProperties.getIos().getAppKey() :
                 chuanglanProperties.getAndroid().getAppKey();
-        Map<String, Object> result = null;
+        Map<String, Object> result;
         if (req.getLoginType().equals(1)) {
             result = ChuangLanFlashAuthUtil.queryMobileApp(req.getToken(), "", "", appId, appKey);
         } else {
@@ -94,26 +93,27 @@ public class ChuangLanController {
             if (!loginResult.getString("code").equals("200000")) {
                 return BizResult.fail(401, "登录失败");
             }
-            DoctorUserVo doctorUser = doctorUserService.loginUser(loginResult.getString("mobile"), servletRequest);
-            return BizResult.success(doctorUser);
+            DoctorUserDto doctorUserDto = doctorUserService.loginUser(loginResult.getString("mobile"), servletRequest);
+            if (doctorUserDto == null) {
+                return BizResult.fail(401, "未找到对应医生账号或账号未通过认证");
+            }
+            return BizResult.success(convert2Vo(doctorUserDto));
         } else {
             return BizResult.fail(500, "创蓝接口请求失败");
         }
     }
 
-    private DoctorUserVo convert2Vo(DoctorUser doctorUser) {
+    private DoctorUserVo convert2Vo(DoctorUserDto doctorUserDto) {
         DoctorUserVo userVo = new DoctorUserVo();
-        BeanUtils.copyProperties(doctorUser, userVo);
+        BeanUtils.copyProperties(doctorUserDto, userVo);
         // 手机号
-        userVo.setMobile(CodeUtils.stringSixMask(doctorUser.getMobile()));
-        // 身份证
-//        doctorUser.setPapersNumbers(CodeUtils.idCardMask(doctorUser.getPapersNumbers()));
+        userVo.setMobile(CodeUtils.stringSixMask(doctorUserDto.getMobile()));
         // 开方数
-        userVo.setPrescriptionCount(prescriptionService.countByDoctorUserId(doctorUser.getId()));
+        userVo.setPrescriptionCount(prescriptionService.countByDoctorUserId(doctorUserDto.getId()));
         // 患者数
-        userVo.setVisitCount(hosVisitService.countByDoctorUserId(doctorUser.getId()));
+        userVo.setVisitCount(hosVisitService.countHostVisitByDoctor(doctorUserDto.getId()));
         // 评价数
-        userVo.setProposalCount(proposalService.countByDoctorUserId(doctorUser.getId()));
+        userVo.setProposalCount(proposalService.countByDoctorUserId(doctorUserDto.getId()));
         return userVo;
     }
 }

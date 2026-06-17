@@ -1,11 +1,13 @@
 package com.aihoo.api.admin.controller;
 
-import com.aihoo.common.BaseController;
-import com.aihoo.common.JsonResult;
-import com.aihoo.domain.sys.model.vo.TBaseVo;
+import com.aihoo.api.admin.vo.TBaseVo;
+import com.aihoo.common.BizResult;
+import com.aihoo.domain.sys.dto.TBaseDto;
 import com.aihoo.domain.sys.service.TBaseService;
 import com.aihoo.util.StringHandler;
-import jakarta.annotation.Resource;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,110 +15,57 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-/**
- * 常用语配置
- */
+@Tag(name = "CommonWords", description = "常用语配置")
 @RestController
 @RequestMapping("/api/v1/commonWords")
-public class CommonWordsController extends BaseController {
+@RequiredArgsConstructor
+public class CommonWordsController {
 
+    private final TBaseService tBaseService;
 
-    @Resource
-    private TBaseService tBaseService;
-
-    /**
-     * 常用语列表
-     *
-     * @param
-     * @return
-     */
     @PostMapping("/page")
-    public JsonResult page() {
-        try {
-            List<TBaseVo> tBaseVos = tBaseService.pageList();
-            return ok().put("data", tBaseVos);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("常用语列表查询失败");
-        }
+    public BizResult<List<TBaseVo>> page() {
+        List<TBaseDto> dtos = tBaseService.pageList();
+        return BizResult.success(dtos.stream().map(this::toVo).collect(Collectors.toList()));
     }
 
-
-    /**
-     * 新增常用语
-     *
-     * @param map 入参
-     * @return {}
-     */
     @PostMapping("/save")
-    public JsonResult save(@RequestBody Map<String, Object> map) {
-        try {
-            if (StringHandler.isEmpty(String.valueOf(map.get("content")))
-                    || StringHandler.isEmpty(String.valueOf(map.get("index")))) {
-                return error("参数不能为空");
-            }
-            boolean save = tBaseService.addCommonWords(map);
-            if (!save) {
-                return error("新增常用语失败");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("新增常用语失败");
+    public BizResult<Void> save(@RequestBody Map<String, Object> map) {
+        if (StringHandler.isEmpty(String.valueOf(map.get("content")))
+                || StringHandler.isEmpty(String.valueOf(map.get("index")))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "参数不能为空");
         }
-        return JsonResult.ok();
+        boolean ok = tBaseService.addCommonWords(map);
+        return ok ? BizResult.success() : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "新增常用语失败");
     }
 
-
-    /**
-     * 更新常用语
-     *
-     * @param map 入参
-     * @return {}
-     */
     @PostMapping("/update")
-    public JsonResult update(@RequestBody Map<String, Object> map) {
-        try {
-            if (StringHandler.isEmpty(String.valueOf(map.get("id")))) {
-                return error("id不能为空");
-            }
-            if (StringHandler.isEmpty(String.valueOf(map.get("content")))
-                    && StringHandler.isEmpty(String.valueOf(map.get("index")))) {
-                return error("参数不能为空");
-            }
-            boolean update = tBaseService.updateCommonWords(map);
-            if (!update) {
-                return error("更新常用语失败");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("更新常用语失败");
+    public BizResult<Void> update(@RequestBody Map<String, Object> map) {
+        if (StringHandler.isEmpty(String.valueOf(map.get("id")))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "id不能为空");
         }
-        return JsonResult.ok();
+        if (StringHandler.isEmpty(String.valueOf(map.get("content")))
+                && StringHandler.isEmpty(String.valueOf(map.get("index")))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "参数不能为空");
+        }
+        boolean ok = tBaseService.updateCommonWords(map);
+        return ok ? BizResult.success() : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "更新常用语失败");
     }
 
-
-    /**
-     * 根据主键删除常用语
-     *
-     * @param map
-     * @return JsonResult
-     */
     @PostMapping("/delete")
-    public JsonResult delete(@RequestBody Map<String, Object> map) {
-        try {
-            if (StringHandler.isEmpty(String.valueOf(map.get("id")))) {
-                return error("id不能为空");
-            }
-            boolean del = tBaseService.removeById(String.valueOf(map.get("id")));
-            if (!del) {
-                return error("删除常用语失败");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("请求出错");
+    public BizResult<Void> delete(@RequestBody Map<String, Object> map) {
+        if (StringHandler.isEmpty(String.valueOf(map.get("id")))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "id不能为空");
         }
-        return JsonResult.ok();
+        boolean ok = tBaseService.removeById(String.valueOf(map.get("id")));
+        return ok ? BizResult.success() : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "删除常用语失败");
     }
 
+    private TBaseVo toVo(TBaseDto dto) {
+        TBaseVo vo = new TBaseVo();
+        BeanUtils.copyProperties(dto, vo);
+        return vo;
+    }
 }

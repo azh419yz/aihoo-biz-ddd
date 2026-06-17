@@ -1,110 +1,66 @@
 package com.aihoo.api.admin.controller;
 
-import com.aihoo.common.BaseController;
-import com.aihoo.common.JsonResult;
+import com.aihoo.common.BizResult;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.sys.model.entity.SysMenu;
+import com.aihoo.domain.sys.entity.SysMenu;
 import com.aihoo.domain.sys.service.SysMenuService;
-import jakarta.annotation.Resource;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/**
- * <p>
- * 权限表 前端控制器
- * </p>
- *
- * @author sunjianbo
- * @since 2019-05-17
- */
+@Tag(name = "SysMenu", description = "菜单管理")
 @RestController
 @RequestMapping("/api/v1/sys/menu")
-public class SysMenuController extends BaseController {
+@RequiredArgsConstructor
+public class SysMenuController {
 
-    @Resource
-    private SysMenuService sysMenuService;
+    private final SysMenuService sysMenuService;
 
-    /**
-     * 查询所有权限
-     **/
     @RequestMapping("/list")
-    public PageResult<SysMenu> list() {
-        try {
-            return sysMenuService.getPage();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new PageResult<>("列表查询出错");
-        }
+    public BizResult<PageResult<SysMenu>> list() {
+        return BizResult.success(sysMenuService.getPage());
     }
 
-    /**
-     * 添加权限
-     */
     @RequestMapping("/add")
-    public JsonResult add(@RequestBody SysMenu authorities) {
-        try {
-            if (null == authorities.getMenuName() || authorities.getMenuName().equals("")) {
-                return error("权限名称必填");
-            }
-            if (null == authorities.getParentId() || authorities.getParentId().equals("")) {
-                return error("父id必传");
-            }
-            if (null == authorities.getIsMenu() || authorities.getIsMenu().equals("")) {
-                return error("权限类型必填");
-            }
-            if (sysMenuService.saveDto(authorities)) {
-                return ok("添加成功");
-            }
-            return error("添加失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("添加失败");
+    public BizResult<Void> add(@RequestBody SysMenu authorities) {
+        if (authorities.getMenuName() == null || authorities.getMenuName().isEmpty()) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "权限名称必填");
         }
+        if (authorities.getParentId() == null || authorities.getParentId().isEmpty()) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "父id必传");
+        }
+        if (authorities.getIsMenu() == null || authorities.getIsMenu().isEmpty()) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "权限类型必填");
+        }
+        return sysMenuService.saveDto(authorities)
+                ? BizResult.success("添加成功")
+                : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "添加失败");
     }
 
-    /**
-     * 修改权限
-     */
     @RequestMapping("/update")
-    public JsonResult update(@RequestBody SysMenu authorities) {
-        try {
-            if (null == authorities.getId()) {
-                return error("id必传");
-            }
-            if (null != authorities.getDeleted()) {
-                authorities.setDeleted("0");
-            }
-            if (sysMenuService.updateByIdDto(authorities)) {
-                return JsonResult.ok("修改成功");
-            }
-            return JsonResult.error("修改失败");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("修改权限出错");
+    public BizResult<Void> update(@RequestBody SysMenu authorities) {
+        if (authorities.getId() == null) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "id必传");
         }
+        if (authorities.getDeleted() != null) {
+            authorities.setDeleted("0");
+        }
+        return sysMenuService.updateByIdDto(authorities)
+                ? BizResult.success("修改成功")
+                : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "修改失败");
     }
 
-    /**
-     * 删除权限
-     */
     @RequestMapping("/delete")
-    public JsonResult delete(@RequestBody Map<String, Object> map) {
-        try {
-            if (null == map.get("id") || "".equals(map.get("id"))) {
-                return error("必须携带id");
-            }
-
-            if (sysMenuService.updateDto(map)) {
-                return ok("删除成功");
-            }
-            return error("删除失败");
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("删除权限出错");
+    public BizResult<Void> delete(@RequestBody Map<String, Object> map) {
+        if (map.get("id") == null || "".equals(map.get("id"))) {
+            return BizResult.fail(com.aihoo.common.BizResultCode.BAD_REQUEST, "必须携带id");
         }
+        return sysMenuService.updateDto(map)
+                ? BizResult.success("删除成功")
+                : BizResult.fail(com.aihoo.common.BizResultCode.OPERATION_FAILED, "删除失败");
     }
 }

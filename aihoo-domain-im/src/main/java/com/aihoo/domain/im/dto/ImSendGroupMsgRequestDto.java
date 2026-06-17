@@ -22,6 +22,7 @@ public class ImSendGroupMsgRequestDto {
     private String cloudCustomData;
     private String visitNo;
     private String suffixMsg;
+    private Integer loadParam;
     private Integer msgType;
 
     @Data

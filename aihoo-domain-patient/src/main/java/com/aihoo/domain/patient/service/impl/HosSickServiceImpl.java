@@ -15,6 +15,9 @@ import com.aihoo.domain.patient.mapper.HosSickMapper;
 import com.aihoo.domain.patient.service.HosSickService;
 import com.aihoo.domain.sys.oss.OssComponent;
 import com.aihoo.domain.visit.entity.HosVisit;
+import com.aihoo.domain.visit.entity.HosRevisit;
+import com.aihoo.domain.visit.mapper.HosRevisitMapper;
+import com.aihoo.domain.visit.mapper.HosVisitMapper;
 import com.aihoo.domain.visit.service.HosPrescriptionService;
 import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.properties.TencentProperties;
@@ -48,6 +51,8 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
     private final HosSickHealthRecordsMapper hosSickHealthRecordsMapper;
     private final HosPrescriptionService hosPrescriptionService;
     private final DoctorUserService doctorUserService;
+    private final HosVisitMapper hosVisitMapper;
+    private final HosRevisitMapper hosRevisitMapper;
 
     public HosSickServiceImpl(AliCloudComponent aliCloudComponent,
                               HosVisitService hosVisitService,
@@ -55,7 +60,9 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
                               TencentProperties tencentProperties,
                               HosSickHealthRecordsMapper hosSickHealthRecordsMapper,
                               HosPrescriptionService hosPrescriptionService,
-                              DoctorUserService doctorUserService) {
+                              DoctorUserService doctorUserService,
+                              HosVisitMapper hosVisitMapper,
+                              HosRevisitMapper hosRevisitMapper) {
         this.aliCloudComponent = aliCloudComponent;
         this.hosVisitService = hosVisitService;
         this.ossComponent = ossComponent;
@@ -63,6 +70,8 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
         this.hosSickHealthRecordsMapper = hosSickHealthRecordsMapper;
         this.hosPrescriptionService = hosPrescriptionService;
         this.doctorUserService = doctorUserService;
+        this.hosVisitMapper = hosVisitMapper;
+        this.hosRevisitMapper = hosRevisitMapper;
     }
 
     public List<HosSickDto> queryHosSickByPatientUserId() {
@@ -109,6 +118,54 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
             });
         }
         return dtos;
+    }
+
+    @Override
+    public List<HosSick> listBySickIds(List<Long> sickIds) {
+        if (sickIds == null || sickIds.isEmpty()) {
+            return List.of();
+        }
+        return baseMapper.selectBatchIds(sickIds);
+    }
+
+    @Override
+    public List<HosSickDto> patientListByDoctorId(String doctorId, String sickName) {
+        if (StringUtil.isBlank(doctorId)) {
+            return List.of();
+        }
+        String likeName = StringUtil.isBlank(sickName) ? "%%" : "%" + sickName + "%";
+
+        // 关联 t_hos_revisit + t_hos_visit 查 distinct sickId
+        List<HosVisit> visitList = hosVisitMapper.selectList(new LambdaQueryWrapper<HosVisit>()
+                .select(HosVisit::getHosSickId)
+                .eq(HosVisit::getDoctorUserId, doctorId));
+        List<HosRevisit> revisitList = hosRevisitMapper.selectList(new LambdaQueryWrapper<HosRevisit>()
+                .select(HosRevisit::getHosSickId)
+                .eq(HosRevisit::getDoctorUserId, doctorId));
+
+        java.util.Set<String> sickIdSet = new java.util.LinkedHashSet<>();
+        visitList.forEach(v -> sickIdSet.add(v.getHosSickId()));
+        revisitList.forEach(r -> sickIdSet.add(r.getHosSickId()));
+
+        if (sickIdSet.isEmpty()) {
+            return List.of();
+        }
+
+        List<HosSick> hosSicks = baseMapper.selectList(new LambdaQueryWrapper<HosSick>()
+                .in(HosSick::getId, sickIdSet)
+                .like(HosSick::getName, likeName)
+                .eq(HosSick::getIsDelete, "0"));
+
+        return hosSicks.stream().map(HosSickDto::fromEntity).toList();
+    }
+
+    @Override
+    public HosSickDto patientMsg(String id) {
+        HosSick hosSick = baseMapper.selectById(id);
+        if (hosSick == null) {
+            return null;
+        }
+        return HosSickDto.fromEntity(hosSick);
     }
 
     @Override

@@ -38,12 +38,13 @@
 
         <!-- 3 个 api 模块。
              - aihoo-api-patient：当前阶段已迁移完整，参与 reactor。
-             - aihoo-api-doctor：依赖旧的 hospital/patient/prescription 等域（与当前 9 域拆分不一致），
-               暂时从 reactor 排除，按 controller 迁移顺序逐个迁完后再纳入。
+             - aihoo-api-doctor：2026-06-17 阶段起按 controller 迁移顺序逐个迁。
+               2026-06-17 已迁 3 个（AreaController/ChatV2Controller/ChuangLanController），其余 11 个待迁（ImController/ImCallbackV2 等仍引用旧域路径）。
+               为不阻塞 reactor，先排除；单独编译用 `mvn -f aihoo-api-doctor/pom.xml clean install`。
              - aihoo-api-admin：AdminApiApplication 启动类待建，先排除。 -->
         <module>aihoo-api-patient</module>
-        <!-- <module>aihoo-api-doctor</module> -->
-        <!-- <module>aihoo-api-admin</module> -->
+        <module>aihoo-api-doctor</module>
+        <module>aihoo-api-admin</module>
     </modules>
 
     <!-- 统一编译插件配置（子模块继续用 spring-boot-starter-parent 作为 parent） -->

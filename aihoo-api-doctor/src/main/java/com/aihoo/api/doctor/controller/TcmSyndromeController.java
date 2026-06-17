@@ -1,10 +1,11 @@
 package com.aihoo.api.doctor.controller;
 
-import com.aihoo.api.doctor.controller.request.TcmSyndromeListReq;
-import com.aihoo.common.BaseController;
+import com.aihoo.api.doctor.request.TcmSyndromeListRequest;
+import com.aihoo.api.doctor.vo.TcmSyndromeVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.sys.dto.TcmSyndromeVo;
-import com.aihoo.domain.sys.service.TcmSyndromeService;
+import com.aihoo.domain.tcm.dto.TcmSyndromeDto;
+import com.aihoo.domain.tcm.dto.TcmSyndromeListRequestDto;
+import com.aihoo.domain.tcm.service.TcmSyndromeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -12,9 +13,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 /**
  * 中医证候管理
@@ -23,7 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v2/syndrome")
 @RequiredArgsConstructor
-public class TcmSyndromeController extends BaseController {
+public class TcmSyndromeController {
 
     private final TcmSyndromeService tcmSyndromeService;
 
@@ -40,7 +44,17 @@ public class TcmSyndromeController extends BaseController {
             )
     )
     @GetMapping("/list")
-    public BizResult<Object> list(@Parameter TcmSyndromeListReq req) {
-        return BizResult.success(tcmSyndromeService.getSyndromeList(req));
+    public BizResult<List<TcmSyndromeVo>> list(@Parameter TcmSyndromeListRequest req) {
+        TcmSyndromeListRequestDto dto = new TcmSyndromeListRequestDto();
+        if (req != null) {
+            BeanUtils.copyProperties(req, dto);
+        }
+        List<TcmSyndromeDto> dtos = tcmSyndromeService.getSyndromeList(dto);
+        List<TcmSyndromeVo> vos = dtos.stream().map(d -> {
+            TcmSyndromeVo vo = new TcmSyndromeVo();
+            BeanUtils.copyProperties(d, vo);
+            return vo;
+        }).toList();
+        return BizResult.success(vos);
     }
 }

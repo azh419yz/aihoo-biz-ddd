@@ -28,6 +28,22 @@ public interface HosSickService extends IService<HosSick> {
     HosSickDto queryHosSickByHosSickId(String hosSickId);
 
     /**
+     * 根据医生 ID 模糊查询该医生看过的就诊人列表（doctor-api: PatientV2Controller.patientList）。
+     * 关联 t_hos_revisit + t_hos_visit 的 doctor_user_id 字段。
+     */
+    List<HosSickDto> patientListByDoctorId(String doctorId, String sickName);
+
+    /**
+     * 就诊人详情（doctor-api: PatientV2Controller.patientMsg；只 4 字段：id/name/sex/age）。
+     */
+    HosSickDto patientMsg(String id);
+
+    /**
+     * 根据就诊人 ID 列表批量查询（doctor-api: DoctorDirectoryV2Controller 通讯录用）。
+     */
+    List<HosSick> listBySickIds(List<Long> sickIds);
+
+    /**
      * 实名认证就诊人（按身份证回填性别、生日）。
      */
     SaveUpdateHosSickDto validateRequest(SaveUpdateHosSickDto request);

@@ -1,6 +1,6 @@
 package com.aihoo.api.doctor.config.security;
 
-import com.aihoo.domain.doctor.model.entity.DoctorUser;
+import com.aihoo.domain.doctor.entity.DoctorUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -35,7 +35,7 @@ public class DoctorLoginUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return doctorUser.getPassword();
+        return "";
     }
 
     @Override

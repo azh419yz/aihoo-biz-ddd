@@ -1,8 +1,9 @@
 package com.aihoo.api.doctor.controller;
 
-import com.aihoo.api.doctor.controller.request.VisitChatRequest;
+import com.aihoo.api.doctor.request.VisitChatRequest;
+import com.aihoo.api.doctor.vo.VisitChatVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.visit.dto.VisitChatVo;
+import com.aihoo.domain.visit.dto.VisitChatDto;
 import com.aihoo.domain.visit.service.ChatService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,7 +40,7 @@ public class ChatV2Controller {
             )
     )
     public BizResult<VisitChatVo> startVisitChat(@Validated @RequestBody VisitChatRequest request) {
-        return BizResult.success(chatService.startVisitChatV2(request.getId()));
+        return BizResult.success(toVo(chatService.startVisitChatV2(request.getId())));
     }
 
     @PostMapping("/stopVistChat")
@@ -55,7 +57,7 @@ public class ChatV2Controller {
             )
     )
     public BizResult<VisitChatVo> stopVisitChat(@Validated @RequestBody VisitChatRequest request) {
-        return BizResult.success(chatService.stopVisitChatV2(request.getId()));
+        return BizResult.success(toVo(chatService.stopVisitChatV2(request.getId())));
     }
 
     @PostMapping("/startRevisitChat")
@@ -72,7 +74,7 @@ public class ChatV2Controller {
             )
     )
     public BizResult<VisitChatVo> startRevisitChat(@Validated @RequestBody VisitChatRequest request) {
-        return BizResult.success(chatService.startRevisitChatV2(request.getId()));
+        return BizResult.success(toVo(chatService.startRevisitChatV2(request.getId())));
     }
 
     @PostMapping("/stopRevisitChat")
@@ -89,7 +91,12 @@ public class ChatV2Controller {
             )
     )
     public BizResult<VisitChatVo> stopRevisitChat(@Validated @RequestBody VisitChatRequest request) {
-        return BizResult.success(chatService.stopRevisitChatV2(request.getId()));
+        return BizResult.success(toVo(chatService.stopRevisitChatV2(request.getId())));
     }
 
+    private VisitChatVo toVo(VisitChatDto dto) {
+        VisitChatVo vo = new VisitChatVo();
+        BeanUtils.copyProperties(dto, vo);
+        return vo;
+    }
 }

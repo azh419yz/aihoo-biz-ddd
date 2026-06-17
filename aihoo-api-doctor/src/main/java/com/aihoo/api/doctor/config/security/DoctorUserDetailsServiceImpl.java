@@ -1,7 +1,8 @@
 package com.aihoo.api.doctor.config.security;
 
-import com.aihoo.domain.doctor.model.entity.DoctorUser;
-import com.aihoo.domain.doctor.model.mapper.DoctorUserMapper;
+import com.aihoo.domain.doctor.entity.DoctorUser;
+import com.aihoo.domain.doctor.mapper.DoctorUserMapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -28,10 +29,12 @@ public class DoctorUserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        DoctorUser user = doctorUserMapper.selectByMobile(username);
+        DoctorUser user = doctorUserMapper.selectByMobile(
+                new LambdaQueryWrapper<DoctorUser>().eq(DoctorUser::getMobile, username));
         if (user == null) {
             throw new UsernameNotFoundException("Doctor not found with mobile: " + username);
         }
         return new DoctorLoginUser(user, new HashSet<>());
     }
 }
+

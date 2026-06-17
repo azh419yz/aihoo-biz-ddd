@@ -18,7 +18,8 @@ import org.springframework.context.annotation.ComponentScan;
         "com.aihoo.security",
         "com.aihoo.constant", "com.aihoo.oss",
         "com.aihoo.wechat",
-        "com.aihoo.push"
+        "com.aihoo.push",
+        "com.aihoo.alicloud"
 })
 public class AdminApiApplication {
 

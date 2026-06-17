@@ -17,7 +17,7 @@ import io.swagger.v3.oas.annotations.servers.Server;
  * @author: sunjianbo
  * @date: 2019/7/23 9:58
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.aihoo.api.doctor", "com.aihoo.domain", "com.aihoo"})
 @MapperScan(basePackages = {"com.aihoo.domain.*.mapper", "com.aihoo.push"})
 @ComponentScan(basePackages = {
         "com.aihoo.api.doctor",
@@ -30,7 +30,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
         "com.aihoo.security",
         "com.aihoo.constant", "com.aihoo.oss",
         "com.aihoo.wechat",
-        "com.aihoo.push"
+        "com.aihoo.push",
+        "com.aihoo.alicloud"
 })
 @SecurityScheme(name = "accessToken", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER)
 @OpenAPIDefinition(

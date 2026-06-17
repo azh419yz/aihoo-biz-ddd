@@ -8,7 +8,7 @@ import com.aihoo.redis.RedisConstant;
 import com.aihoo.redis.RedisService;
 import com.aihoo.security.AuthUtil;
 import com.aihoo.security.LoginUser;
-import com.aihoo.domain.doctor.model.entity.DoctorUser;
+import com.aihoo.domain.doctor.entity.DoctorUser;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -1,6 +1,7 @@
 package com.aihoo.domain.visit.service;
 
 import com.aihoo.domain.visit.dto.ConfirmedPrescriptionDto;
+import com.aihoo.domain.visit.dto.HosPrescriptionInnerDto;
 import com.aihoo.domain.visit.dto.PrescriptionSelectDto;
 import com.aihoo.domain.visit.dto.RecentPreDto;
 import com.aihoo.domain.visit.entity.HosPrescription;
@@ -33,4 +34,10 @@ public interface HosPrescriptionService extends IService<HosPrescription> {
      * 确认处方（patient-api: HosPrescriptionV2Controller.confirmed）。
      */
     Boolean confirmed(ConfirmedPrescriptionDto req);
+
+    /**
+     * 内部 API：处方笺聚合查询（admin InnerController.prescription）。
+     * 跨域：doctor 域 DoctorUserService + order 域 MdtOrderService（Rule H 授权）。
+     */
+    HosPrescriptionInnerDto getPrescriptionInnerVo(String id);
 }

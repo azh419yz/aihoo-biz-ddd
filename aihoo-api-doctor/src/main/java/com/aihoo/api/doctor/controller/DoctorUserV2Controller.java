@@ -1,17 +1,21 @@
 package com.aihoo.api.doctor.controller;
 
-
-import com.aihoo.api.doctor.controller.request.PhoneCodeRequest;
-import com.aihoo.api.doctor.controller.request.PhoneRequest;
+import com.aihoo.api.doctor.request.PhoneCodeRequest;
+import com.aihoo.api.doctor.request.PhoneRequest;
+import com.aihoo.api.doctor.util.CodeUtils;
+import com.aihoo.api.doctor.vo.DoctorUserVo;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
-import com.aihoo.domain.doctor.dto.DoctorUserVo;
+import com.aihoo.domain.doctor.dto.DoctorUserDto;
 import com.aihoo.domain.doctor.dto.DoctorVisitSetRequest;
 import com.aihoo.domain.doctor.dto.DoctorWelcomeMessageRequest;
-import com.aihoo.domain.doctor.model.entity.DoctorUser;
-import com.aihoo.domain.doctor.model.entity.DoctorVisitSet;
-import com.aihoo.domain.doctor.model.entity.DoctorWelcomeMessageSet;
+import com.aihoo.domain.doctor.entity.DoctorUser;
+import com.aihoo.domain.doctor.entity.DoctorVisitSet;
+import com.aihoo.domain.doctor.entity.DoctorWelcomeMessageSet;
 import com.aihoo.domain.doctor.service.DoctorUserService;
+import com.aihoo.domain.visit.service.HosVisitService;
+import com.aihoo.domain.visit.service.PrescriptionService;
+import com.aihoo.domain.visit.service.ProposalService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -20,14 +24,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * <p>
- * 医生用户表 前端控制器
- * </p>
- *
- * @since 2020-09-15
+ * 医生用户表 controller（迁自 doctor-api: DoctorUserV2Controller）。
  */
 @Tag(name = "DoctorUserV2", description = "医生端-医生相关接口")
 @RestController
@@ -36,7 +37,9 @@ import org.springframework.web.bind.annotation.*;
 public class DoctorUserV2Controller {
 
     private final DoctorUserService doctorUserService;
-
+    private final PrescriptionService prescriptionService;
+    private final HosVisitService hosVisitService;
+    private final ProposalService proposalService;
 
     @PostMapping("/sendCode")
     @Operation(summary = "获取验证码")
@@ -52,8 +55,6 @@ public class DoctorUserV2Controller {
             )
     )
     public BizResult<Void> sendCode(@Valid @RequestBody PhoneRequest request) {
-
-        //数据库中查询不到相对应的手机号码
         DoctorUser doctorUser = doctorUserService.selectMobile(request.getMobile());
         if (null == doctorUser) {
             return BizResult.fail(BizResultCode.DOCTOR_MOBILE_NOT_BOUND);
@@ -72,7 +73,6 @@ public class DoctorUserV2Controller {
         }
     }
 
-
     @PostMapping("/phoneLogin")
     @Operation(summary = "手机验证码登录")
     @ApiResponse(
@@ -87,7 +87,8 @@ public class DoctorUserV2Controller {
             )
     )
     public BizResult<DoctorUserVo> login(@Valid @RequestBody PhoneCodeRequest request, HttpServletRequest servletRequest) {
-        return BizResult.success(doctorUserService.phoneLogin(request.getMobile(), request.getCode(), servletRequest));
+        DoctorUserDto dto = doctorUserService.phoneLogin(request.getMobile(), request.getCode(), servletRequest);
+        return BizResult.success(convert2Vo(dto));
     }
 
     @GetMapping("/set")
@@ -172,6 +173,20 @@ public class DoctorUserV2Controller {
             )
     )
     public BizResult<DoctorUserVo> detail(@PathVariable String id) {
-        return BizResult.success(doctorUserService.detail(id));
+        DoctorUserDto dto = doctorUserService.detail(id);
+        return BizResult.success(convert2Vo(dto));
+    }
+
+    private DoctorUserVo convert2Vo(DoctorUserDto dto) {
+        if (dto == null) {
+            return null;
+        }
+        DoctorUserVo vo = new DoctorUserVo();
+        BeanUtils.copyProperties(dto, vo);
+        vo.setMobile(CodeUtils.stringSixMask(dto.getMobile()));
+        vo.setPrescriptionCount(prescriptionService.countByDoctorUserId(dto.getId()));
+        vo.setVisitCount(hosVisitService.countByDoctorUserId(dto.getId()));
+        vo.setProposalCount(proposalService.countByDoctorUserId(dto.getId()));
+        return vo;
     }
 }

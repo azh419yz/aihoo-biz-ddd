@@ -29,6 +29,10 @@ public class Drug implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private String id;
 
+    @Schema(description = "药房ID")
+    @TableField("drugstore_id")
+    private String drugstoreId;
+
     @Schema(description = "创建时间")
     @TableField("create_time")
     private String createTime;
@@ -48,6 +52,14 @@ public class Drug implements Serializable {
     @Schema(description = "药品规格")
     @TableField("size")
     private String size;
+
+    @Schema(description = "煎药方式")
+    @TableField("method")
+    private String method;
+
+    @Schema(description = "拼音首字母")
+    @TableField("pinyin_initial")
+    private String pinyinInitial;
 
     @Schema(description = "药品剂型编码 d_dict type=DRUG_DOS")
     @TableField("drug_dos_code")

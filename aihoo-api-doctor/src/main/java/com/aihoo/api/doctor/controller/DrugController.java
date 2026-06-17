@@ -1,13 +1,15 @@
 package com.aihoo.api.doctor.controller;
 
 
+import com.aihoo.api.doctor.request.SearchDrugRequest;
+import com.aihoo.api.doctor.vo.DrugVo;
 import com.aihoo.common.BaseController;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.hospital.dto.SearchDrugRequest;
-import com.aihoo.domain.hospital.model.entity.Drug;
-import com.aihoo.domain.hospital.service.DrugService;
+import com.aihoo.domain.drug.dto.SearchDrugRequestDto;
+import com.aihoo.domain.drug.entity.Drug;
+import com.aihoo.domain.drug.service.DrugService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,12 +17,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- * 处方药品管理
+ * 处方药品管理（迁自 doctor-api: DrugController）。
  */
 @Tag(name = "Drug", description = "医生端-药品相关接口")
 @RestController
@@ -30,13 +36,6 @@ public class DrugController extends BaseController {
 
     private final DrugService drugService;
 
-    /**
-     * 药品管理多条件分页查询
-     *
-     * @param pageParam 分页参数
-     * @param request   入参
-     * @return {}
-     */
     @Operation(summary = "药品列表")
     @ApiResponse(
             responseCode = "200",
@@ -50,9 +49,22 @@ public class DrugController extends BaseController {
             )
     )
     @GetMapping("/list")
-    public BizResult<Object> list(@ParameterObject PageParam<Drug> pageParam,
-                                  @ParameterObject SearchDrugRequest request) {
-        return BizResult.success(drugService.getPage(pageParam, request));
+    public BizResult<PageResult<DrugVo>> list(@ParameterObject PageParam<Drug> pageParam,
+                                              @ParameterObject SearchDrugRequest request) {
+        SearchDrugRequestDto dto = new SearchDrugRequestDto();
+        BeanUtils.copyProperties(request, dto);
+        PageResult<Drug> drugPage = drugService.getPage(pageParam, dto);
+        PageResult<DrugVo> voPage = new PageResult<>();
+        if (drugPage.getData() != null) {
+            List<DrugVo> voList = new ArrayList<>();
+            for (Drug drug : drugPage.getData()) {
+                DrugVo vo = new DrugVo();
+                BeanUtils.copyProperties(drug, vo);
+                voList.add(vo);
+            }
+            voPage.setData(voList);
+        }
+        voPage.setCount(drugPage.getCount());
+        return BizResult.success(voPage);
     }
-
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aihoo.domain.sys.mapper.DictMapper">
+    <select id="selectByType" resultType="java.util.Map">
+        SELECT code, name
+        FROM d_dict
+        WHERE type = #{type,jdbcType=VARCHAR}
+        order by `index`
+    </select>
+    <select id="selectByCode" resultType="com.aihoo.domain.sys.entity.Dict">
+        SELECT id, type, type_name, code, name
+        FROM d_dict
+        WHERE type = #{type,jdbcType=VARCHAR} and code = #{code,jdbcType=VARCHAR}
+        order by `index`
+    </select>
+</mapper>

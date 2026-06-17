@@ -8,7 +8,7 @@ spring:
         options:
           model: qwen-plus
   datasource:
-    url: jdbc:mysql://${MYSQL_HOST:rm-0jl09152g38e79d32.mysql.rds.aliyuncs.com}:3306/heoudb?useUnicode=true&characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://${MYSQL_HOST:rm-0jl09152g38e79d321o.mysql.rds.aliyuncs.com}:3306/heoudb?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: ${MYSQL_USERNAME:hoouser}
     password: ${MYSQL_PASSWORD:}
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -2,6 +2,7 @@ package com.aihoo.domain.visit.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import com.aihoo.common.BizResultCode;
 import com.aihoo.domain.drug.entity.Drugstore;
 import com.aihoo.domain.drug.service.DrugstoreService;
 import com.aihoo.domain.logistics.service.SFService;
@@ -15,6 +16,7 @@ import com.aihoo.domain.visit.service.HosPrescriptionDrugService;
 import com.aihoo.domain.visit.service.HosPrescriptionService;
 import com.aihoo.domain.visit.service.PrescriptionFeeService;
 import com.aihoo.domain.visit.service.PrescriptionInstructionService;
+import com.aihoo.exception.BizException;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -145,5 +147,47 @@ public class HosPrescriptionServiceImpl extends ServiceImpl<HosPrescriptionMappe
         prescription.setStatus("WAIT");
         prescription.setConfirmedStatus(1);
         return updateById(prescription);
+    }
+
+    @Override
+    public HosPrescriptionInnerDto getPrescriptionInnerVo(String id) {
+        HosPrescription prescription = getById(id);
+        if (prescription == null) {
+            throw new BizException(BizResultCode.DATA_NOT_FOUND);
+        }
+        HosPrescriptionInnerDto vo = new HosPrescriptionInnerDto();
+        BeanUtils.copyProperties(prescription, vo);
+        vo.setDiseaseSyndrome(prescription.getDisease() + "; " + prescription.getSyndrome());
+        vo.setSex("1".equals(prescription.getSex()) ? "男" : "女");
+
+        HosPrescriptionInstruction instruction = prescriptionInstructionService.getOne(
+                new LambdaQueryWrapper<HosPrescriptionInstruction>()
+                        .eq(HosPrescriptionInstruction::getHosPrescriptionId, prescription.getId()));
+        if (instruction != null) {
+            vo.setAdvice(instruction.getAdvice());
+            if (prescription.getMedicineStatusCode() != null) {
+                vo.setMedicineStatusCode(prescription.getMedicineStatusCode());
+            }
+            String method = "共%s剂，每日%s剂，分%s次服用";
+            vo.setMethod(String.format(method,
+                    instruction.getDoseNumber(), instruction.getDose(), instruction.getTimes()));
+        }
+
+        List<HosPrescriptionDrug> drugList = hosPrescriptionDrugService.list(
+                new LambdaQueryWrapper<HosPrescriptionDrug>()
+                        .eq(HosPrescriptionDrug::getHosPrescriptionId, prescription.getId()));
+        vo.setDrugVoList(drugList.stream().map(d -> {
+            PrescriptionDrugInnerDto item = new PrescriptionDrugInnerDto();
+            item.setName(d.getName());
+            item.setNumber(d.getNumber());
+            return item;
+        }).toList());
+
+        Drugstore drugstore = drugstoreService.getById(prescription.getDrugstoreId());
+        if (drugstore != null) {
+            vo.setDrugstoreName(drugstore.getName());
+        }
+
+        return vo;
     }
 }

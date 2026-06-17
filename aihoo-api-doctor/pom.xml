@@ -32,7 +32,54 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- domain 层（暂时移除，按 controller 实际引用按需添加） -->
+        <!-- doctor 域（DoctorUserV2Controller / ChuangLanController 引用 DoctorUserService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-doctor</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- visit 域（ChatV2Controller 引用 ChatService；ChuangLanController 引用 HosVisitService/PrescriptionService/ProposalService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-visit</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- im 域（ChatService 依赖 ImService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-im</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- sys 域（AreaController 引用 AreaService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-sys</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- drug 域（DrugstoreController 引用 DrugstoreService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-drug</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- patient 域（HosSickV2Controller 引用 HosSickService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-patient</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- tcm 域（TcmDiseaseController/TcmSyndromeController 引用 TcmDiseaseService/TcmSyndromeService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-tcm</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
 
         <!-- MySQL -->
         <dependency>

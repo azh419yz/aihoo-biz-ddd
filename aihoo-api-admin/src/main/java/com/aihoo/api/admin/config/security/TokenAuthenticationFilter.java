@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.aihoo.domain.sys.model.entity.SysUser;
+import com.aihoo.domain.sys.entity.SysUser;
 import com.aihoo.util.JSONUtil;
 import com.aihoo.util.StringUtil;
 import com.aihoo.common.BizResult;
