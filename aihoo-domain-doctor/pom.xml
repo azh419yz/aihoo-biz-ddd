@@ -39,20 +39,6 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- patient 域（doctor 域 DoctorDirectoryServiceImpl 需要查 HosSick） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-patient</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- visit 域（DoctorUserServiceImpl 需要 HosVisitService 等） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-visit</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
         <!-- Lombok（sk 没把它设为 provided 传递，domain 自己声明） -->
         <dependency>
             <groupId>org.projectlombok</groupId>

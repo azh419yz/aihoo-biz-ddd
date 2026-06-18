@@ -31,27 +31,6 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- visit 域（HosVisitService，ImController 跨域） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-visit</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- doctor 域（DoctorUserService，ImController 跨域） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-doctor</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- patient 域（PatientUserService，ImController 跨域） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-patient</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

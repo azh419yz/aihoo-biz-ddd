@@ -100,7 +100,7 @@ public class ImController extends BaseController {
             ImSendMsgRespVo imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
             return BizResult.success(imResponse);
         } catch (Exception e) {
-            log.error(ImServiceApiEnum.SEND_MSG.getApiName() + "接口出错", e);
+            log.error("{}接口出错", ImServiceApiEnum.SEND_MSG.getApiName(), e);
             return BizResult.fail(BizResultCode.INTERNAL_ERROR, ImServiceApiEnum.SEND_MSG.getApiName() + "接口出错");
         }
     }

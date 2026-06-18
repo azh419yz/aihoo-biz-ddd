@@ -4,15 +4,9 @@ import cn.hutool.core.util.RandomUtil;
 import com.aihoo.alicloud.AliCloudComponent;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.constant.ImUserPrefix;
-import com.aihoo.domain.order.service.MdtOrderService;
-import com.aihoo.domain.patient.dto.PatientUserVo;
 import com.aihoo.domain.patient.entity.PatientUser;
-import com.aihoo.domain.patient.entity.PatientUserLog;
-import com.aihoo.domain.patient.mapper.PatientUserLogMapper;
 import com.aihoo.domain.patient.mapper.PatientUserMapper;
-import com.aihoo.domain.patient.service.HosSickService;
 import com.aihoo.domain.patient.service.PatientUserService;
-import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.exception.BizException;
 import com.aihoo.properties.TencentProperties;
 import com.aihoo.redis.RedisConstant;
@@ -30,7 +24,6 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,16 +35,15 @@ import java.util.UUID;
 /**
  * 患者用户 service 实现（迁自 patient-api 的 PatientUserServiceImpl，
  * 仅保留 api-patient controller 实际调用的方法）。
+ *
+ * <p>2026-06-18 拆解循环依赖：移除 {@code MdtOrderService}（order 域）和 {@code HosVisitService}（visit 域）注入，
+ * weChatLogin/queryPatientUserById/allowPrivacyPolicy 不再聚合 orderCount/hosSickCount/visitCount，返回 PatientUser entity，
+ * 由 api-patient PatientUserController 在 controller 层做多域计数聚合。
  */
 @Service
 @RequiredArgsConstructor
 public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, PatientUser> implements PatientUserService {
 
-    private final PatientUserMapper patientUserMapper;
-    private final PatientUserLogMapper patientUserLogMapper;
-    private final MdtOrderService mdtOrderService;
-    private final HosSickService hosSickService;
-    private final HosVisitService hosVisitService;
     private final RedisService redisService;
     private final WeChatComponent weChatComponent;
     private final AliCloudComponent aliCloudComponent;
@@ -61,7 +53,7 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
     private HttpServletRequest request;
 
     @Override
-    public PatientUserVo weChatLogin(String code) {
+    public PatientUser weChatLogin(String code) {
         String openid = "", sessionKey = "", oldToken = "";
         //TODO: 模拟登录
         if ("1234".equals(code)) {
@@ -78,7 +70,7 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
 
         PatientUser patientUser = null;
         if (Objects.nonNull(openid) && !openid.isBlank()) {
-            patientUser = patientUserMapper.selectOne(new LambdaQueryWrapper<PatientUser>()
+            patientUser = baseMapper.selectOne(new LambdaQueryWrapper<PatientUser>()
                     .eq(PatientUser::getWechatOpenId, openid));
         }
         if (Objects.isNull(patientUser)) {
@@ -86,25 +78,25 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
             patientUser.setWechatOpenId(openid);
             patientUser.setSessionKey(sessionKey);
             patientUser.setToken(accessToken);
-            patientUserMapper.insert(patientUser);
+            baseMapper.insert(patientUser);
             String imUserId = String.format(ImUserPrefix.USER_ID_FORMAT, ImUserPrefix.PATIENT, patientUser.getId());
             String imUserSig = ImUtils.genUserSig(imUserId, null, tencentProperties.getSdkappid(), tencentProperties.getPrivstr());
             patientUser.setImUserId(imUserId);
             patientUser.setImUserSig(imUserSig);
-            patientUserMapper.updateById(patientUser);
+            baseMapper.updateById(patientUser);
         } else {
             oldToken = Objects.nonNull(patientUser.getToken()) && !patientUser.getToken().isBlank() ? patientUser.getToken() : "";
             LambdaUpdateWrapper<PatientUser> updateWrapper = new LambdaUpdateWrapper<>();
             updateWrapper.set(PatientUser::getToken, accessToken);
             updateWrapper.set(PatientUser::getSessionKey, sessionKey);
             updateWrapper.eq(PatientUser::getId, patientUser.getId());
-            patientUserMapper.update(updateWrapper);
+            baseMapper.update(updateWrapper);
         }
 
-        patientUser = patientUserMapper.selectById(patientUser.getId());
+        patientUser = baseMapper.selectById(patientUser.getId());
         redisSetToken(oldToken, redisKey, patientUser, StringUtils.isNotEmpty(oldToken));
 
-        return toPatientUserVo(patientUser);
+        return patientUser;
     }
 
     //缓存token
@@ -123,24 +115,19 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
         clearWrapper.ne(PatientUser::getId, userId);
         clearWrapper.eq(PatientUser::getMobile, mobile);
         clearWrapper.set(PatientUser::getMobile, null);
-        patientUserMapper.update(clearWrapper);
+        baseMapper.update(clearWrapper);
 
         // 修改当前用户的手机号
         LambdaUpdateWrapper<PatientUser> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(PatientUser::getId, userId);
         wrapper.set(PatientUser::getMobile, mobile);
-        patientUserMapper.update(wrapper);
+        baseMapper.update(wrapper);
 
-        PatientUser loginUser = patientUserMapper.selectById(userId);
+        PatientUser loginUser = baseMapper.selectById(userId);
         if (loginUser != null && loginUser.getToken() != null) {
             String redisKey = RedisConstant.PATIENT_LOGIN_KEY + loginUser.getToken();
             redisService.set(redisKey, loginUser, RedisConstant.TOKEN_SURVIVE_TIME);
         }
-
-        PatientUserLog userLog = new PatientUserLog();
-        userLog.setActionType("BIND");
-        userLog.setPatientUserId(userId);
-        patientUserLogMapper.insert(userLog);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -160,10 +147,9 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
     }
 
     @Override
-    public PatientUserVo queryPatientUserById() {
+    public PatientUser queryPatientUserById() {
         String userId = AuthUtil.getLoginUserId();
-        PatientUser patientUser = patientUserMapper.selectById(userId);
-        return toPatientUserVo(patientUser);
+        return baseMapper.selectById(userId);
     }
 
     @Override
@@ -184,7 +170,7 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
         LambdaQueryWrapper<PatientUser> queryWrapper = new LambdaQueryWrapper<PatientUser>()
                 .eq(PatientUser::getMobile, mobile)
                 .ne(PatientUser::getId, loginUserId);
-        return patientUserMapper.selectCount(queryWrapper) == 0;
+        return baseMapper.selectCount(queryWrapper) == 0;
     }
 
     @Override
@@ -221,29 +207,13 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
     }
 
     @Override
-    public PatientUserVo allowPrivacyPolicy() {
+    public PatientUser allowPrivacyPolicy() {
         String userId = AuthUtil.getLoginUserId();
         LambdaUpdateWrapper<PatientUser> updateWrapper = new LambdaUpdateWrapper<PatientUser>()
                 .eq(PatientUser::getId, userId)
                 .set(PatientUser::getIsAuth, "PASS");
-        patientUserMapper.update(updateWrapper);
+        baseMapper.update(updateWrapper);
 
-        PatientUser patientUser = patientUserMapper.selectById(userId);
-        PatientUserVo vo = toPatientUserVo(patientUser);
-        vo.setAllowPrivacyPolicy(Boolean.TRUE);
-        return vo;
-    }
-
-    private PatientUserVo toPatientUserVo(PatientUser patientUser) {
-        if (patientUser == null) {
-            return null;
-        }
-        PatientUserVo vo = new PatientUserVo();
-        BeanUtils.copyProperties(patientUser, vo);
-        vo.setOrderCount(mdtOrderService.countOrderByPatientUserId(patientUser.getId()));
-        vo.setHosSickCount(hosSickService.countHosSickByPatientUserId(patientUser.getId()));
-        vo.setVisitCount(hosVisitService.countHosVisitByPatientUserId(patientUser.getId()));
-        vo.setAllowPrivacyPolicy("PASS".equals(patientUser.getIsAuth()));
-        return vo;
+        return baseMapper.selectById(userId);
     }
 }

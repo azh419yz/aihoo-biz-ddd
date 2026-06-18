@@ -1,8 +1,9 @@
 package com.aihoo.domain.im.service.impl;
 
+import cn.hutool.http.HttpRequest;
+import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
 import com.aihoo.domain.im.dto.ImSendMsgRequest;
 import com.aihoo.domain.im.dto.ImSendMsgRespVo;
-import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
 import com.aihoo.domain.im.dto.ImWithdrawMsgRequestDto;
 import com.aihoo.domain.im.entity.ImMsg;
 import com.aihoo.domain.im.entity.ImMsgContent;
@@ -18,9 +19,7 @@ import com.aihoo.util.ImUtils;
 import com.aihoo.util.UUIDUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import cn.hutool.http.HttpRequest;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.PropertyPlaceholderHelper;
@@ -55,8 +54,11 @@ public abstract class AbstractImService implements ImService {
         props.putAll((JSONObject) JSON.toJSON(imSendMsgRequest));
         String payload = buildPayLoad(api, props);
 
-        String result = HttpRequest.post(host).header("Content-Type", "application/json; charset=UTF-8").body(payload)
-                .execute().body();
+        String result = HttpRequest.post(host)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(payload)
+                .execute()
+                .body();
 
         log.info("\n\n{}\n{}\n{}\n\n", host, payload, result);
         ImSendMsgRespVo imSendMsgResponse = buildResponse(result);

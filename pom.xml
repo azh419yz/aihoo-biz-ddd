@@ -25,16 +25,18 @@
         <!-- 9 个 domain 模块 -->
         <module>aihoo-domain-sys</module>
         <module>aihoo-domain-doctor</module>
-        <!-- aihoo-domain-patient 与 aihoo-domain-visit 互相依赖（reactor 不允许循环），
+        <module>aihoo-domain-patient</module>
+        <!-- aihoo-domain-visit 与 aihoo-domain-im 互相依赖（reactor 不允许循环），
              临时从 reactor 排除，仍可通过 `mvn -f 子模块/pom.xml install` 单独构建。
+             历史：2026-06-17 patient 与 visit 也形成循环；2026-06-18 patient 域退出 visit/doctor/order 后断开。
              后续需要单独 install 它们或在 CI 加 -pl 排除步骤。 -->
-        <!-- <module>aihoo-domain-patient</module> -->
         <!-- <module>aihoo-domain-visit</module> -->
         <module>aihoo-domain-drug</module>
         <module>aihoo-domain-payment</module>
         <module>aihoo-domain-order</module>
-        <module>aihoo-domain-im</module>
+        <!-- <module>aihoo-domain-im</module> -->
         <module>aihoo-domain-logistics</module>
+        <module>aihoo-domain-tcm</module>
 
         <!-- 3 个 api 模块。
              - aihoo-api-patient：当前阶段已迁移完整，参与 reactor。

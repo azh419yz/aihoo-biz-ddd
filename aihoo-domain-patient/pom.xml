@@ -38,30 +38,6 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- visit 域（HosVisitService/HosPrescriptionService 调用）。
-             与 visit 域存在循环依赖（visit→patient 通过 HosVisitServiceImpl）。
-             标记 optional=true 让 reactor 不建立 build order；api 模块仍显式声明 visit 域。 -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-visit</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-            <optional>true</optional>
-        </dependency>
-
-        <!-- doctor 域（DoctorUserService 调用） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-doctor</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- order 域（MdtOrderService 调用，用于统计订单数） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-order</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>

@@ -6,8 +6,11 @@ import com.aihoo.api.patient.request.WeChatPhoneRequest;
 import com.aihoo.api.patient.vo.PatientUserApiVo;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
-import com.aihoo.domain.patient.dto.PatientUserVo;
+import com.aihoo.domain.order.service.MdtOrderService;
+import com.aihoo.domain.patient.entity.PatientUser;
+import com.aihoo.domain.patient.service.HosSickService;
 import com.aihoo.domain.patient.service.PatientUserService;
+import com.aihoo.domain.visit.service.HosVisitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -27,6 +30,9 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 public class PatientUserController {
     private final PatientUserService patientUserService;
+    private final MdtOrderService mdtOrderService;
+    private final HosSickService hosSickService;
+    private final HosVisitService hosVisitService;
 
     @GetMapping("/weChatLogin")
     @Operation(summary = "获取微信登录接口", description = "获取微信登录接口")
@@ -36,13 +42,14 @@ public class PatientUserController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, PatientUserVo.class},
+                            oneOf = {BizResult.class, PatientUserApiVo.class},
                             description = "获取微信登录接口"
                     )
             )
     )
     public BizResult<PatientUserApiVo> weChatGetOpenId(@Parameter(name = "code", description = "临时登录凭证", example = "weixincode123456") @RequestParam(name = "code", required = true) String code) {
-        return BizResult.success(toVo(patientUserService.weChatLogin(code)));
+        PatientUser patientUser = patientUserService.weChatLogin(code);
+        return BizResult.success(toVo(patientUser));
     }
 
     @PostMapping("/allowPrivacyPolicy")
@@ -53,13 +60,14 @@ public class PatientUserController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, PatientUserVo.class},
+                            oneOf = {BizResult.class, PatientUserApiVo.class},
                             description = "授权隐私协议"
                     )
             )
     )
     public BizResult<PatientUserApiVo> allowPrivacyPolicy() {
-        return BizResult.success(toVo(patientUserService.allowPrivacyPolicy()));
+        PatientUser patientUser = patientUserService.allowPrivacyPolicy();
+        return BizResult.success(toVo(patientUser));
     }
 
     @PostMapping("/checkPhone")
@@ -150,13 +158,14 @@ public class PatientUserController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, PatientUserVo.class},
+                            oneOf = {BizResult.class, PatientUserApiVo.class},
                             description = "查询用户信息"
                     )
             )
     )
     public BizResult<PatientUserApiVo> queryPatientUser() {
-        return BizResult.success(toVo(patientUserService.queryPatientUserById()));
+        PatientUser patientUser = patientUserService.queryPatientUserById();
+        return BizResult.success(toVo(patientUser));
     }
 
     @PostMapping("/sendCode")
@@ -181,10 +190,18 @@ public class PatientUserController {
         }
     }
 
-    private PatientUserApiVo toVo(PatientUserVo dto) {
-        if (dto == null) return null;
+    /**
+     * 聚合 PatientUser entity + 跨域计数到 PatientUserApiVo。
+     * 2026-06-18 拆解循环依赖：orderCount/hosSickCount/visitCount 在 controller 层聚合，patient service 不再跨域调用。
+     */
+    private PatientUserApiVo toVo(PatientUser patientUser) {
+        if (patientUser == null) return null;
         PatientUserApiVo vo = new PatientUserApiVo();
-        BeanUtils.copyProperties(dto, vo);
+        BeanUtils.copyProperties(patientUser, vo);
+        vo.setOrderCount(mdtOrderService.countOrderByPatientUserId(patientUser.getId()));
+        vo.setHosSickCount(hosSickService.countHosSickByPatientUserId(patientUser.getId()));
+        vo.setVisitCount(hosVisitService.countHosVisitByPatientUserId(patientUser.getId()));
+        vo.setAllowPrivacyPolicy("PASS".equals(patientUser.getIsAuth()));
         return vo;
     }
 }

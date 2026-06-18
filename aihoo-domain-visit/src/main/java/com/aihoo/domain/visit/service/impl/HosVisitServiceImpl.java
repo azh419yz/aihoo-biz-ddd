@@ -42,6 +42,7 @@ import com.aihoo.exception.BizException;
 import com.aihoo.push.PushMessageService;
 import com.aihoo.security.AuthUtil;
 import com.aihoo.util.OrderNoUtil;
+import com.aihoo.util.AvatarUtil;
 import com.aihoo.util.StringUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -535,6 +536,25 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     @Override
+    public List<HosVisit> listVisitsByHosSickId(String hosSickId) {
+        QueryWrapper<HosVisit> visitWrapper = new QueryWrapper<>();
+        visitWrapper.eq("hos_sick_id", hosSickId);
+        visitWrapper.orderByDesc("create_time");
+        return hosVisitMapper.selectList(visitWrapper);
+    }
+
+    @Override
+    public List<String> listSickIdsByDoctorUserId(String doctorId) {
+        if (StringUtils.isEmpty(doctorId)) {
+            return List.of();
+        }
+        List<HosVisit> visitList = hosVisitMapper.selectList(new LambdaQueryWrapper<HosVisit>()
+                .select(HosVisit::getHosSickId)
+                .eq(HosVisit::getDoctorUserId, doctorId));
+        return visitList.stream().map(HosVisit::getHosSickId).distinct().toList();
+    }
+
+    @Override
     public void addHealthInfo(HosVisitInfoRequest request) {
         hosVisitMapper.update(new LambdaUpdateWrapper<HosVisit>()
                 .eq(HosVisit::getId, request.getHosVisitId())
@@ -641,29 +661,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     private String getAvatarPath(String sex, String ageStr) {
-        String genderPrefix = "1".equals(sex) ? "M" : "W";
-        int age = 0;
-        try {
-            if (StringUtil.isNotBlank(ageStr)) {
-                String numericAge = ageStr.replaceAll("\\D+", "");
-                if (StringUtil.isNotBlank(numericAge)) {
-                    age = Integer.parseInt(numericAge);
-                }
-            }
-        } catch (Exception e) {
-        }
-
-        String ageSuffix;
-        if (age <= 6) {
-            ageSuffix = "1";
-        } else if (age <= 20) {
-            ageSuffix = "2";
-        } else if (age <= 60) {
-            ageSuffix = "3";
-        } else {
-            ageSuffix = "4";
-        }
-        return "patient_aihoo/avatar/" + genderPrefix + ageSuffix + ".jpg";
+        return AvatarUtil.getAvatarPath(sex, ageStr);
     }
 
     @Override

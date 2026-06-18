@@ -3,25 +3,17 @@ package com.aihoo.domain.patient.service.impl;
 import cn.hutool.core.date.DateUtil;
 import com.aihoo.alicloud.AliCloudComponent;
 import com.aihoo.constant.ImUserPrefix;
-import com.aihoo.domain.doctor.entity.DoctorUser;
-import com.aihoo.domain.doctor.service.DoctorUserService;
 import com.aihoo.domain.patient.dto.HosSickDto;
-import com.aihoo.domain.patient.dto.HosVisitDto;
 import com.aihoo.domain.patient.dto.SaveUpdateHosSickDto;
 import com.aihoo.domain.patient.entity.HosSick;
 import com.aihoo.domain.patient.entity.HosSickHealthRecords;
-import com.aihoo.domain.patient.mapper.HosSickHealthRecordsMapper;
 import com.aihoo.domain.patient.mapper.HosSickMapper;
+import com.aihoo.domain.patient.service.HosSickHealthRecordsService;
 import com.aihoo.domain.patient.service.HosSickService;
 import com.aihoo.domain.sys.oss.OssComponent;
-import com.aihoo.domain.visit.entity.HosVisit;
-import com.aihoo.domain.visit.entity.HosRevisit;
-import com.aihoo.domain.visit.mapper.HosRevisitMapper;
-import com.aihoo.domain.visit.mapper.HosVisitMapper;
-import com.aihoo.domain.visit.service.HosPrescriptionService;
-import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.properties.TencentProperties;
 import com.aihoo.security.AuthUtil;
+import com.aihoo.util.AvatarUtil;
 import com.aihoo.util.ImUtils;
 import com.aihoo.util.StringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -40,38 +32,31 @@ import java.util.Objects;
 
 /**
  * 就诊人 service 实现（迁自 patient-api 的 HosSickServiceImpl）。
+ *
+ * <p>2026-06-18 拆解循环依赖：
+ * <ul>
+ *   <li>删除 5 个跨域注入：{@code HosVisitService} / {@code HosPrescriptionService} / {@code DoctorUserService} / {@code HosVisitMapper} / {@code HosRevisitMapper}</li>
+ *   <li>{@code queryHosSickByDoctorId} 返回基础 DTO，status/imGroupId 由 api 层调 visit 域填充</li>
+ *   <li>{@code queryHosSickByHosSickId} 返回基础 DTO，visits/doctor/prescription 由 api 层聚合</li>
+ *   <li>{@code patientListBySickIds} 接收 sickIds 参数（visit+revisit 取并集由 api 层完成）</li>
+ * </ul>
  */
 @Service
 public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> implements HosSickService {
 
     private final AliCloudComponent aliCloudComponent;
-    private final HosVisitService hosVisitService;
     private final OssComponent ossComponent;
     private final TencentProperties tencentProperties;
-    private final HosSickHealthRecordsMapper hosSickHealthRecordsMapper;
-    private final HosPrescriptionService hosPrescriptionService;
-    private final DoctorUserService doctorUserService;
-    private final HosVisitMapper hosVisitMapper;
-    private final HosRevisitMapper hosRevisitMapper;
+    private final HosSickHealthRecordsService healthRecordsService;
 
     public HosSickServiceImpl(AliCloudComponent aliCloudComponent,
-                              HosVisitService hosVisitService,
                               OssComponent ossComponent,
                               TencentProperties tencentProperties,
-                              HosSickHealthRecordsMapper hosSickHealthRecordsMapper,
-                              HosPrescriptionService hosPrescriptionService,
-                              DoctorUserService doctorUserService,
-                              HosVisitMapper hosVisitMapper,
-                              HosRevisitMapper hosRevisitMapper) {
+                              HosSickHealthRecordsService healthRecordsService) {
         this.aliCloudComponent = aliCloudComponent;
-        this.hosVisitService = hosVisitService;
         this.ossComponent = ossComponent;
         this.tencentProperties = tencentProperties;
-        this.hosSickHealthRecordsMapper = hosSickHealthRecordsMapper;
-        this.hosPrescriptionService = hosPrescriptionService;
-        this.doctorUserService = doctorUserService;
-        this.hosVisitMapper = hosVisitMapper;
-        this.hosRevisitMapper = hosRevisitMapper;
+        this.healthRecordsService = healthRecordsService;
     }
 
     public List<HosSickDto> queryHosSickByPatientUserId() {
@@ -83,7 +68,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
         }
         return hosSicks.stream().map(hosSick -> {
             HosSickDto dto = HosSickDto.fromEntity(hosSick);
-            dto.setAvatar(ossComponent.getUrl(getAvatarPath(hosSick.getSex(), hosSick.getAge())));
+            dto.setAvatar(ossComponent.getUrl(AvatarUtil.getAvatarPath(hosSick.getSex(), hosSick.getAge())));
 
             if (StringUtil.isBlank(dto.getImUserSig())) {
                 String imUserId = String.format(ImUserPrefix.HOS_SICK_USER_ID_FORMAT, ImUserPrefix.PATIENT, hosSick.getPatientUserId(), hosSick.getId());
@@ -104,20 +89,9 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
 
     @Override
     public List<HosSickDto> queryHosSickByDoctorId(String doctorId) {
-        List<HosSickDto> dtos = queryHosSickByPatientUserId();
-        if (StringUtil.isNotBlank(doctorId)) {
-            dtos.forEach(dto -> {
-                HosVisit latestHosVisit = hosVisitService.latestHosVisit(dto.getId(), doctorId);
-                if (latestHosVisit == null) return;
-                String status = latestHosVisit.getStatus();
-                if ("UNSUBMITTED".equals(status) || "SUBMITTED".equals(status) || "STARTED".equals(status)) {
-                    dto.setStatus(latestHosVisit.getPatientUserId().equals(AuthUtil.getLoginUserId()) ?
-                            "问诊中" : "其他家庭成员账号问诊中");
-                    dto.setImGroupId(latestHosVisit.getImGroupId());
-                }
-            });
-        }
-        return dtos;
+        // 2026-06-18：返回基础 DTO（不含 status/imGroupId），由 api-patient HosSickController 调
+        // HosVisitService.latestHosVisit 填充最新问诊状态。
+        return queryHosSickByPatientUserId();
     }
 
     @Override
@@ -129,30 +103,14 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
     }
 
     @Override
-    public List<HosSickDto> patientListByDoctorId(String doctorId, String sickName) {
-        if (StringUtil.isBlank(doctorId)) {
+    public List<HosSickDto> patientListBySickIds(List<String> sickIds, String sickName) {
+        if (sickIds == null || sickIds.isEmpty()) {
             return List.of();
         }
         String likeName = StringUtil.isBlank(sickName) ? "%%" : "%" + sickName + "%";
 
-        // 关联 t_hos_revisit + t_hos_visit 查 distinct sickId
-        List<HosVisit> visitList = hosVisitMapper.selectList(new LambdaQueryWrapper<HosVisit>()
-                .select(HosVisit::getHosSickId)
-                .eq(HosVisit::getDoctorUserId, doctorId));
-        List<HosRevisit> revisitList = hosRevisitMapper.selectList(new LambdaQueryWrapper<HosRevisit>()
-                .select(HosRevisit::getHosSickId)
-                .eq(HosRevisit::getDoctorUserId, doctorId));
-
-        java.util.Set<String> sickIdSet = new java.util.LinkedHashSet<>();
-        visitList.forEach(v -> sickIdSet.add(v.getHosSickId()));
-        revisitList.forEach(r -> sickIdSet.add(r.getHosSickId()));
-
-        if (sickIdSet.isEmpty()) {
-            return List.of();
-        }
-
         List<HosSick> hosSicks = baseMapper.selectList(new LambdaQueryWrapper<HosSick>()
-                .in(HosSick::getId, sickIdSet)
+                .in(HosSick::getId, sickIds)
                 .like(HosSick::getName, likeName)
                 .eq(HosSick::getIsDelete, "0"));
 
@@ -172,7 +130,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
     public HosSickDto queryHosSickByHosSickId(String hosSickId) {
         HosSick hosSick = baseMapper.selectById(hosSickId);
         HosSickDto dto = HosSickDto.fromEntity(hosSick);
-        dto.setAvatar(ossComponent.getUrl(getAvatarPath(hosSick.getSex(), hosSick.getAge())));
+        dto.setAvatar(ossComponent.getUrl(AvatarUtil.getAvatarPath(hosSick.getSex(), hosSick.getAge())));
 
         if (StringUtil.isBlank(dto.getImUserSig())) {
             String imUserId = String.format(ImUserPrefix.HOS_SICK_USER_ID_FORMAT, ImUserPrefix.PATIENT, hosSick.getPatientUserId(), hosSick.getId());
@@ -185,7 +143,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
 
         QueryWrapper<HosSickHealthRecords> healthRecordWrapper = new QueryWrapper<>();
         healthRecordWrapper.eq("hos_sick_id", hosSickId);
-        List<HosSickHealthRecords> healthRecords = hosSickHealthRecordsMapper.selectList(healthRecordWrapper);
+        List<HosSickHealthRecords> healthRecords = healthRecordsService.list(healthRecordWrapper);
         HosSickHealthRecords healthRecord = healthRecords.isEmpty() ? null : healthRecords.get(0);
 
         dto.setId(hosSick.getId());
@@ -210,29 +168,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
                 dto.setMedicalRecordImages(Lists.newArrayList(healthRecord.getMedicalRecordImages().split(",")));
         }
 
-        QueryWrapper<HosVisit> visitWrapper = new QueryWrapper<>();
-        visitWrapper.eq("hos_sick_id", hosSick.getId());
-        visitWrapper.orderByDesc("create_time");
-        List<HosVisit> visitList = hosVisitService.list(visitWrapper);
-
-        List<HosVisitDto> visitDtos = visitList.stream().map(visit -> {
-            HosVisitDto visitDto = new HosVisitDto();
-            BeanUtils.copyProperties(visit, visitDto);
-            visitDto.setCreateTime(visit.getCreateTime());
-            visitDto.setContent(visit.getContent());
-            visitDto.setImGroupId("GROUP_" + visit.getOrderNum());
-            visitDto.setHosPrescriptions(hosPrescriptionService.listByVisitMdtNum(visit.getOrderNum()));
-            if (StringUtils.isNotEmpty(visit.getDoctorUserId())) {
-                DoctorUser doctor = doctorUserService.getById(visit.getDoctorUserId());
-                if (doctor != null) {
-                    visitDto.setDoctorName(doctor.getName());
-                    visitDto.setDoctorHeadImg(doctor.getHeadImg());
-                }
-            }
-            return visitDto;
-        }).toList();
-        dto.setVisits(visitDtos);
-        dto.setAvatar(ossComponent.getUrl(getAvatarPath(hosSick.getSex(), hosSick.getAge())));
+        dto.setAvatar(ossComponent.getUrl(AvatarUtil.getAvatarPath(hosSick.getSex(), hosSick.getAge())));
 
         return dto;
     }
@@ -286,7 +222,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
         setImUserSig(hosSick.getId(), imUserId, userSig);
 
         HosSickDto dto = HosSickDto.fromEntity(hosSick);
-        dto.setAvatar(ossComponent.getUrl(getAvatarPath(hosSick.getSex(), hosSick.getAge())));
+        dto.setAvatar(ossComponent.getUrl(AvatarUtil.getAvatarPath(hosSick.getSex(), hosSick.getAge())));
         dto.setImUserId(imUserId);
         dto.setImUserSig(userSig);
         return dto;
@@ -322,7 +258,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
 
         hosSick = baseMapper.selectById(request.getId());
         HosSickDto dto = HosSickDto.fromEntity(hosSick);
-        dto.setAvatar(ossComponent.getUrl(getAvatarPath(hosSick.getSex(), hosSick.getAge())));
+        dto.setAvatar(ossComponent.getUrl(AvatarUtil.getAvatarPath(hosSick.getSex(), hosSick.getAge())));
 
         return dto;
     }
@@ -334,32 +270,5 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
                 .set(HosSick::getImUserId, imUserId)
                 .set(HosSick::getImUserSig, userSig);
         baseMapper.update(updateWrapper);
-    }
-
-    private String getAvatarPath(String sex, String ageStr) {
-        String genderPrefix = "1".equals(sex) ? "M" : "W";
-        int age = 0;
-        try {
-            if (StringUtil.isNotBlank(ageStr)) {
-                String numericAge = ageStr.replaceAll("\\D+", "");
-                if (StringUtil.isNotBlank(numericAge)) {
-                    age = Integer.parseInt(numericAge);
-                }
-            }
-        } catch (Exception ignore) {
-        }
-
-        String ageSuffix;
-        if (age <= 6) {
-            ageSuffix = "1";
-        } else if (age <= 20) {
-            ageSuffix = "2";
-        } else if (age <= 60) {
-            ageSuffix = "3";
-        } else {
-            ageSuffix = "4";
-        }
-
-        return "patient_aihoo/avatar/" + genderPrefix + ageSuffix + ".jpg";
     }
 }

@@ -6,6 +6,10 @@ import com.aihoo.common.BizResult;
 import com.aihoo.domain.doctor.dto.DoctorDirectoryDto;
 import com.aihoo.domain.doctor.entity.DoctorDirectory;
 import com.aihoo.domain.doctor.service.DoctorDirectoryService;
+import com.aihoo.domain.patient.entity.HosSick;
+import com.aihoo.domain.patient.service.HosSickService;
+import com.aihoo.domain.sys.oss.OssComponent;
+import com.aihoo.util.AvatarUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -16,10 +20,14 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * 医生通讯录 controller（迁自 doctor-api: DoctorDirectoryV2Controller）。
+ * 2026-06-18 拆解循环依赖：患者信息合并逻辑从 DoctorDirectoryServiceImpl 上移到本 controller。
  */
 @Tag(name = "doctorDirectory", description = "医生端-通讯录")
 @RestController
@@ -28,6 +36,8 @@ import java.util.stream.Collectors;
 public class DoctorDirectoryV2Controller {
 
     private final DoctorDirectoryService doctorDirectoryService;
+    private final HosSickService hosSickService;
+    private final OssComponent ossComponent;
 
     @PostMapping
     @ApiResponse(
@@ -66,12 +76,30 @@ public class DoctorDirectoryV2Controller {
     @Operation(summary = "查询医生通讯录")
     public BizResult<List<DoctorDirectoryVo>> list(String sickName) {
         List<DoctorDirectoryDto> dtoList = doctorDirectoryService.findDoctorDirectoryList(sickName);
-        return BizResult.success(dtoList.stream().map(this::toVo).collect(Collectors.toList()));
+
+        List<Long> sickIds = dtoList.stream().map(DoctorDirectoryDto::getSickId).toList();
+        Map<Long, HosSick> sickMap = hosSickService.listBySickIds(sickIds).stream()
+                .collect(Collectors.toMap(sick -> Long.valueOf(sick.getId()), Function.identity(), (a, b) -> a));
+
+        return BizResult.success(dtoList.stream().map(dto -> merge(dto, sickMap)).collect(Collectors.toList()));
     }
 
-    private DoctorDirectoryVo toVo(DoctorDirectoryDto dto) {
+    private DoctorDirectoryVo merge(DoctorDirectoryDto dto, Map<Long, HosSick> sickMap) {
         DoctorDirectoryVo vo = new DoctorDirectoryVo();
         BeanUtils.copyProperties(dto, vo);
+
+        HosSick sick = dto.getSickId() == null ? null : sickMap.get(dto.getSickId());
+        if (sick == null) {
+            vo.setSickName("患者" + new Random().nextInt(9000));
+            return vo;
+        }
+
+        vo.setSickAge(sick.getAge());
+        vo.setMobile(sick.getMobile());
+        vo.setSickSex(sick.getSex());
+        vo.setSickName(sick.getName());
+        vo.setSaveTime(sick.getCreateTime());
+        vo.setAvatar(ossComponent.getUrl(AvatarUtil.getAvatarPath(sick.getSex(), sick.getAge())));
         return vo;
     }
 }

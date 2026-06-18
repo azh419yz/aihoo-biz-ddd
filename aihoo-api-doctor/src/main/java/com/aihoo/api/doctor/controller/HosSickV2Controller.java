@@ -3,9 +3,13 @@ package com.aihoo.api.doctor.controller;
 import com.aihoo.api.doctor.vo.HosSickVo;
 import com.aihoo.api.doctor.vo.HosVisitVo;
 import com.aihoo.common.BizResult;
+import com.aihoo.domain.doctor.entity.DoctorUser;
+import com.aihoo.domain.doctor.service.DoctorUserService;
 import com.aihoo.domain.patient.dto.HosSickDto;
-import com.aihoo.domain.patient.dto.HosVisitDto;
 import com.aihoo.domain.patient.service.HosSickService;
+import com.aihoo.domain.visit.entity.HosVisit;
+import com.aihoo.domain.visit.service.HosPrescriptionService;
+import com.aihoo.domain.visit.service.HosVisitService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -20,8 +24,8 @@ import java.util.List;
 /**
  * 医生端-获取患者详情（迁自 doctor-api: HosSickV2Controller）。
  *
- * <p>复用 patient 阶段的 {@link HosSickService#queryHosSickByHosSickId}（逻辑与老 doctor-api 的 findHosSickViewById 一致），
- * controller 负责 DTO → VO 转换。
+ * <p>2026-06-18 拆解循环依赖：patient service 不再聚合 visit/prescription/doctor，
+ * controller 调 HosVisitService + HosPrescriptionService + DoctorUserService 自行组装。
  */
 @Tag(name = "HosSick", description = "医生端-获取患者详情")
 @RestController
@@ -30,6 +34,9 @@ import java.util.List;
 public class HosSickV2Controller {
 
     private final HosSickService hosSickService;
+    private final HosVisitService hosVisitService;
+    private final HosPrescriptionService hosPrescriptionService;
+    private final DoctorUserService doctorUserService;
 
     @GetMapping("/{id}")
     public BizResult<HosSickVo> findSickById(@PathVariable String id) {
@@ -46,15 +53,25 @@ public class HosSickV2Controller {
         }
         HosSickVo vo = new HosSickVo();
         BeanUtils.copyProperties(dto, vo);
-        if (dto.getVisits() != null) {
+
+        List<HosVisit> visits = hosVisitService.listVisitsByHosSickId(dto.getId());
+        if (visits != null && !visits.isEmpty()) {
             List<HosVisitVo> visitVos = new ArrayList<>();
-            for (HosVisitDto visitDto : dto.getVisits()) {
+            for (HosVisit visit : visits) {
                 HosVisitVo visitVo = new HosVisitVo();
-                BeanUtils.copyProperties(visitDto, visitVo);
-                visitVo.setVisitId(visitDto.getId() == null ? null : Long.valueOf(visitDto.getId()));
-                visitVo.setVisitNo(visitDto.getOrderNum());
-                visitVo.setBaseInfo(visitDto.getBaseInfo());
-                visitVo.setHealthInfo(visitDto.getHealthInfo());
+                BeanUtils.copyProperties(visit, visitVo);
+                visitVo.setVisitId(visit.getId() == null ? null : Long.valueOf(visit.getId()));
+                visitVo.setVisitNo(visit.getOrderNum());
+                visitVo.setBaseInfo(visit.getBaseInfo());
+                visitVo.setHealthInfo(visit.getHealthInfo());
+                visitVo.setHosPrescriptions(hosPrescriptionService.listByVisitMdtNum(visit.getOrderNum()));
+                if (visit.getDoctorUserId() != null && !visit.getDoctorUserId().isEmpty()) {
+                    DoctorUser doctor = doctorUserService.getById(visit.getDoctorUserId());
+                    if (doctor != null) {
+                        visitVo.setDoctorName(doctor.getName());
+                        visitVo.setDoctorHeadImg(doctor.getHeadImg());
+                    }
+                }
                 visitVos.add(visitVo);
             }
             vo.setHosVisits(visitVos);
