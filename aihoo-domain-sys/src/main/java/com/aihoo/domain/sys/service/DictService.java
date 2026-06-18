@@ -18,4 +18,9 @@ public interface DictService extends IService<Dict> {
     List<DictTypeItemDto> getDoctorType(String type);
 
     List<Map<String, String>> listByType(String type);
+
+    /**
+     * 根据字典 type + code 查询对应 name（迁自 aihoo-biz-service/aihoo-admin 的 DiceService.getDoctorNameByTypeAndCode）。
+     */
+    String getDoctorNameByTypeAndCode(String type, String code);
 }

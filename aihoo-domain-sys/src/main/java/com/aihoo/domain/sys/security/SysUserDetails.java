@@ -25,8 +25,8 @@ public class SysUserDetails implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (permissions == null) {
-            return null;
+        if (permissions == null || permissions.isEmpty()) {
+            return java.util.Collections.emptyList();
         }
         return permissions.stream()
                 .map(SimpleGrantedAuthority::new)

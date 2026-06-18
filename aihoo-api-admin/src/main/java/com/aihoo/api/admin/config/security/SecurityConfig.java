@@ -2,6 +2,7 @@ package com.aihoo.api.admin.config.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,9 +14,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 import com.aihoo.util.Md5PasswordEncoder;
+import com.aihoo.domain.sys.mapper.SysUserMapper;
 import com.aihoo.domain.sys.security.SysUserDetailsServiceImpl;
-import org.springframework.context.annotation.Primary;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static com.aihoo.api.admin.config.security.PublicEndpoints.PUBLIC_URLS;
 
@@ -31,6 +31,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auths -> auths
@@ -54,8 +55,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Primary
-    public UserDetailsService userDetailsService(SysUserDetailsServiceImpl impl) {
-        return impl;
+    public SysUserDetailsServiceImpl sysUserDetailsServiceImpl(SysUserMapper mapper) {
+        return new SysUserDetailsServiceImpl(mapper);
     }
 }

@@ -234,7 +234,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             Authentication authentication = authenticationManager.authenticate(authenticationToken);
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            SysUser user = (SysUser) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            SysUser user = (SysUser) SecurityUtils.getLoginUser();
             String token = UUID.randomUUID().toString().replace("-", "");
 
             String redisKey = RedisConstant.ADMIN_LOGIN_KEY + token;

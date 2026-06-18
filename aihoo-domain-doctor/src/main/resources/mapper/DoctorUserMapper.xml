@@ -1,13 +1,49 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.aihoo.domain.doctor.mapper.DoctorUserMapper">
+
+    <sql id="Base_Column_List">
+        id, create_time, update_time, create_user_id, mobile, head_img, `name`, age, sex,
+        birthday, tag, member_num, hospital_id, hospital_name, depart_id, depart_code, depart_name,
+        office_holder_code, office_holder_name,achievement,be_good_at_text, introduction_text, `status`,
+        is_auth, token, ca_number, email, person_type_code, person_type_name, position_code,
+        position_name, papers_code, papers_name, papers_numbers, user_sig, is_cancel,`index`,doctor_type
+    </sql>
+
     <select id="findTeamDoctorByMdtOrderNum" resultType="com.aihoo.domain.doctor.entity.DoctorUser">
         SELECT tdu.*
         FROM t_doctor_user tdu
-                     LEFT JOIN t_mdt_team_doctor tmtd ON tmtd.doctor_user_id = tdu.id
-                     LEFT JOIN t_mdt_team tmt ON tmt.id = tmtd.mdt_team_id
-                     LEFT JOIN t_mdt_order tmo ON tmo.mdt_team_id = tmt.id
+        LEFT JOIN t_mdt_team_doctor tmtd ON tmtd.doctor_user_id = tdu.id
+        LEFT JOIN t_mdt_team tmt ON tmt.id = tmtd.mdt_team_id
+        LEFT JOIN t_mdt_order tmo ON tmo.mdt_team_id = tmt.id
         WHERE tmtd.is_main = #{isMain}
-          AND tmo.order_num = #{mdtOrderNum}
+        AND tmo.order_num = #{mdtOrderNum}
+    </select>
+
+    <select id="selectDoctorUserPage" resultType="com.aihoo.domain.doctor.entity.DoctorUser">
+        SELECT<include refid="Base_Column_List"/>,
+        CASE is_auth
+        WHEN 'NONE' THEN 0
+        WHEN 'WAIT' THEN 1
+        WHEN 'REJECT' THEN 2
+        ELSE 3 END AS order_by_is_auth
+        FROM t_doctor_user
+        WHERE is_cancel = 0
+        <if test="map.memberNum != null and map.memberNum != ''">
+            and member_num LIKE CONCAT('%',#{map.memberNum},'%')
+        </if>
+        <if test="map.name!=null and map.name !=''">
+            and `name` LIKE CONCAT('%',#{map.name},'%')
+        </if>
+        <if test="map.hospitalName!=null and map.hospitalName !=''">
+            and hospital_name LIKE CONCAT('%',#{map.hospitalName},'%')
+        </if>
+        <if test="map.departName!=null and map.departName !=''">
+            and depart_name LIKE CONCAT('%',#{map.departName},'%')
+        </if>
+        <if test="map.mobile!=null and map.mobile !=''">
+            and mobile = #{map.mobile}
+        </if>
+        ORDER BY order_by_is_auth , create_time DESC , ISNULL(`index`),`index`,id ASC
     </select>
 </mapper>

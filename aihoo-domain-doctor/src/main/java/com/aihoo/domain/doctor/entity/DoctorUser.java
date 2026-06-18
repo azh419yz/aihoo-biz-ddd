@@ -29,6 +29,11 @@ public class DoctorUser implements Serializable {
     private String headImg;
     private String name;
     private String tag;
+    /**
+     * 排序
+     */
+    @TableField("`index`")
+    private String index;
     private String memberNum;
     private String hospitalId;
     private String hospitalName;
@@ -58,4 +63,23 @@ public class DoctorUser implements Serializable {
     private String isCancel;
     private String sex;
     private String age;
+    private String birthday;
+    /**
+     * 成就
+     */
+    private String achievement;
+    /**
+     * '会诊医生类型   助理医生 ASSISTANT  会诊医生 CONSULTANT'
+     */
+    private String doctorType;
+
+    private String medicalLicensePageOne;
+    private String medicalLicensePageTwo;
+    private String medicalLicenseNo;
+    private String medicalLicenseIssueDate;
+    private String practiceCertificatePageOne;
+    private String practiceCertificatePageTwo;
+    private String practiceCertificateNo;
+    private String practiceCertificateIssueDate;
+    private String area;
 }

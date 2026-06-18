@@ -1,10 +1,12 @@
 package com.aihoo.common;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Data;
 
 import java.io.Serial;
 import java.io.Serializable;
 
+@Data
 @Schema(name = "BizResult", description = "通用返回结果")
 public class BizResult<T> implements Serializable {
     @Serial
@@ -32,15 +34,6 @@ public class BizResult<T> implements Serializable {
         this.data = data;
         this.timestamp = System.currentTimeMillis();
     }
-
-    public int getCode() { return code; }
-    public void setCode(int code) { this.code = code; }
-    public String getMsg() { return msg; }
-    public void setMsg(String msg) { this.msg = msg; }
-    public T getData() { return data; }
-    public void setData(T data) { this.data = data; }
-    public long getTimestamp() { return timestamp; }
-    public void setTimestamp(long timestamp) { this.timestamp = timestamp; }
 
     public static <T> BizResult<T> success(T data) {
         return new BizResult<>(BizResultCode.SUCCESS.getCode(), BizResultCode.SUCCESS.getMsg(), data);

@@ -45,6 +45,13 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- drug 域（DoctorUserController.getExistHospitalAll 用 HospitalService，Rule H 授权） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-drug</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>

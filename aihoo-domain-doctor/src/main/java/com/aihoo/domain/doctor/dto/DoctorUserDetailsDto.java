@@ -123,6 +123,16 @@ public class DoctorUserDetailsDto {
     @Schema(name = "status", description = "状态")
     private String status;
 
+    private String medicalLicensePageOne;
+    private String medicalLicensePageTwo;
+    private String medicalLicenseNo;
+    private String medicalLicenseIssueDate;
+    private String practiceCertificatePageOne;
+    private String practiceCertificatePageTwo;
+    private String practiceCertificateNo;
+    private String practiceCertificateIssueDate;
+    private String area;
+
     @Schema(name = "isImg", description = "是否开启图文问诊 0-未开 1-开启")
     private Integer isImg;
 

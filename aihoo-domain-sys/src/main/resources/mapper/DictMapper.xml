@@ -12,5 +12,6 @@
         FROM d_dict
         WHERE type = #{type,jdbcType=VARCHAR} and code = #{code,jdbcType=VARCHAR}
         order by `index`
+        LIMIT 1
     </select>
 </mapper>

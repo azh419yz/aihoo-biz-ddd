@@ -28,4 +28,8 @@ public class DoctorSet implements Serializable {
     private String voicePrice;
     private String videoPrice;
     private Byte isMdt;
+    /**
+     * 是否开启组合问诊 0-未开 1-开启
+     */
+    private String isCombination;
 }

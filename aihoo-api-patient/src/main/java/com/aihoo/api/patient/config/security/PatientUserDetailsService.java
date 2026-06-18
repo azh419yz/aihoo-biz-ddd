@@ -3,7 +3,6 @@ package com.aihoo.api.patient.config.security;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
 
 /**
  * Patient API 的 UserDetailsService 桩。
@@ -15,7 +14,6 @@ import org.springframework.stereotype.Service;
  * 实际运行时本类永远不会被调用（patient 没有 admin 的 loginByPhone 流程），
  * 仅用于满足 Spring 容器 bean 依赖。
  */
-@Service
 public class PatientUserDetailsService implements UserDetailsService {
 
     @Override

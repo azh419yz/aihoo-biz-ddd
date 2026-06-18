@@ -59,4 +59,10 @@ public class DictServiceImpl extends ServiceImpl<DictMapper, Dict> implements Di
         }
         return result;
     }
+
+    @Override
+    public String getDoctorNameByTypeAndCode(String type, String code) {
+        Dict dict = dictMapper.selectByCode(type, code);
+        return dict == null ? null : dict.getName();
+    }
 }

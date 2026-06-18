@@ -50,11 +50,8 @@
             <artifactId>spring-security-core</artifactId>
         </dependency>
 
-        <!-- OSS + POI（version 由 sk 的 dependencyManagement 提供） -->
-        <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
-        </dependency>
+
+        <!-- POI（version 由 sk 的 dependencyManagement 提供） -->
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>

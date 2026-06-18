@@ -30,7 +30,8 @@ import io.swagger.v3.oas.annotations.servers.Server;
         "com.aihoo.security",
         "com.aihoo.constant", "com.aihoo.oss",
         "com.aihoo.wechat",
-        "com.aihoo.alicloud"
+        "com.aihoo.alicloud",
+        "com.aihoo.exception"
 })
 @SecurityScheme(name = "accessToken", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER)
 @OpenAPIDefinition(

@@ -3,6 +3,7 @@ package com.aihoo.api.patient.config.security;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -14,8 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.aihoo.util.Md5PasswordEncoder;
 import com.aihoo.api.patient.config.security.PatientUserDetailsService;
-import org.springframework.context.annotation.Primary;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static com.aihoo.api.patient.config.security.PublicEndpoints.PUBLIC_URLS;
 
@@ -31,6 +30,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auths -> auths
@@ -55,8 +55,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @Primary
-    public UserDetailsService userDetailsService(PatientUserDetailsService impl) {
-        return impl;
+    public PatientUserDetailsService patientUserDetailsService() {
+        return new PatientUserDetailsService();
     }
 }

@@ -110,23 +110,6 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Aliyun SDK for AliCloudComponent (DoctorUserServiceImpl) -->
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>cloudauth20190307</artifactId>
-            <version>3.13.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>dysmsapi20170525</artifactId>
-            <version>2.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.aliyun</groupId>
-            <artifactId>tea-openapi</artifactId>
-            <version>0.3.10</version>
-        </dependency>
-
         <!-- Spring Mock (ApiServiceImpl 等使用 MockMultipartHttpServletRequest) -->
         <dependency>
             <groupId>org.springframework</groupId>
