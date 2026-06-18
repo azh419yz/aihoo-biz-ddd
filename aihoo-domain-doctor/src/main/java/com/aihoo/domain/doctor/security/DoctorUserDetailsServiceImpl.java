@@ -1,4 +1,4 @@
-package com.aihoo.api.doctor.config.security;
+package com.aihoo.domain.doctor.security;
 
 import com.aihoo.domain.doctor.entity.DoctorUser;
 import com.aihoo.domain.doctor.mapper.DoctorUserMapper;
@@ -34,7 +34,6 @@ public class DoctorUserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Doctor not found with mobile: " + username);
         }
-        return new DoctorLoginUser(user, new HashSet<>());
+        return new DoctorUserDetails(user, new HashSet<>());
     }
 }
-

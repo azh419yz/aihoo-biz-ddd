@@ -1,4 +1,4 @@
-package com.aihoo.api.admin.config.security;
+package com.aihoo.domain.sys.security;
 
 import com.aihoo.domain.sys.entity.SysUser;
 import com.aihoo.domain.sys.mapper.SysUserMapper;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 
 @Service
-public class UserDetailsServiceImpl implements UserDetailsService {
+public class SysUserDetailsServiceImpl implements UserDetailsService {
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -22,6 +22,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
-        return new LoginUser(user, new HashSet<>());
+        return new SysUserDetails(user, new HashSet<>());
     }
 }

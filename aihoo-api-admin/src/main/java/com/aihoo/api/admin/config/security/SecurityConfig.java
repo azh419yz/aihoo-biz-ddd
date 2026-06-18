@@ -13,6 +13,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 
 import com.aihoo.util.Md5PasswordEncoder;
+import com.aihoo.domain.sys.security.SysUserDetailsServiceImpl;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static com.aihoo.api.admin.config.security.PublicEndpoints.PUBLIC_URLS;
 
@@ -48,5 +51,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Md5PasswordEncoder();
+    }
+
+    @Bean
+    @Primary
+    public UserDetailsService userDetailsService(SysUserDetailsServiceImpl impl) {
+        return impl;
     }
 }

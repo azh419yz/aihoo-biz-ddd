@@ -39,6 +39,12 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- Spring Security（UserDetails 体系，DoctorUserDetails/DoctorUserDetailsServiceImpl） -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
+
         <!-- Lombok（sk 没把它设为 provided 传递，domain 自己声明） -->
         <dependency>
             <groupId>org.projectlombok</groupId>

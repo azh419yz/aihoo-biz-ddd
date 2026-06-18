@@ -13,6 +13,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import com.aihoo.util.Md5PasswordEncoder;
+import com.aihoo.api.patient.config.security.PatientUserDetailsService;
+import org.springframework.context.annotation.Primary;
+import org.springframework.security.core.userdetails.UserDetailsService;
 
 import static com.aihoo.api.patient.config.security.PublicEndpoints.PUBLIC_URLS;
 
@@ -49,5 +52,11 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new Md5PasswordEncoder();
+    }
+
+    @Bean
+    @Primary
+    public UserDetailsService userDetailsService(PatientUserDetailsService impl) {
+        return impl;
     }
 }

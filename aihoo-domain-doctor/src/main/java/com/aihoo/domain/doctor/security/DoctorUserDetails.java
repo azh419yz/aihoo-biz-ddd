@@ -1,6 +1,6 @@
-package com.aihoo.api.admin.config.security;
+package com.aihoo.domain.doctor.security;
 
-import com.aihoo.domain.sys.entity.SysUser;
+import com.aihoo.domain.doctor.entity.DoctorUser;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,18 +9,18 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class LoginUser implements UserDetails {
+public class DoctorUserDetails implements UserDetails {
 
-    private final SysUser sysUser;
-    private final Set<String> permissions;
+    private DoctorUser doctorUser;
+    private Set<String> permissions;
 
-    public LoginUser(SysUser sysUser, Set<String> permissions) {
-        this.sysUser = sysUser;
+    public DoctorUserDetails(DoctorUser doctorUser, Set<String> permissions) {
+        this.doctorUser = doctorUser;
         this.permissions = permissions;
     }
 
-    public SysUser getSysUser() {
-        return sysUser;
+    public DoctorUser getDoctorUser() {
+        return doctorUser;
     }
 
     @Override
@@ -35,12 +35,12 @@ public class LoginUser implements UserDetails {
 
     @Override
     public String getPassword() {
-        return sysUser.getPassword();
+        return "";
     }
 
     @Override
     public String getUsername() {
-        return sysUser.getUserName();
+        return doctorUser.getMobile();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class LoginUser implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return !"1".equals(sysUser.getStatus());
+        return !"1".equals(doctorUser.getStatus());
     }
 
     @Override
@@ -60,6 +60,6 @@ public class LoginUser implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return !"1".equals(sysUser.getStatus());
+        return !"1".equals(doctorUser.getIsCancel());
     }
 }

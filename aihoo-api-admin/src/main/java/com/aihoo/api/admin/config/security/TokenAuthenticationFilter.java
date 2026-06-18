@@ -15,6 +15,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.aihoo.domain.sys.entity.SysUser;
+import com.aihoo.domain.sys.security.SysUserDetails;
 import com.aihoo.util.JSONUtil;
 import com.aihoo.util.StringUtil;
 import com.aihoo.common.BizResult;
@@ -85,7 +86,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             redisService.expire(redisKey, RedisConstant.SESSION_SURVIVE_TIME);
 
             // 👇 关键：将用户信息存入 Spring Security 上下文
-            LoginUser loginUser = new LoginUser(user, Collections.emptySet());
+            SysUserDetails loginUser = new SysUserDetails(user, Collections.emptySet());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(loginUser, null, Collections.emptyList());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
