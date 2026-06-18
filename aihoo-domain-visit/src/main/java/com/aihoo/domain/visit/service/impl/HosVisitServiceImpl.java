@@ -1,7 +1,6 @@
 package com.aihoo.domain.visit.service.impl;
 
 
-import com.aihoo.constant.PushMessageType;
 import com.aihoo.domain.doctor.entity.DoctorDirectory;
 import com.aihoo.domain.doctor.entity.DoctorWelcomeMessageSet;
 import com.aihoo.domain.doctor.service.DoctorDirectoryService;
@@ -31,18 +30,13 @@ import com.aihoo.domain.visit.entity.HosVisit;
 import com.aihoo.domain.visit.entity.HosVisitImg;
 import com.aihoo.domain.visit.entity.HosVisitLog;
 import com.aihoo.domain.visit.entity.Order;
-import com.aihoo.domain.visit.mapper.HosVisitImgMapper;
-import com.aihoo.domain.visit.mapper.HosVisitLogMapper;
-import com.aihoo.domain.visit.mapper.HosVisitMapper;
-import com.aihoo.domain.visit.mapper.HosVisitVoMapper;
-import com.aihoo.domain.visit.mapper.OrderMapper;
+import com.aihoo.domain.visit.mapper.*;
 import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.domain.visit.util.VisitStatusUtil;
 import com.aihoo.exception.BizException;
-import com.aihoo.push.PushMessageService;
 import com.aihoo.security.AuthUtil;
-import com.aihoo.util.OrderNoUtil;
 import com.aihoo.util.AvatarUtil;
+import com.aihoo.util.OrderNoUtil;
 import com.aihoo.util.StringUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -85,8 +79,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     private OrderMapper orderMapper;
     @Resource
     private HosVisitLogMapper hosVisitLogMapper;
-    @Autowired
-    private PushMessageService pushMessageServiceImpl;
     @Autowired
     private DoctorUserService doctorUserService;
     @Autowired
@@ -203,17 +195,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
             jSONArray.add(jsonObject);
         }
         return jSONArray;
-    }
-
-    private boolean serviceVisitRemind(HosVisit hosVisit) {
-        try {
-            pushMessageServiceImpl.insertOne("在线复诊订单", "您已取消在线复诊，退回" + hosVisit.getPayType() + "平台" + hosVisit.getTotalPrice() + "，退款预计2~5个工作日到账。",
-                    PushMessageType.messageType_IMAGE, hosVisit.getId(), "您已取消在线复诊，退回" + hosVisit.getPayType() + "平台" + hosVisit.getTotalPrice() + "，退款预计2~5个工作日到账。", "0", hosVisit.getPatientUserId(), hosVisit.getPatientUserId());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return true;
-        }
-        return true;
     }
 
     public void saveLog(HosVisitLog hosVisitLog) {
@@ -555,6 +536,17 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     @Override
+    public void updateMsg(String orderNum, String msg) {
+        QueryWrapper<HosVisit> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("order_num", orderNum);
+        HosVisit hosVisit = baseMapper.selectOne(queryWrapper);
+        if (hosVisit != null) {
+            hosVisit.setMsg(msg);
+            baseMapper.updateById(hosVisit);
+        }
+    }
+
+    @Override
     public void addHealthInfo(HosVisitInfoRequest request) {
         hosVisitMapper.update(new LambdaUpdateWrapper<HosVisit>()
                 .eq(HosVisit::getId, request.getHosVisitId())
@@ -722,7 +714,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
             hosOrder.setEndTime(hosVisit.getEndTime());
             hosOrder.setFiveStar(StringUtil.isBlank(hosVisit.getFiveStar()) ? "" : hosVisit.getFiveStar());
         }
-        // countDown：老 doctor-api 用 TBase 取 VISIT_TIMES / DOCTOR_VISIT_TIMES 算倒计时；DDD 阶段简化为空，由 controller 按需补。
         hosOrder.makeVisitbtnJson();
         return hosOrder;
     }

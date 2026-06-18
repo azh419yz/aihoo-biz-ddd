@@ -27,12 +27,12 @@ public class ImCallbackAfterNewMemberJoinService implements ImCallBackService {
         JSONObject join = JSONObject.parseObject(request.getCallBackBody());
         String groupId = join.getString("GroupId");
         if (StringUtils.isEmpty(groupId)) {
-            log.info("异常:{},参数:{}", "没有获取到groupId", join.toString());
+            log.info("异常:{},参数:{}", "没有获取到groupId", join);
             return;
         }
         JSONArray memberList = join.getJSONArray("NewMemberList");
         if (CollectionUtils.isEmpty(memberList)) {
-            log.info("异常:{},参数:{}", "没有获取到会员列表", join.toString());
+            log.info("异常:{},参数:{}", "没有获取到会员列表", join);
             return;
         }
         List<ImGroupMember> members = Lists.newArrayList();
@@ -48,6 +48,6 @@ public class ImCallbackAfterNewMemberJoinService implements ImCallBackService {
             member.setMemberIdentity("Member");
             member.setImGroupId(groupId);
         }
-        log.info("保存用户入群信息结果:{},请求参数:{}", imGroupMemberService.saveBatch(members), join.toString());
+        log.info("保存用户入群信息结果:{},请求参数:{}", imGroupMemberService.saveBatch(members), join);
     }
 }

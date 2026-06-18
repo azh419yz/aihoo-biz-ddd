@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication(scanBasePackages = {"com.aihoo.api.admin", "com.aihoo.domain", "com.aihoo"})
-@MapperScan(basePackages = {"com.aihoo.domain.*.mapper", "com.aihoo.push"})
+@MapperScan(basePackages = {"com.aihoo.domain.*.mapper"})
 @ComponentScan(basePackages = {
         "com.aihoo.api.admin",
         "com.aihoo.domain",
@@ -18,7 +18,6 @@ import org.springframework.context.annotation.ComponentScan;
         "com.aihoo.security",
         "com.aihoo.constant", "com.aihoo.oss",
         "com.aihoo.wechat",
-        "com.aihoo.push",
         "com.aihoo.alicloud"
 })
 public class AdminApiApplication {

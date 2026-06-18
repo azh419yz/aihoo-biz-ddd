@@ -12,14 +12,11 @@ import com.aihoo.domain.im.service.ImMsgContentService;
 import com.aihoo.domain.im.service.ImMsgService;
 import com.aihoo.domain.im.service.ImService;
 import com.aihoo.domain.im.util.TencentImGroupUtil;
-import com.aihoo.domain.visit.entity.HosVisit;
-import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.properties.TencentProperties;
 import com.aihoo.util.ImUtils;
 import com.aihoo.util.UUIDUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.PropertyPlaceholderHelper;
@@ -33,8 +30,6 @@ public abstract class AbstractImService implements ImService {
 
     @Resource
     private TencentProperties tencentProperties;
-    @Resource
-    private HosVisitService hosVisitService;
     @Resource
     private TencentImGroupUtil tencentImGroupUtil;
     @Resource
@@ -61,22 +56,8 @@ public abstract class AbstractImService implements ImService {
                 .body();
 
         log.info("\n\n{}\n{}\n{}\n\n", host, payload, result);
-        ImSendMsgRespVo imSendMsgResponse = buildResponse(result);
-        try {
-            if (imSendMsgResponse != null && "OK".equals(imSendMsgResponse.getActionStatus())) {
-                QueryWrapper<HosVisit> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("order_num", imSendMsgRequest.getVisitNo());
-                HosVisit hosVisit = hosVisitService.getOne(queryWrapper);
-                if (hosVisit != null) {
-                    hosVisit.setMsg(imSendMsgRequest.getMsgContent());
-                    hosVisitService.updateById(hosVisit);
-                }
-            }
-        } catch (Exception e) {
-            log.info("发送消息更新订单异常：", e);
-        }
 
-        return imSendMsgResponse;
+        return buildResponse(result);
     }
 
     @Override
@@ -86,7 +67,9 @@ public abstract class AbstractImService implements ImService {
                 + "&identifier=" + tencentProperties.getAdminidentifier() + "&usersig=" + genAdminUserSign()
                 + "&random=" + random + "&contenttype=json";
 
-        String result = HttpRequest.post(host).header("Content-Type", "application/json; charset=UTF-8").body(payload)
+        String result = HttpRequest.post(host)
+                .header("Content-Type", "application/json; charset=UTF-8")
+                .body(payload)
                 .execute().body();
 
         log.info("\n\n{}\n{}\n\n", host, result);

@@ -8,13 +8,7 @@ import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.domain.doctor.entity.DoctorUser;
 import com.aihoo.domain.doctor.service.DoctorUserService;
-import com.aihoo.domain.im.dto.ImContactRequestDto;
-import com.aihoo.domain.im.dto.ImMsgContentVo;
-import com.aihoo.domain.im.dto.ImMsgVo;
-import com.aihoo.domain.im.dto.ImRecentContactVo;
-import com.aihoo.domain.im.dto.ImSendMsgRespVo;
-import com.aihoo.domain.im.dto.ImSessionItemVo;
-import com.aihoo.domain.im.dto.ImWithdrawMsgRequestDto;
+import com.aihoo.domain.im.dto.*;
 import com.aihoo.domain.im.entity.ImMsg;
 import com.aihoo.domain.im.entity.ImMsgContent;
 import com.aihoo.domain.im.enums.ImServiceApiEnum;
@@ -25,7 +19,7 @@ import com.aihoo.domain.patient.entity.PatientUser;
 import com.aihoo.domain.patient.service.PatientUserService;
 import com.aihoo.domain.visit.entity.HosPrescription;
 import com.aihoo.domain.visit.service.HosPrescriptionService;
-import com.aihoo.security.AuthUtil;
+import com.aihoo.domain.visit.service.HosVisitService;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -41,8 +35,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,6 +65,8 @@ public class ImController extends BaseController {
     private ImMsgContentService imMsgContentService;
     @Autowired
     private HosPrescriptionService hosPrescriptionService;
+    @Autowired
+    private HosVisitService hosVisitService;
 
     @PostMapping("/sendMsg")
     @Operation(summary = "发送信息")
@@ -98,6 +94,10 @@ public class ImController extends BaseController {
             com.aihoo.domain.im.dto.ImSendMsgRequest dto = new com.aihoo.domain.im.dto.ImSendMsgRequest();
             BeanUtils.copyProperties(imSendMsgRequest, dto);
             ImSendMsgRespVo imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
+            if (imResponse != null && "OK".equals(imResponse.getActionStatus())) {
+                hosVisitService.updateMsg(imSendMsgRequest.getVisitNo(), imSendMsgRequest.getMsgContent());
+            }
+
             return BizResult.success(imResponse);
         } catch (Exception e) {
             log.error("{}接口出错", ImServiceApiEnum.SEND_MSG.getApiName(), e);
@@ -123,9 +123,12 @@ public class ImController extends BaseController {
             com.aihoo.domain.im.dto.ImSendMsgRequest dto = new com.aihoo.domain.im.dto.ImSendMsgRequest();
             BeanUtils.copyProperties(imSendMsgRequest, dto);
             ImSendMsgRespVo imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
+            if (imResponse != null && "OK".equals(imResponse.getActionStatus())) {
+                hosVisitService.updateMsg(imSendMsgRequest.getVisitNo(), imSendMsgRequest.getMsgContent());
+            }
             return BizResult.success(imResponse);
         } catch (Exception e) {
-            log.error(ImServiceApiEnum.MODIFY_C2C_MSG.getApiName() + "接口出错", e);
+            log.error("{}接口出错", ImServiceApiEnum.MODIFY_C2C_MSG.getApiName(), e);
             return BizResult.fail(BizResultCode.INTERNAL_ERROR, ImServiceApiEnum.MODIFY_C2C_MSG.getApiName() + "接口出错");
         }
     }

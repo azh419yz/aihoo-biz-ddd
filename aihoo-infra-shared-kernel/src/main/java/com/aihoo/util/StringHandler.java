@@ -226,4 +226,19 @@ public class StringHandler {
         String newString = String.format("%0" + formatLength + "d", sourceDate);
         return newString;
     }
+
+    /**
+     * 取分隔符右侧子串（迁自 patient-api StringHandler.rightSubStr，2026-06-18）。
+     * <p>示例：rightSubStr("ADMIN_100", "_") → "100"
+     */
+    public static String rightSubStr(String str, String separator) {
+        if (str == null) {
+            return null;
+        }
+        int idx = str.lastIndexOf(separator);
+        if (idx == -1 || idx == str.length() - 1) {
+            return "";
+        }
+        return str.substring(idx + 1);
+    }
 }

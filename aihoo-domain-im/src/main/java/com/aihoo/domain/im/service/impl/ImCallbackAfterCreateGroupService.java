@@ -22,7 +22,7 @@ public class ImCallbackAfterCreateGroupService implements ImCallBackService {
         JSONObject createGroupRequest = JSONObject.parseObject(request.getCallBackBody());
         String groupId = createGroupRequest.getString("GroupId");
         if (StringUtils.isEmpty(groupId)) {
-            log.info("异常:{},参数:{}", "没有获取到groupId", createGroupRequest.toString());
+            log.info("异常:{},参数:{}", "没有获取到groupId", createGroupRequest);
             return;
         }
 
@@ -31,6 +31,6 @@ public class ImCallbackAfterCreateGroupService implements ImCallBackService {
         imGroup.setGroupType(createGroupRequest.getString("Type"));
         imGroup.setGroupName(createGroupRequest.getString("Name"));
         imGroup.setGroupId(createGroupRequest.getString("GroupId"));
-        log.info("执行创建群后回调结果:{},参数:{}", imGroupService.save(imGroup), createGroupRequest.toString());
+        log.info("执行创建群后回调结果:{},参数:{}", imGroupService.save(imGroup), createGroupRequest);
     }
 }

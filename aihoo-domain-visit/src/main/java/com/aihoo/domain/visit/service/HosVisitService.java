@@ -1,10 +1,6 @@
 package com.aihoo.domain.visit.service;
 
-import com.aihoo.domain.visit.dto.HosOrderDto;
-import com.aihoo.domain.visit.dto.HosVisitBaseInfoVo;
-import com.aihoo.domain.visit.dto.HosVisitCreateRequest;
-import com.aihoo.domain.visit.dto.HosVisitHealthInfoVo;
-import com.aihoo.domain.visit.dto.HosVisitInfoRequest;
+import com.aihoo.domain.visit.dto.*;
 import com.aihoo.domain.visit.entity.HosVisit;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.extension.service.IService;
@@ -66,4 +62,9 @@ public interface HosVisitService extends IService<HosVisit> {
      * 用于 patient-api: HosSickController.patientList 配合 HosRevisitService.listSickIdsByDoctorUserId 取并集。
      */
     List<String> listSickIdsByDoctorUserId(String doctorId);
+
+    /**
+     * 更新IM Message
+     */
+    void updateMsg(String orderNum, String msg);
 }

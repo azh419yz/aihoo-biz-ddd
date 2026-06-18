@@ -29,7 +29,7 @@ public class ImCallBackMsgReadServiceImpl implements ImCallBackService {
             ImMsg imMsg = imMsgService.getOne(new LambdaQueryWrapper<ImMsg>()
                     .eq(ImMsg::getMsgSeq, msgInfo.getString("MsgSeq")));
             if (imMsg == null) {
-                log.info("没有查询到该条消息，回调参数为:{}", jsonObject.toString());
+                log.info("没有查询到该条消息，回调参数为:{}", jsonObject);
                 return;
             }
             imMsg.setPeerReadStatus(1);
