@@ -53,7 +53,7 @@ public class DoctorDirectoryController {
     @Operation(summary = "扫码保存医生患者关系")
     public BizResult<Boolean> saveDoctorDirectory(@RequestBody SaveDoctorDirectoryRequest directoryRequest) {
         DoctorDirectory doctorDirectory = new DoctorDirectory();
-        doctorDirectory.setDoctorId(directoryRequest.getDoctorId());
+        doctorDirectory.setDoctorUserId(directoryRequest.getDoctorId());
         doctorDirectory.setPatientUserId(directoryRequest.getPatientUserId());
         doctorDirectory.setSource(1);
         if (directoryRequest.getSickId() == null || directoryRequest.getSickId() == 0) {
@@ -68,7 +68,7 @@ public class DoctorDirectoryController {
         //判断是否已经存在该通讯录信息
         List<DoctorDirectory> dirs = doctorDirectoryService.list(new LambdaQueryWrapper<DoctorDirectory>()
                 .eq(doctorDirectory.getSickId() != null && doctorDirectory.getSickId() > 0, DoctorDirectory::getSickId, doctorDirectory.getSickId())
-                .eq(DoctorDirectory::getDoctorId, doctorDirectory.getDoctorId())
+                .eq(DoctorDirectory::getDoctorUserId, doctorDirectory.getDoctorUserId())
                 .eq(DoctorDirectory::getPatientUserId, doctorDirectory.getPatientUserId()));
 
         if (CollectionUtils.isNotEmpty(dirs)) {

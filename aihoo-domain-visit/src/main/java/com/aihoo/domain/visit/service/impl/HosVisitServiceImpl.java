@@ -355,14 +355,14 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         try {
             List<DoctorDirectory> dirs = doctorDirectoryService.list(new LambdaQueryWrapper<DoctorDirectory>()
                     .eq(DoctorDirectory::getSickId, hosSick.getId())
-                    .eq(DoctorDirectory::getDoctorId, hosVisit.getDoctorUserId())
+                    .eq(DoctorDirectory::getDoctorUserId, hosVisit.getDoctorUserId())
                     .eq(DoctorDirectory::getPatientUserId, hosSick.getPatientUserId()));
             if (CollectionUtils.isEmpty(dirs)) {
                 DoctorDirectory doctorDirectory = new DoctorDirectory();
                 doctorDirectory.setSource(2);
                 doctorDirectory.setSickName(hosSick.getName());
                 doctorDirectory.setSickId(Long.valueOf(hosSick.getId()));
-                doctorDirectory.setDoctorId(Long.valueOf(hosVisit.getDoctorUserId()));
+                doctorDirectory.setDoctorUserId(Long.valueOf(hosVisit.getDoctorUserId()));
                 doctorDirectory.setPatientUserId(Long.valueOf(hosSick.getPatientUserId()));
                 doctorDirectoryService.save(doctorDirectory);
             } else {

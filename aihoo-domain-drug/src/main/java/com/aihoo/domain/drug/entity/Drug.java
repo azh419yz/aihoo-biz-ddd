@@ -144,4 +144,44 @@ public class Drug implements Serializable {
     @Schema(description = "阳光码")
     @TableField("health_code")
     private String healthCode;
+
+    @Schema(description = "批准文号")
+    @TableField("approval_number")
+    private String approvalNumber;
+
+    @Schema(description = "厂家")
+    @TableField("manufacturers")
+    private String manufacturers;
+
+    @Schema(description = "剂量单位")
+    @TableField("dose_unit")
+    private String doseUnit;
+
+    @Schema(description = "剂量单位编码 d_dict type=MED_UNIT")
+    @TableField("dose_unit_code")
+    private String doseUnitCode;
+
+    @Schema(description = "是否基药")
+    @TableField("is_basic_medicine")
+    private String isBasicMedicine;
+
+    @Schema(description = "基药标识 d_dict type=JYBZ")
+    @TableField("basic_medicine_code")
+    private String basicMedicineCode;
+
+    @Schema(description = "基药标识")
+    @TableField("basic_medicine")
+    private String basicMedicine;
+
+    @Schema(description = "精神药物级别")
+    @TableField("psychotropic_drug")
+    private String psychotropicDrug;
+
+    @Schema(description = "是否院内制剂")
+    @TableField("hospital_preparations")
+    private String hospitalPreparations;
+
+    @Schema(description = "供应商")
+    @TableField("supplier")
+    private String supplier;
 }

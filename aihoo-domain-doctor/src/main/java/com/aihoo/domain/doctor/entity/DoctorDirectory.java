@@ -16,8 +16,8 @@ public class DoctorDirectory implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("doctor_id")
-    private Long doctorId;
+    @TableField("doctor_user_id")
+    private Long doctorUserId;
 
     @TableField("sick_id")
     private Long sickId;

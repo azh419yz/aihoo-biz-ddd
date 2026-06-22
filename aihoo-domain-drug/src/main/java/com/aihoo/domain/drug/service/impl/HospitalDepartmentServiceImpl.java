@@ -7,22 +7,33 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 
-/**
- * @Classname HospitalDepartmentServiceImpl
- * @Description hf
- * @Date 2020/9/18 17:04
- * @Created by ad
- */
+import java.util.List;
+
 @Service
 public class HospitalDepartmentServiceImpl extends ServiceImpl<HospitalDepartmentMapper, HospitalDepartment> implements HospitalDepartmentService {
 
     @Override
     public String findDepartmentNameByCode(String code) {
-        java.util.List<HospitalDepartment> list = this.baseMapper.selectList(
+        List<HospitalDepartment> list = this.baseMapper.selectList(
                 new QueryWrapper<HospitalDepartment>().eq("depart_code", code).last("LIMIT 1"));
         if (list == null || list.isEmpty()) {
             return null;
         }
         return list.get(0).getDepartName();
+    }
+
+    @Override
+    public List<HospitalDepartment> findDepartCodeAllByHospitalId(String hospitalId) {
+        return baseMapper.selectList(new QueryWrapper<HospitalDepartment>().eq("hospital_id", hospitalId));
+    }
+
+    @Override
+    public void deleteByDepartCodes(List<String> departCodes, String hospitalId) {
+        if (departCodes == null || departCodes.isEmpty()) {
+            return;
+        }
+        baseMapper.delete(new QueryWrapper<HospitalDepartment>()
+                .eq("hospital_id", hospitalId)
+                .in("depart_code", departCodes));
     }
 }

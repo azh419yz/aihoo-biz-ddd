@@ -54,7 +54,7 @@ public class DoctorDirectoryV2Controller {
     @Operation(summary = "扫码保存医生患者关系")
     public BizResult<Boolean> saveDoctorDirectory(@RequestBody SaveDoctorDirectoryRequest directoryRequest) {
         DoctorDirectory doctorDirectory = new DoctorDirectory();
-        doctorDirectory.setDoctorId(directoryRequest.getDoctorId());
+        doctorDirectory.setDoctorUserId(directoryRequest.getDoctorId());
         doctorDirectory.setSource(1);
         doctorDirectory.setSickId(directoryRequest.getSickId());
         doctorDirectory.setPatientUserId(directoryRequest.getPatientUserId());
