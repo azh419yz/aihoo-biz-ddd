@@ -23,7 +23,6 @@ import java.util.Map;
  *
  * <p>admin 阶段方法：
  * <ul>
- *   <li>{@link #getPage(PageParam, String, String)}：admin-api 药品管理分页（支持按药房/名称/拼音首字母过滤）</li>
  *   <li>{@link #create}/{@link #update}/{@link #delete}/{@link #updateStatus}：CRUD</li>
  *   <li>{@link #drugBulkExport}：admin 阶段桩实现（Excel 导出待补）</li>
  * </ul>
@@ -39,14 +38,6 @@ public interface DrugService extends IService<Drug> {
      * 药品管理多条件分页查询（doctor-api: DrugController.list）。
      */
     PageResult<Drug> getPage(PageParam<Drug> pageParam, SearchDrugRequestDto request);
-
-    /**
-     * 药品管理多条件分页查询（admin-api: DrugController.list）。
-     *
-     * <p>与 doctor-api 的 getPage 形成重载：参数类型不同（drugstoreId 可选），返回 entity 列表，
-     * DrugVo（含 drugstoreName）由 controller 拼装。
-     */
-    PageResult<Drug> getPage(PageParam<Drug> pageParam, String drugstoreId, String name, String initial);
 
     /**
      * 添加药品（admin-api: DrugController.create）。

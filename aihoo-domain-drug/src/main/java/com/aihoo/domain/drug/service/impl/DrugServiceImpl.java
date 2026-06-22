@@ -74,22 +74,6 @@ public class DrugServiceImpl extends ServiceImpl<DrugMapper, Drug> implements Dr
     }
 
     @Override
-    public PageResult<Drug> getPage(PageParam<Drug> pageParam, String drugstoreId, String name, String initial) {
-        LambdaQueryWrapper<Drug> queryWrapper = new LambdaQueryWrapper<Drug>()
-                .like(StringUtil.isNotBlank(name), Drug::getName, name)
-                .eq(StringUtil.isNotBlank(drugstoreId), Drug::getDrugstoreId, drugstoreId)
-                .likeRight(StringUtil.isNotBlank(initial), Drug::getPinyinInitial,
-                        initial == null ? null : initial.toUpperCase())
-                .orderByDesc(Drug::getCreateTime);
-
-        Page<Drug> page = baseMapper.selectPage(pageParam, queryWrapper);
-        if (CollectionUtils.isEmpty(page.getRecords())) {
-            return new PageResult<>();
-        }
-        return new PageResult<>(page.getRecords(), page.getTotal());
-    }
-
-    @Override
     public boolean create(SaveUpdateDrugRequestDto request) {
         String drugstoreId = request.getDrugstoreId();
         Drugstore drugstore = drugstoreService.getById(drugstoreId);

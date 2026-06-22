@@ -137,9 +137,9 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         if ("0".equals(doctorUser.getStatus())) {
             throw new BizException(com.aihoo.common.BizResultCode.DOCTOR_ACCOUNT_DISABLED);
         }
-        if (!"PASS".equals(doctorUser.getIsAuth())) {
-            throw new BizException(com.aihoo.common.BizResultCode.DOCTOR_ACCOUNT_NO_AUTH);
-        }
+//        if (!"PASS".equals(doctorUser.getIsAuth())) {
+//            throw new BizException(com.aihoo.common.BizResultCode.DOCTOR_ACCOUNT_NO_AUTH);
+//        }
 
         String oldToken = doctorUser.getToken();
         String accessToken = UUID.randomUUID().toString().replace("-", "");
@@ -241,7 +241,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         LambdaQueryWrapper<DoctorUser> queryWrapper = new LambdaQueryWrapper<DoctorUser>()
                 .eq(DoctorUser::getIsCancel, "0")
                 .eq(DoctorUser::getStatus, "1")
-                .eq(DoctorUser::getIsAuth, "PASS")
+//                .eq(DoctorUser::getIsAuth, "PASS")
                 .like(StringUtil.isNotBlank(name), DoctorUser::getName, name);
         List<DoctorUser> doctorUserList = doctorUserMapper.selectList(queryWrapper);
         if (CollectionUtils.isEmpty(doctorUserList)) {

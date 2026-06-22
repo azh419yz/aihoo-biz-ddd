@@ -59,9 +59,9 @@ public class DoctorUserV2Controller {
         if (null == doctorUser) {
             return BizResult.fail(BizResultCode.DOCTOR_MOBILE_NOT_BOUND);
         }
-        if (!"PASS".equals(doctorUser.getIsAuth())) {
-            return BizResult.fail(BizResultCode.DOCTOR_ACCOUNT_NO_AUTH);
-        }
+//        if (!"PASS".equals(doctorUser.getIsAuth())) {
+//            return BizResult.fail(BizResultCode.DOCTOR_ACCOUNT_NO_AUTH);
+//        }
         if ("0".equals(doctorUser.getStatus())) {
             return BizResult.fail(BizResultCode.DOCTOR_ACCOUNT_DISABLED);
         }

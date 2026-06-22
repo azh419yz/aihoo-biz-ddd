@@ -5,8 +5,8 @@ import com.aihoo.api.admin.request.SearchDrugRequest;
 import com.aihoo.api.admin.vo.DrugVo;
 import com.aihoo.common.*;
 import com.aihoo.domain.drug.dto.SaveUpdateDrugRequestDto;
+import com.aihoo.domain.drug.dto.SearchDrugRequestDto;
 import com.aihoo.domain.drug.entity.Drug;
-import com.aihoo.domain.drug.entity.Drugstore;
 import com.aihoo.domain.drug.excel.DrugEntity;
 import com.aihoo.domain.drug.service.DrugService;
 import com.aihoo.domain.drug.service.DrugstoreService;
@@ -30,8 +30,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 处方药品管理
@@ -63,11 +61,21 @@ public class DrugController {
     @GetMapping("/list")
     public BizResult<PageResult<DrugVo>> list(@ParameterObject PageParam<Drug> pageParam,
                                               @ParameterObject SearchDrugRequest request) {
-        PageResult<Drug> page = drugService.getPage(pageParam,
-                request == null ? null : request.getDrugstoreId(),
-                request == null ? null : request.getName(),
-                request == null ? null : request.getInitial());
-        return BizResult.success(toDrugVoPage(page));
+        SearchDrugRequestDto dto = new SearchDrugRequestDto();
+        BeanUtils.copyProperties(request, dto);
+        PageResult<Drug> drugPage = drugService.getPage(pageParam, dto);
+        PageResult<DrugVo> voPage = new PageResult<>();
+        if (drugPage.getData() != null) {
+            List<DrugVo> voList = new ArrayList<>();
+            for (Drug drug : drugPage.getData()) {
+                DrugVo vo = new DrugVo();
+                BeanUtils.copyProperties(drug, vo);
+                voList.add(vo);
+            }
+            voPage.setData(voList);
+        }
+        voPage.setCount(drugPage.getCount());
+        return BizResult.success(voPage);
     }
 
     /**
@@ -156,26 +164,5 @@ public class DrugController {
                 ioException.printStackTrace();
             }
         }
-    }
-
-    private PageResult<DrugVo> toDrugVoPage(PageResult<Drug> page) {
-        if (page == null || page.getData() == null || page.getData().isEmpty()) {
-            return new PageResult<>();
-        }
-        List<String> drugstoreIds = page.getData().stream()
-                .map(Drug::getDrugstoreId)
-                .filter(id -> id != null && !id.isEmpty())
-                .distinct()
-                .toList();
-        Map<String, String> drugstoreMap = drugstoreService.listByIds(drugstoreIds).stream()
-                .collect(Collectors.toMap(Drugstore::getId, Drugstore::getName, (a, b) -> a));
-        List<DrugVo> voList = new ArrayList<>();
-        for (Drug drug : page.getData()) {
-            DrugVo vo = new DrugVo();
-            BeanUtils.copyProperties(drug, vo);
-            vo.setDrugstoreName(drugstoreMap.get(drug.getDrugstoreId()));
-            voList.add(vo);
-        }
-        return new PageResult<>(voList, page.getCount());
     }
 }
