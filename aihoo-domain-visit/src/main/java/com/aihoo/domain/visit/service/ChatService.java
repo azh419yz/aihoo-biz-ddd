@@ -11,7 +11,4 @@ public interface ChatService {
 
     VisitChatDto stopVisitChatV2(String id);
 
-    VisitChatDto startRevisitChatV2(String id);
-
-    VisitChatDto stopRevisitChatV2(String id);
 }

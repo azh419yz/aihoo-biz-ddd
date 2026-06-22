@@ -4,7 +4,6 @@ import com.aihoo.api.doctor.vo.HosSickVo;
 import com.aihoo.common.BizResult;
 import com.aihoo.domain.patient.dto.HosSickDto;
 import com.aihoo.domain.patient.service.HosSickService;
-import com.aihoo.domain.visit.service.HosRevisitService;
 import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.security.AuthUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,7 +36,6 @@ import java.util.Set;
 public class PatientV2Controller {
     private final HosSickService hosSickService;
     private final HosVisitService hosVisitService;
-    private final HosRevisitService hosRevisitService;
 
     @GetMapping("/patientList")
     @Operation(summary = "就诊人列表")
@@ -55,13 +53,10 @@ public class PatientV2Controller {
     public BizResult<List<HosSickVo>> patientList(@Parameter(required = false) String sickName) {
         String doctorId = AuthUtil.getLoginUserId();
         List<String> visitSickIds = hosVisitService.listSickIdsByDoctorUserId(doctorId);
-        List<String> revisitSickIds = hosRevisitService.listSickIdsByDoctorUserId(doctorId);
-        Set<String> sickIdSet = new LinkedHashSet<>();
-        sickIdSet.addAll(visitSickIds);
-        sickIdSet.addAll(revisitSickIds);
+        Set<String> sickIdSet = new LinkedHashSet<>(visitSickIds);
 
-        List<HosSickDto> dtos = hosSickService.patientListBySickIds(List.copyOf(sickIdSet), sickName);
-        return BizResult.success(dtos.stream().map(this::convert2Vo).toList());
+        List<HosSickDto> dtoList = hosSickService.patientListBySickIds(List.copyOf(sickIdSet), sickName);
+        return BizResult.success(dtoList.stream().map(this::convert2Vo).toList());
     }
 
     @GetMapping("/patientMsg")

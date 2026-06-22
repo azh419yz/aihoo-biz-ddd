@@ -4,18 +4,10 @@ import cn.hutool.core.util.RandomUtil;
 import com.aihoo.alicloud.AliCloudComponent;
 import com.aihoo.common.PageResult;
 import com.aihoo.constant.ImUserPrefix;
-import com.aihoo.domain.doctor.dto.DoctorEnableDisableRequestDto;
-import com.aihoo.domain.doctor.dto.DoctorUserAddRequestDto;
-import com.aihoo.domain.doctor.dto.DoctorUserDetailsDto;
-import com.aihoo.domain.doctor.dto.DoctorUserDto;
-import com.aihoo.domain.doctor.dto.DoctorUserUpdateRequestDto;
-import com.aihoo.domain.doctor.dto.DoctorVisitSetRequest;
-import com.aihoo.domain.doctor.dto.DoctorWelcomeMessageRequest;
+import com.aihoo.domain.doctor.dto.*;
 import com.aihoo.domain.doctor.entity.DoctorUser;
-import com.aihoo.domain.doctor.entity.DoctorUserLog;
 import com.aihoo.domain.doctor.entity.DoctorVisitSet;
 import com.aihoo.domain.doctor.entity.DoctorWelcomeMessageSet;
-import com.aihoo.domain.doctor.mapper.DoctorUserLogMapper;
 import com.aihoo.domain.doctor.mapper.DoctorUserMapper;
 import com.aihoo.domain.doctor.service.DoctorUserService;
 import com.aihoo.domain.doctor.service.DoctorVisitSetService;
@@ -67,7 +59,6 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
     private final DoctorUserMapper doctorUserMapper;
     @Autowired(required = false)
     private RedisService redisService;
-    private final DoctorUserLogMapper doctorUserLogMapper;
     private final TencentProperties tencentProperties;
 
     @Autowired
@@ -164,16 +155,6 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             updateWrapper.set("user_sig", userSig);
         }
         doctorUserMapper.update(updateWrapper);
-
-        UserAgentGetter userAgentGetter = new UserAgentGetter(request);
-        DoctorUserLog loginLog = new DoctorUserLog();
-        loginLog.setActionType("LOGIN");
-        loginLog.setDoctorUserId(doctorUser.getId());
-        loginLog.setOsName(userAgentGetter.getOS());
-        loginLog.setIpAddress(userAgentGetter.getIpAddr());
-        loginLog.setRemark("登陆成功");
-        loginLog.setCity(AdderssUtils.getCityNameByTaoBaoAPI(userAgentGetter.getIpAddr()));
-        doctorUserLogMapper.insert(loginLog);
 
         doctorUser = doctorUserMapper.selectOne(new QueryWrapper<DoctorUser>().eq("id", doctorUser.getId()));
 
@@ -584,14 +565,22 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             doctorUser.setDoctorType(req.getDoctorType().trim());
         }
         // 证书
-        if (StringUtils.hasText(req.getMedicalLicensePageOne())) doctorUser.setMedicalLicensePageOne(req.getMedicalLicensePageOne().trim());
-        if (StringUtils.hasText(req.getMedicalLicensePageTwo())) doctorUser.setMedicalLicensePageTwo(req.getMedicalLicensePageTwo().trim());
-        if (StringUtils.hasText(req.getMedicalLicenseNo())) doctorUser.setMedicalLicenseNo(req.getMedicalLicenseNo().trim());
-        if (StringUtils.hasText(req.getMedicalLicenseIssueDate())) doctorUser.setMedicalLicenseIssueDate(req.getMedicalLicenseIssueDate().trim());
-        if (StringUtils.hasText(req.getPracticeCertificatePageOne())) doctorUser.setPracticeCertificatePageOne(req.getPracticeCertificatePageOne().trim());
-        if (StringUtils.hasText(req.getPracticeCertificatePageTwo())) doctorUser.setPracticeCertificatePageTwo(req.getPracticeCertificatePageTwo().trim());
-        if (StringUtils.hasText(req.getPracticeCertificateNo())) doctorUser.setPracticeCertificateNo(req.getPracticeCertificateNo().trim());
-        if (StringUtils.hasText(req.getPracticeCertificateIssueDate())) doctorUser.setPracticeCertificateIssueDate(req.getPracticeCertificateIssueDate().trim());
+        if (StringUtils.hasText(req.getMedicalLicensePageOne()))
+            doctorUser.setMedicalLicensePageOne(req.getMedicalLicensePageOne().trim());
+        if (StringUtils.hasText(req.getMedicalLicensePageTwo()))
+            doctorUser.setMedicalLicensePageTwo(req.getMedicalLicensePageTwo().trim());
+        if (StringUtils.hasText(req.getMedicalLicenseNo()))
+            doctorUser.setMedicalLicenseNo(req.getMedicalLicenseNo().trim());
+        if (StringUtils.hasText(req.getMedicalLicenseIssueDate()))
+            doctorUser.setMedicalLicenseIssueDate(req.getMedicalLicenseIssueDate().trim());
+        if (StringUtils.hasText(req.getPracticeCertificatePageOne()))
+            doctorUser.setPracticeCertificatePageOne(req.getPracticeCertificatePageOne().trim());
+        if (StringUtils.hasText(req.getPracticeCertificatePageTwo()))
+            doctorUser.setPracticeCertificatePageTwo(req.getPracticeCertificatePageTwo().trim());
+        if (StringUtils.hasText(req.getPracticeCertificateNo()))
+            doctorUser.setPracticeCertificateNo(req.getPracticeCertificateNo().trim());
+        if (StringUtils.hasText(req.getPracticeCertificateIssueDate()))
+            doctorUser.setPracticeCertificateIssueDate(req.getPracticeCertificateIssueDate().trim());
         if (StringUtils.hasText(req.getArea())) doctorUser.setArea(req.getArea().trim());
 
         doctorUserMapper.updateById(doctorUser);

@@ -28,9 +28,11 @@ import com.aihoo.domain.sys.oss.OssComponent;
 import com.aihoo.domain.visit.dto.*;
 import com.aihoo.domain.visit.entity.HosVisit;
 import com.aihoo.domain.visit.entity.HosVisitImg;
-import com.aihoo.domain.visit.entity.HosVisitLog;
 import com.aihoo.domain.visit.entity.Order;
-import com.aihoo.domain.visit.mapper.*;
+import com.aihoo.domain.visit.mapper.HosVisitImgMapper;
+import com.aihoo.domain.visit.mapper.HosVisitMapper;
+import com.aihoo.domain.visit.mapper.HosVisitVoMapper;
+import com.aihoo.domain.visit.mapper.OrderMapper;
 import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.domain.visit.util.VisitStatusUtil;
 import com.aihoo.exception.BizException;
@@ -77,8 +79,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     private HosVisitVoMapper hosVisitVoMapper;
     @Resource
     private OrderMapper orderMapper;
-    @Resource
-    private HosVisitLogMapper hosVisitLogMapper;
     @Autowired
     private DoctorUserService doctorUserService;
     @Autowired
@@ -195,10 +195,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
             jSONArray.add(jsonObject);
         }
         return jSONArray;
-    }
-
-    public void saveLog(HosVisitLog hosVisitLog) {
-        hosVisitLogMapper.insert(hosVisitLog);
     }
 
     @Override
@@ -323,15 +319,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
                 .eq(HosVisit::getId, id)
                 .set(HosVisit::getStatus, "UNSUBMITTED")
                 .set(HosVisit::getPayTime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-        HosVisitLog hosVisitLog = new HosVisitLog();
-        hosVisitLog.setHosVisitId(hosVisit.getId());
-        hosVisitLog.setPatientUserId(patientUserId);
-        hosVisitLog.setType("PATIENT");
-        hosVisitLog.setDoctorUserId(hosVisit.getDoctorUserId());
-        hosVisitLog.setStatus("UNSUBMITTED");
-        hosVisitLog.setRemark("患者支付在线问诊订单");
-        saveLog(hosVisitLog);
     }
 
     @Override
@@ -397,15 +384,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
                 .eq(HosVisit::getId, id)
                 .set(HosVisit::getStatus, "SUBMITTED")
                 .set(HosVisit::getInfoSubmitTime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
-
-        HosVisitLog hosVisitLog = new HosVisitLog();
-        hosVisitLog.setHosVisitId(hosVisit.getId());
-        hosVisitLog.setPatientUserId(AuthUtil.getLoginUserId());
-        hosVisitLog.setType("PATIENT");
-        hosVisitLog.setDoctorUserId(hosVisit.getDoctorUserId());
-        hosVisitLog.setStatus("SUBMITTED");
-        hosVisitLog.setRemark("患者添加问诊资料");
-        saveLog(hosVisitLog);
 
         sendDoctorWelcomeMessage(hosVisit);
     }

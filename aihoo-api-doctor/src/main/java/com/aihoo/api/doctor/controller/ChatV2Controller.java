@@ -60,40 +60,6 @@ public class ChatV2Controller {
         return BizResult.success(toVo(chatService.stopVisitChatV2(request.getId())));
     }
 
-    @PostMapping("/startRevisitChat")
-    @Operation(summary = "开始复诊")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, VisitChatVo.class},
-                            description = "开始复诊"
-                    )
-            )
-    )
-    public BizResult<VisitChatVo> startRevisitChat(@Validated @RequestBody VisitChatRequest request) {
-        return BizResult.success(toVo(chatService.startRevisitChatV2(request.getId())));
-    }
-
-    @PostMapping("/stopRevisitChat")
-    @Operation(summary = "结束复诊")
-    @ApiResponse(
-            responseCode = "200",
-            description = "成功",
-            content = @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(
-                            oneOf = {BizResult.class, VisitChatVo.class},
-                            description = "结束复诊"
-                    )
-            )
-    )
-    public BizResult<VisitChatVo> stopRevisitChat(@Validated @RequestBody VisitChatRequest request) {
-        return BizResult.success(toVo(chatService.stopRevisitChatV2(request.getId())));
-    }
-
     private VisitChatVo toVo(VisitChatDto dto) {
         VisitChatVo vo = new VisitChatVo();
         BeanUtils.copyProperties(dto, vo);
