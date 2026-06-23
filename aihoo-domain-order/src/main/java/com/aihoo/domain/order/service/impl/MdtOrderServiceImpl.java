@@ -8,15 +8,15 @@ import com.aihoo.domain.doctor.entity.DoctorUser;
 import com.aihoo.domain.doctor.service.DoctorUserService;
 import com.aihoo.domain.drug.entity.Drugstore;
 import com.aihoo.domain.drug.service.DrugstoreService;
-import com.aihoo.domain.order.dto.MdtOrderAdminVo;
+import com.aihoo.domain.order.dto.MdtOrderAdminDto;
 import com.aihoo.domain.order.dto.MdtOrderDrugExportEntity;
 import com.aihoo.domain.order.dto.MdtOrderExportEntity;
 import com.aihoo.domain.order.dto.MdtOrderListRequestDto;
-import com.aihoo.domain.order.dto.MdtOrderPageVo;
-import com.aihoo.domain.order.dto.MdtOrderSaveRespVo;
-import com.aihoo.domain.order.dto.MdtOrderViewPrescriptionDrugVo;
-import com.aihoo.domain.order.dto.MdtOrderViewPrescriptionVo;
-import com.aihoo.domain.order.dto.MdtOrderViewVo;
+import com.aihoo.domain.order.dto.MdtOrderPageRespDto;
+import com.aihoo.domain.order.dto.MdtOrderSaveRespDto;
+import com.aihoo.domain.order.dto.MdtOrderViewPrescriptionDrugDto;
+import com.aihoo.domain.order.dto.MdtOrderViewPrescriptionDto;
+import com.aihoo.domain.order.dto.MdtOrderViewDto;
 import com.aihoo.domain.order.dto.PrescriptionDrugDTO;
 import com.aihoo.domain.order.dto.SearchMdtOrderRequestDto;
 import com.aihoo.domain.order.entity.MdtOrder;
@@ -113,16 +113,16 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
     }
 
     @Override
-    public PageResult<MdtOrderPageVo> pageOrderListByPatientUserId(PageParam<MdtOrder> pageParam) {
+    public PageResult<MdtOrderPageRespDto> pageOrderListByPatientUserId(PageParam<MdtOrder> pageParam) {
         LambdaQueryWrapper<MdtOrder> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(MdtOrder::getPatientUserId, AuthUtil.getLoginUserId());
         queryWrapper.orderByDesc(MdtOrder::getPayTime);
 
         Page<MdtOrder> page = page(pageParam, queryWrapper);
 
-        List<MdtOrderPageVo> voList = new ArrayList<>();
+        List<MdtOrderPageRespDto> voList = new ArrayList<>();
         for (MdtOrder order : page.getRecords()) {
-            MdtOrderPageVo vo = new MdtOrderPageVo();
+            MdtOrderPageRespDto vo = new MdtOrderPageRespDto();
             BeanUtils.copyProperties(order, vo);
             voList.add(vo);
         }
@@ -130,22 +130,22 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
     }
 
     @Override
-    public MdtOrderSaveRespVo saveOrder(MdtOrder order) {
+    public MdtOrderSaveRespDto saveOrder(MdtOrder order) {
         try {
             HosPrescription prescription = hosPrescriptionService.getById(order.getPreId());
             if (prescription == null) {
-                return new MdtOrderSaveRespVo(Boolean.FALSE, "没有查询到该处方!", null);
+                return new MdtOrderSaveRespDto(Boolean.FALSE, "没有查询到该处方!", null);
             }
             HosPrescriptionFee fee = prescriptionFeeService.getOne(
                     new LambdaQueryWrapper<HosPrescriptionFee>()
                             .eq(HosPrescriptionFee::getHosPrescriptionId, prescription.getId()));
             if (fee == null) {
-                return new MdtOrderSaveRespVo(Boolean.FALSE, "该处方金额有误!", null);
+                return new MdtOrderSaveRespDto(Boolean.FALSE, "该处方金额有误!", null);
             }
             List<MdtOrder> orders = list(new LambdaQueryWrapper<MdtOrder>()
                     .eq(MdtOrder::getPreId, order.getPreId()));
             if (!orders.isEmpty()) {
-                return new MdtOrderSaveRespVo(Boolean.FALSE, "已存在订单，请勿重新下单!", null);
+                return new MdtOrderSaveRespDto(Boolean.FALSE, "已存在订单，请勿重新下单!", null);
             }
             DoctorUser doctor = doctorUserService.getById(order.getDoctorUserId());
             if (doctor != null) {
@@ -155,15 +155,18 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
             order.setIdCard(prescription.getIdCard());
             order.setStatus("WAIT");
             boolean saved = save(order);
-            MdtOrderSaveRespVo resp = new MdtOrderSaveRespVo();
+            MdtOrderSaveRespDto resp = new MdtOrderSaveRespDto();
             resp.setResult(saved);
             resp.setMsg("创建订单成功");
-            resp.setOrder(new MdtOrderSaveRespVo.MdtOrderSaveView(
-                    Long.valueOf(order.getId()), order.getOrderNum(), Long.valueOf(order.getPreId())));
+            MdtOrderSaveRespDto.MdtOrderSaveView view = new MdtOrderSaveRespDto.MdtOrderSaveView();
+            view.setId(order.getId());
+            view.setOrderNum(order.getOrderNum());
+            view.setPreId(order.getPreId());
+            resp.setOrder(view);
             return resp;
         } catch (Exception e) {
             log.info("创建订单异常", e);
-            return new MdtOrderSaveRespVo(Boolean.FALSE,
+            return new MdtOrderSaveRespDto(Boolean.FALSE,
                     String.format("系统异常,请检查。%s", e.getMessage()), null);
         }
     }
@@ -203,7 +206,7 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
     }
 
     @Override
-    public MdtOrderViewVo selectMdtOrderViewVo(String mdtOrderNum) {
+    public MdtOrderViewDto selectMdtOrderViewVo(String mdtOrderNum) {
         MdtOrder order = getOne(new LambdaQueryWrapper<MdtOrder>()
                 .eq(MdtOrder::getOrderNum, mdtOrderNum)
                 .last("limit 1"));
@@ -214,13 +217,13 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
     }
 
     @Override
-    public IPage<MdtOrderViewVo> selectMdtOrderViewList(MdtOrderListRequestDto req) {
+    public IPage<MdtOrderViewDto> selectMdtOrderViewList(MdtOrderListRequestDto req) {
         IPage<MdtOrder> orders = page(new Page<>(req.getPage(), req.getLimit()),
                 new LambdaQueryWrapper<MdtOrder>()
                         .eq(MdtOrder::getPatientUserId, AuthUtil.getLoginUserId())
                         .orderByDesc(MdtOrder::getPayTime));
         return orders.convert(entity -> {
-            MdtOrderViewVo vo = new MdtOrderViewVo();
+            MdtOrderViewDto vo = new MdtOrderViewDto();
             BeanUtils.copyProperties(entity, vo);
             if (StringUtils.hasText(entity.getDrugstoreId())) {
                 Drugstore drugstore = drugstoreService.getById(entity.getDrugstoreId());
@@ -232,8 +235,8 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
         });
     }
 
-    private MdtOrderViewVo toOrderViewVo(MdtOrder order) {
-        MdtOrderViewVo vo = new MdtOrderViewVo();
+    private MdtOrderViewDto toOrderViewVo(MdtOrder order) {
+        MdtOrderViewDto vo = new MdtOrderViewDto();
         BeanUtils.copyProperties(order, vo);
 
         HosPrescription prescription = hosPrescriptionService.getById(order.getPreId());
@@ -241,16 +244,16 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
             return vo;
         }
 
-        MdtOrderViewPrescriptionVo prescriptionVo = new MdtOrderViewPrescriptionVo();
+        MdtOrderViewPrescriptionDto prescriptionVo = new MdtOrderViewPrescriptionDto();
         BeanUtils.copyProperties(prescription, prescriptionVo);
 
         List<HosPrescriptionDrug> drugs = hosPrescriptionDrugService.list(
                 new LambdaQueryWrapper<HosPrescriptionDrug>()
                         .eq(HosPrescriptionDrug::getHosPrescriptionId, prescription.getId()));
 
-        List<MdtOrderViewPrescriptionDrugVo> drugVos = new ArrayList<>();
+        List<MdtOrderViewPrescriptionDrugDto> drugVos = new ArrayList<>();
         for (HosPrescriptionDrug drug : drugs) {
-            MdtOrderViewPrescriptionDrugVo drugVo = new MdtOrderViewPrescriptionDrugVo();
+            MdtOrderViewPrescriptionDrugDto drugVo = new MdtOrderViewPrescriptionDrugDto();
             BeanUtils.copyProperties(drug, drugVo);
             drugVos.add(drugVo);
         }
@@ -269,7 +272,7 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
     // ============================== admin 阶段方法 ==============================
 
     @Override
-    public PageResult<MdtOrderAdminVo> getPage(PageParam<MdtOrder> pageParam, SearchMdtOrderRequestDto request) {
+    public PageResult<MdtOrderAdminDto> getPage(PageParam<MdtOrder> pageParam, SearchMdtOrderRequestDto request) {
         LambdaQueryWrapper<MdtOrder> queryWrapper = buildMdtOrderQueryWrapper(request);
 
         Page<MdtOrder> page = baseMapper.selectPage(pageParam, queryWrapper);
@@ -278,13 +281,13 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
             return new PageResult<>();
         }
 
-        List<MdtOrderAdminVo> voList = new ArrayList<>();
+        List<MdtOrderAdminDto> voList = new ArrayList<>();
         List<String> preIdList = page.getRecords().stream().map(MdtOrder::getPreId).toList();
         Map<String, HosPrescription> prescriptionMap = hosPrescriptionService.listByIds(preIdList)
                 .stream().collect(Collectors.toMap(HosPrescription::getId, s -> s));
 
         for (MdtOrder mdtOrder : page.getRecords()) {
-            MdtOrderAdminVo vo = new MdtOrderAdminVo();
+            MdtOrderAdminDto vo = new MdtOrderAdminDto();
             BeanUtils.copyProperties(mdtOrder, vo);
             if (StringHandler.isNotBlank(mdtOrder.getPic())) {
                 vo.setPicList(Arrays.asList(mdtOrder.getPic().split(",")));

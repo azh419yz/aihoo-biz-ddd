@@ -1,7 +1,7 @@
 package com.aihoo.domain.im.service.impl;
 
 import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
-import com.aihoo.domain.im.dto.ImSendGroupMsgRespVo;
+import com.aihoo.domain.im.dto.ImSendGroupMsgRespDto;
 import com.aihoo.domain.im.entity.ImGroup;
 import com.aihoo.domain.im.mapper.ImGroupMapper;
 import com.aihoo.domain.im.service.ImGroupService;
@@ -17,7 +17,7 @@ public class ImGroupServiceImpl extends ServiceImpl<ImGroupMapper, ImGroup> impl
     private final TencentImGroupUtil tencentImGroupUtil;
 
     @Override
-    public ImSendGroupMsgRespVo sendMsg(ImSendGroupMsgRequestDto req) {
+    public ImSendGroupMsgRespDto sendMsg(ImSendGroupMsgRequestDto req) {
         return tencentImGroupUtil.sendGroupMessage(req);
     }
 }

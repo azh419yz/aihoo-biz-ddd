@@ -7,7 +7,7 @@ import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.order.dto.MdtOrderAdminVo;
+import com.aihoo.domain.order.dto.MdtOrderAdminDto;
 import com.aihoo.domain.order.dto.SearchMdtOrderRequestDto;
 import com.aihoo.domain.order.entity.MdtOrder;
 import com.aihoo.domain.order.service.MdtOrderService;
@@ -59,7 +59,7 @@ public class OrderController {
             request = new SearchMdtOrderRequest();
         }
         request.setStatusList(List.of("UNALLOCATED", "ALLOCATING"));
-        PageResult<MdtOrderAdminVo> page = mdtOrderService.getPage(pageParam, toDto(request));
+        PageResult<MdtOrderAdminDto> page = mdtOrderService.getPage(pageParam, toDto(request));
         return BizResult.success(toVoPage(page));
     }
 
@@ -82,7 +82,7 @@ public class OrderController {
             request = new SearchMdtOrderRequest();
         }
         request.setStatusList(List.of("PENDING_SHIPMENT", "IN_TRANSIT", "COMPLETED", "REFUNDING", "REFUNDED"));
-        PageResult<MdtOrderAdminVo> page = mdtOrderService.getPage(pageParam, toDto(request));
+        PageResult<MdtOrderAdminDto> page = mdtOrderService.getPage(pageParam, toDto(request));
         return BizResult.success(toVoPage(page));
     }
 
@@ -154,7 +154,7 @@ public class OrderController {
         return dto;
     }
 
-    private PageResult<MdtOrderVo> toVoPage(PageResult<MdtOrderAdminVo> page) {
+    private PageResult<MdtOrderVo> toVoPage(PageResult<MdtOrderAdminDto> page) {
         if (page == null || page.getData() == null) {
             return new PageResult<>();
         }

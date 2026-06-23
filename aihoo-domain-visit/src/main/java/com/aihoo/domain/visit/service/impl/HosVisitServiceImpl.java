@@ -6,24 +6,24 @@ import com.aihoo.domain.doctor.entity.DoctorWelcomeMessageSet;
 import com.aihoo.domain.doctor.service.DoctorDirectoryService;
 import com.aihoo.domain.doctor.service.DoctorUserService;
 import com.aihoo.domain.doctor.service.DoctorWelcomeMessageSetService;
+import com.aihoo.domain.im.dto.ImCreateGroupDto;
 import com.aihoo.domain.im.dto.ImCreateGroupRequestDto;
-import com.aihoo.domain.im.dto.ImCreateGroupRespVo;
 import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
 import com.aihoo.domain.im.entity.ImGroup;
 import com.aihoo.domain.im.entity.ImGroupMember;
 import com.aihoo.domain.im.entity.ImMsg;
 import com.aihoo.domain.im.entity.ImMsgContent;
-import com.aihoo.domain.im.mapper.ImMsgMapper;
 import com.aihoo.domain.im.service.ImGroupMemberService;
 import com.aihoo.domain.im.service.ImGroupService;
 import com.aihoo.domain.im.service.ImMsgContentService;
+import com.aihoo.domain.im.service.ImMsgService;
 import com.aihoo.domain.im.util.TencentImGroupUtil;
 import com.aihoo.domain.patient.entity.HosSick;
 import com.aihoo.domain.patient.entity.HosSickHealthRecords;
 import com.aihoo.domain.patient.entity.PatientUser;
-import com.aihoo.domain.patient.mapper.HosSickMapper;
-import com.aihoo.domain.patient.mapper.PatientUserMapper;
 import com.aihoo.domain.patient.service.HosSickHealthRecordsService;
+import com.aihoo.domain.patient.service.HosSickService;
+import com.aihoo.domain.patient.service.PatientUserService;
 import com.aihoo.domain.sys.oss.OssComponent;
 import com.aihoo.domain.visit.dto.*;
 import com.aihoo.domain.visit.entity.HosVisit;
@@ -31,7 +31,6 @@ import com.aihoo.domain.visit.entity.HosVisitImg;
 import com.aihoo.domain.visit.entity.Order;
 import com.aihoo.domain.visit.mapper.HosVisitImgMapper;
 import com.aihoo.domain.visit.mapper.HosVisitMapper;
-import com.aihoo.domain.visit.mapper.HosVisitVoMapper;
 import com.aihoo.domain.visit.mapper.OrderMapper;
 import com.aihoo.domain.visit.service.HosVisitService;
 import com.aihoo.domain.visit.util.VisitStatusUtil;
@@ -68,87 +67,100 @@ import java.util.Objects;
 public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> implements HosVisitService {
 
     @Resource
-    private HosSickMapper hosSickMapper;
-    @Resource
-    private PatientUserMapper patientUserMapper;
-    @Resource
-    private HosVisitMapper hosVisitMapper;
-    @Resource
     private HosVisitImgMapper hosVisitImgMapper;
     @Resource
-    private HosVisitVoMapper hosVisitVoMapper;
-    @Resource
     private OrderMapper orderMapper;
+    @Resource
+    private HosSickService hosSickService;
+    @Resource
+    private PatientUserService patientUserService;
     @Autowired
     private DoctorUserService doctorUserService;
     @Autowired
+    private DoctorDirectoryService doctorDirectoryService;
+    @Autowired
     private DoctorWelcomeMessageSetService doctorWelcomeMessageSetService;
     @Autowired
-    private ImMsgMapper imMsgMapper;
+    private OssComponent ossComponent;
+    @Autowired
+    private HosSickHealthRecordsService hosSickHealthRecordsService;
+    @Autowired
+    private TencentImGroupUtil tencentImGroupUtil;
+    @Autowired
+    private ImMsgService imMsgService;
     @Autowired
     private ImMsgContentService imMsgContentService;
     @Autowired
-    private OssComponent ossComponent;
-
-    @Autowired
-    private HosSickHealthRecordsService hosSickHealthRecordsService;
-
-    @Autowired
-    private DoctorDirectoryService doctorDirectoryService;
-    @Autowired
-    private TencentImGroupUtil tencentImGroupUtil;
-
-    @Autowired
     private ImGroupService imGroupService;
-
     @Autowired
     private ImGroupMemberService imGroupMemberService;
 
     @Override
     public JSONArray patientList(Map<String, Object> map) {
-        map.put("patientUserId", AuthUtil.getLoginUserId());
-        List<com.aihoo.domain.visit.dto.HosVisitVo> hosVisitVoList = hosVisitVoMapper.patientList(map);
-        if (CollectionUtils.isEmpty(hosVisitVoList)) {
+        String patientUserId = AuthUtil.getLoginUserId();
+        List<HosVisit> hosVisitList = baseMapper.selectList(new LambdaQueryWrapper<HosVisit>()
+                .eq(HosVisit::getPatientUserId, patientUserId)
+                .orderByDesc(HosVisit::getUpdateTime));
+        if (CollectionUtils.isEmpty(hosVisitList)) {
             return new JSONArray();
         }
+
+        // 批量预查关联字段（doctor / sick）
+        java.util.Set<String> doctorIdSet = hosVisitList.stream()
+                .map(HosVisit::getDoctorUserId).filter(Objects::nonNull).collect(java.util.stream.Collectors.toSet());
+        java.util.Set<String> sickIdSet = hosVisitList.stream()
+                .map(HosVisit::getHosSickId).filter(Objects::nonNull).collect(java.util.stream.Collectors.toSet());
+        java.util.Map<String, com.aihoo.domain.doctor.entity.DoctorUser> doctorMap = doctorIdSet.isEmpty()
+                ? java.util.Collections.emptyMap()
+                : doctorUserService.listByIds(doctorIdSet).stream()
+                .collect(java.util.stream.Collectors.toMap(com.aihoo.domain.doctor.entity.DoctorUser::getId, d -> d, (a, b) -> a));
+        java.util.Map<String, HosSick> sickMap = sickIdSet.isEmpty()
+                ? java.util.Collections.emptyMap()
+                : hosSickService.listByIds(sickIdSet).stream()
+                .collect(java.util.stream.Collectors.toMap(HosSick::getId, s -> s, (a, b) -> a));
+
         JSONArray jSONArray = new JSONArray();
 
-        for (com.aihoo.domain.visit.dto.HosVisitVo hosVisitVo : hosVisitVoList) {
+        for (HosVisit hosVisit : hosVisitList) {
             JSONObject jsonObject = new JSONObject();
 
-            String status = hosVisitVo.getStatus();
-            String type = hosVisitVo.getType();
-            String doctorUserId = hosVisitVo.getDoctorUserId();
+            String status = hosVisit.getStatus();
+            String type = hosVisit.getType();
+            String doctorUserId = hosVisit.getDoctorUserId();
+            String hosSickId = hosVisit.getHosSickId();
+            com.aihoo.domain.doctor.entity.DoctorUser doctor = doctorUserId == null ? null : doctorMap.get(doctorUserId);
+            HosSick hosSick = hosSickId == null ? null : sickMap.get(hosSickId);
+
             jsonObject.put("doctorId", doctorUserId);
-            jsonObject.put("fiveStar", hosVisitVo.getFiveStar());
-            jsonObject.put("doctorName", hosVisitVo.getDoctorName());
-            jsonObject.put("doctorHeadImg", hosVisitVo.getDoctorHeadImg());
-            jsonObject.put("hospitalName", hosVisitVo.getHospitalName());
-            jsonObject.put("officeHolderName", hosVisitVo.getOfficeHolderName());
-            jsonObject.put("departName", hosVisitVo.getDepartName());
-            jsonObject.put("totalPrice", hosVisitVo.getTotalPrice());
-            jsonObject.put("orderNum", hosVisitVo.getOrderNum());
+            jsonObject.put("fiveStar", hosVisit.getFiveStar());
+            jsonObject.put("doctorName", doctor == null ? null : doctor.getName());
+            jsonObject.put("doctorHeadImg", doctor == null ? null : doctor.getHeadImg());
+            jsonObject.put("hospitalName", doctor == null ? null : doctor.getHospitalName());
+            jsonObject.put("officeHolderName", doctor == null ? null : doctor.getOfficeHolderName());
+            jsonObject.put("departName", doctor == null ? null : doctor.getDepartName());
+            jsonObject.put("totalPrice", hosVisit.getTotalPrice());
+            jsonObject.put("orderNum", hosVisit.getOrderNum());
             jsonObject.put("type", type);
             jsonObject.put("status", status);
-            jsonObject.put("age", hosVisitVo.getAge());
-            jsonObject.put("patientId", hosVisitVo.getPatientUserId());
-            jsonObject.put("sex", hosVisitVo.getSex());
-            jsonObject.put("sickId", hosVisitVo.getHosSickId());
-            jsonObject.put("sickName", hosVisitVo.getSickName());
-            jsonObject.put("createTime", hosVisitVo.getCreateTime());
-            jsonObject.put("startTime", hosVisitVo.getStartTime());
-            jsonObject.put("id", hosVisitVo.getId());
-            jsonObject.put("content", hosVisitVo.getContent());
-            jsonObject.put("msg", hosVisitVo.getMsg());
-            jsonObject.put("imUserId", hosVisitVo.getImUserId());
-            jsonObject.put("imUserSig", hosVisitVo.getImUserSig());
-            jsonObject.put("avatar", ossComponent.getUrl(getAvatarPath(hosVisitVo.getSex(), hosVisitVo.getAge())));
-            jsonObject.put("imGroupId", "GROUP_" + hosVisitVo.getOrderNum());
+            jsonObject.put("age", hosSick == null ? null : hosSick.getAge());
+            jsonObject.put("patientId", hosVisit.getPatientUserId());
+            jsonObject.put("sex", hosSick == null ? null : hosSick.getSex());
+            jsonObject.put("sickId", hosSickId);
+            jsonObject.put("sickName", hosSick == null ? null : hosSick.getName());
+            jsonObject.put("createTime", hosVisit.getCreateTime());
+            jsonObject.put("startTime", hosVisit.getStartTime());
+            jsonObject.put("id", hosVisit.getId());
+            jsonObject.put("content", hosVisit.getContent());
+            jsonObject.put("msg", hosVisit.getMsg());
+            jsonObject.put("imUserId", hosSick == null ? null : hosSick.getImUserId());
+            jsonObject.put("imUserSig", hosSick == null ? null : hosSick.getImUserSig());
+            jsonObject.put("avatar", ossComponent.getUrl(getAvatarPath(hosSick == null ? null : hosSick.getSex(), hosSick == null ? null : hosSick.getAge())));
+            jsonObject.put("imGroupId", "GROUP_" + hosVisit.getOrderNum());
             jsonObject.put("visitStatus", JSONObject.toJSONString(VisitStatusUtil.getStatusFlow(status)));
             QueryWrapper<ImMsg> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("order_num", hosVisitVo.getOrderNum());
+            queryWrapper.eq("order_num", hosVisit.getOrderNum());
             queryWrapper.orderByDesc("create_time");
-            List<ImMsg> msgList = imMsgMapper.selectList(queryWrapper);
+            List<ImMsg> msgList = imMsgService.list(queryWrapper);
             Integer count = msgList.stream().filter(msg -> msg.getSickPeerReadStatus() == 0).toList().size();
             jsonObject.put("msgPeerReadCount", count);
 
@@ -190,8 +202,8 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
                 jsonObject.put("lastMsgSenderRole", "");
             }
 
-            jsonObject.put("hasHealthInfo", hosVisitVo.getHasHealthInfo());
-            jsonObject.put("hasBaseInfo", hosVisitVo.getHasBaseInfo());
+            jsonObject.put("hasHealthInfo", hosVisit.getHealthInfo() != null && !hosVisit.getHealthInfo().isEmpty() ? 1 : 0);
+            jsonObject.put("hasBaseInfo", hosVisit.getBaseInfo() != null && !hosVisit.getBaseInfo().isEmpty() ? 1 : 0);
             jSONArray.add(jsonObject);
         }
         return jSONArray;
@@ -199,9 +211,9 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public HosVisit createOrder(HosVisitCreateRequest request) {
+    public HosVisit createOrder(HosVisitCreateDto request) {
         String patientUserId = AuthUtil.getLoginUserId();
-        PatientUser patientUser = patientUserMapper.selectById(patientUserId);
+        PatientUser patientUser = patientUserService.getById(patientUserId);
         if (StringUtils.isBlank(patientUser.getMobile())) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_MOBILE_NOT_BOUND);
         }
@@ -261,7 +273,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
 
             imCreateGroupRequest.setMemberList(memberItems);
             log.info("创建群聊,请求参数:{}", JSONObject.toJSONString(imCreateGroupRequest));
-            ImCreateGroupRespVo resp = tencentImGroupUtil.createGroup(imCreateGroupRequest);
+            ImCreateGroupDto resp = tencentImGroupUtil.createGroup(imCreateGroupRequest);
             log.info("创建群聊,请求结果:{}", JSONObject.toJSONString(resp));
             if (resp.isSuccess()) {
                 ImGroup imGroup = new ImGroup();
@@ -289,7 +301,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
                 imGroupMemberService.saveBatch(members);
             }
             hosVisit.setImGroupId(resp.getGroupId());
-            hosVisitMapper.updateById(hosVisit);
+            baseMapper.updateById(hosVisit);
         } catch (Exception e) {
             log.info("创建群聊失败:", e);
         }
@@ -304,18 +316,18 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
                 .eq(HosVisit::getDoctorUserId, doctorId)
                 .orderByDesc(HosVisit::getCreateTime)
                 .last("limit 1");
-        return hosVisitMapper.selectOne(hosVisitQueryWrapper);
+        return baseMapper.selectOne(hosVisitQueryWrapper);
     }
 
     @Override
     public void hosVisitPay(String id) {
         String patientUserId = AuthUtil.getLoginUserId();
-        HosVisit hosVisit = hosVisitMapper.selectById(id);
+        HosVisit hosVisit = baseMapper.selectById(id);
         if (null == hosVisit) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_HOS_VISIT_NOT_FOUND);
         }
 
-        hosVisitMapper.update(new LambdaUpdateWrapper<HosVisit>()
+        baseMapper.update(new LambdaUpdateWrapper<HosVisit>()
                 .eq(HosVisit::getId, id)
                 .set(HosVisit::getStatus, "UNSUBMITTED")
                 .set(HosVisit::getPayTime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
@@ -326,11 +338,11 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         if (StringUtils.isBlank(hosSickId)) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_HOS_SICK_NOT_FOUND);
         }
-        HosSick hosSick = hosSickMapper.selectById(hosSickId);
+        HosSick hosSick = hosSickService.getById(hosSickId);
         if (null == hosSick) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_HOS_SICK_NOT_FOUND);
         }
-        HosVisit hosVisit = hosVisitMapper.selectById(id);
+        HosVisit hosVisit = baseMapper.selectById(id);
         if (null == hosVisit) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_HOS_VISIT_NOT_FOUND);
         }
@@ -344,7 +356,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_HOS_VISIT_PAY_STATUS);
         }
 
-        hosVisitMapper.update(new LambdaUpdateWrapper<HosVisit>()
+        baseMapper.update(new LambdaUpdateWrapper<HosVisit>()
                 .eq(HosVisit::getId, id)
                 .set(HosVisit::getHosSickId, hosSick.getId())
                 .set(HosVisit::getName, hosSick.getName())
@@ -375,12 +387,12 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
 
     @Override
     public void submitInfo(String id) {
-        HosVisit hosVisit = hosVisitMapper.selectById(id);
+        HosVisit hosVisit = baseMapper.selectById(id);
         if (null == hosVisit) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_HOS_VISIT_NOT_FOUND);
         }
 
-        hosVisitMapper.update(new LambdaUpdateWrapper<HosVisit>()
+        baseMapper.update(new LambdaUpdateWrapper<HosVisit>()
                 .eq(HosVisit::getId, id)
                 .set(HosVisit::getStatus, "SUBMITTED")
                 .set(HosVisit::getInfoSubmitTime, LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))));
@@ -478,19 +490,19 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
 
     @Override
     public long countHostVisitByDoctor(String doctorId) {
-        return hosVisitMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
+        return baseMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
                 .eq(HosVisit::getDoctorUserId, doctorId));
     }
 
     @Override
     public Long countByDoctorUserId(String doctorUserId) {
-        return hosVisitMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
+        return baseMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
                 .eq(HosVisit::getDoctorUserId, doctorUserId));
     }
 
     @Override
     public long countHosVisitByPatientUserId(String patientUserId) {
-        return hosVisitMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
+        return baseMapper.selectCount(new LambdaQueryWrapper<HosVisit>()
                 .eq(HosVisit::getPatientUserId, patientUserId));
     }
 
@@ -499,7 +511,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         QueryWrapper<HosVisit> visitWrapper = new QueryWrapper<>();
         visitWrapper.eq("hos_sick_id", hosSickId);
         visitWrapper.orderByDesc("create_time");
-        return hosVisitMapper.selectList(visitWrapper);
+        return baseMapper.selectList(visitWrapper);
     }
 
     @Override
@@ -507,7 +519,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         if (StringUtils.isEmpty(doctorId)) {
             return List.of();
         }
-        List<HosVisit> visitList = hosVisitMapper.selectList(new LambdaQueryWrapper<HosVisit>()
+        List<HosVisit> visitList = baseMapper.selectList(new LambdaQueryWrapper<HosVisit>()
                 .select(HosVisit::getHosSickId)
                 .eq(HosVisit::getDoctorUserId, doctorId));
         return visitList.stream().map(HosVisit::getHosSickId).distinct().toList();
@@ -525,14 +537,14 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     @Override
-    public void addHealthInfo(HosVisitInfoRequest request) {
-        hosVisitMapper.update(new LambdaUpdateWrapper<HosVisit>()
+    public void addHealthInfo(HosVisitInfoDto request) {
+        baseMapper.update(new LambdaUpdateWrapper<HosVisit>()
                 .eq(HosVisit::getId, request.getHosVisitId())
                 .set(HosVisit::getHealthInfo, request.getHealthInfo()));
     }
 
     @Override
-    public void addBaseInfo(HosVisitInfoRequest request) {
+    public void addBaseInfo(HosVisitInfoDto request) {
         HosSickHealthRecords records = hosSickHealthRecordsService
                 .getOne(new LambdaQueryWrapper<HosSickHealthRecords>()
                         .eq(HosSickHealthRecords::getHosSickId, request.getBaseInfo().getHosSickId()));
@@ -553,7 +565,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         hosSickHealthRecordsService.saveOrUpdate(records);
 
         if (StringUtils.isNotBlank(request.getHosVisitId())) {
-            hosVisitMapper.update(null, new LambdaUpdateWrapper<HosVisit>()
+            baseMapper.update(null, new LambdaUpdateWrapper<HosVisit>()
                     .eq(HosVisit::getId, request.getHosVisitId())
                     .set(HosVisit::getBaseInfo, "1")
                     .set(StringUtils.isNotBlank(baseInfo.getDesc()), HosVisit::getContent, baseInfo.getDesc()));
@@ -561,7 +573,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     @Override
-    public void updateBaseInfo(HosVisitInfoRequest request) {
+    public void updateBaseInfo(HosVisitInfoDto request) {
         HosSickHealthRecords records = hosSickHealthRecordsService
                 .getOne(new LambdaQueryWrapper<HosSickHealthRecords>()
                         .eq(HosSickHealthRecords::getHosSickId, request.getBaseInfo().getHosSickId()));
@@ -582,17 +594,17 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
                 .eq(HosSickHealthRecords::getId, records.getId()));
 
         if (StringUtils.isNotBlank(request.getHosVisitId())) {
-            hosVisitMapper.update(null, new LambdaUpdateWrapper<HosVisit>()
+            baseMapper.update(null, new LambdaUpdateWrapper<HosVisit>()
                     .eq(HosVisit::getId, request.getHosVisitId())
                     .set(HosVisit::getBaseInfo, "1"));
         }
     }
 
     @Override
-    public HosVisitHealthInfoVo getHealthInfo(String hosVisitId) {
-        HosVisitHealthInfoVo healthInfoVo = new HosVisitHealthInfoVo();
+    public HosVisitHealthInfoDto getHealthInfo(String hosVisitId) {
+        HosVisitHealthInfoDto healthInfoVo = new HosVisitHealthInfoDto();
         healthInfoVo.setHosVisitId(hosVisitId);
-        HosVisit hosVisit = hosVisitMapper.selectById(hosVisitId);
+        HosVisit hosVisit = baseMapper.selectById(hosVisitId);
         if (StringUtil.isNotBlank(hosVisit.getHealthInfo())) {
             healthInfoVo.setHealthInfo(hosVisit.getHealthInfo());
         }
@@ -601,10 +613,10 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
     }
 
     @Override
-    public HosVisitBaseInfoVo getBaseInfo(String hosVisitId) {
-        HosVisitBaseInfoVo baseInfoVo = new HosVisitBaseInfoVo();
+    public HosVisitBaseInfoRespDto getBaseInfo(String hosVisitId) {
+        HosVisitBaseInfoRespDto baseInfoVo = new HosVisitBaseInfoRespDto();
         baseInfoVo.setHosVisitId(hosVisitId);
-        HosVisit hosVisit = hosVisitMapper.selectById(hosVisitId);
+        HosVisit hosVisit = baseMapper.selectById(hosVisitId);
         HosVisitBaseInfoDTO baseInfo = new HosVisitBaseInfoDTO();
         baseInfoVo.setBaseInfo(baseInfo);
 
@@ -639,10 +651,10 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         HosOrderDto hosOrder = new HosOrderDto();
         HosVisit hosVisit;
         if (id != null && id.startsWith("V")) {
-            hosVisit = hosVisitMapper.selectOne(new LambdaQueryWrapper<HosVisit>()
+            hosVisit = baseMapper.selectOne(new LambdaQueryWrapper<HosVisit>()
                     .eq(HosVisit::getOrderNum, id));
         } else {
-            hosVisit = hosVisitMapper.selectById(id);
+            hosVisit = baseMapper.selectById(id);
         }
         if (hosVisit == null) {
             return hosOrder;
@@ -672,7 +684,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         hosOrder.setDoctorAdvice(hosVisit.getDoctorAdvice());
         hosOrder.setOrderId(hosVisit.getId());
         if (StringUtils.isNotEmpty(hosVisit.getPatientUserId())) {
-            PatientUser patientUser = patientUserMapper.selectById(hosVisit.getPatientUserId());
+            PatientUser patientUser = patientUserService.getById(hosVisit.getPatientUserId());
             if (patientUser != null) {
                 hosOrder.setHeadImg(patientUser.getHeadImg());
             }

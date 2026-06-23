@@ -6,8 +6,8 @@ import com.aihoo.domain.doctor.dto.DoctorUserAddRequestDto;
 import com.aihoo.domain.doctor.dto.DoctorUserDetailsDto;
 import com.aihoo.domain.doctor.dto.DoctorUserDto;
 import com.aihoo.domain.doctor.dto.DoctorUserUpdateRequestDto;
-import com.aihoo.domain.doctor.dto.DoctorVisitSetRequest;
-import com.aihoo.domain.doctor.dto.DoctorWelcomeMessageRequest;
+import com.aihoo.domain.doctor.dto.DoctorVisitSetDto;
+import com.aihoo.domain.doctor.dto.DoctorWelcomeMessageDto;
 import com.aihoo.domain.doctor.entity.DoctorUser;
 import com.aihoo.domain.doctor.entity.DoctorVisitSet;
 import com.aihoo.domain.doctor.entity.DoctorWelcomeMessageSet;
@@ -39,9 +39,9 @@ import java.util.Map;
  *   <li>{@link #sendCode(String)}</li>
  *   <li>{@link #phoneLogin(String, String, HttpServletRequest)}</li>
  *   <li>{@link #getVisitSet()}</li>
- *   <li>{@link #setVisit(DoctorVisitSetRequest)}</li>
+ *   <li>{@link #setVisit(DoctorVisitSetDto)}</li>
  *   <li>{@link #getWelcomeMessage()}</li>
- *   <li>{@link #setWelcomeMessage(DoctorWelcomeMessageRequest)}</li>
+ *   <li>{@link #setWelcomeMessage(DoctorWelcomeMessageDto)}</li>
  *   <li>{@link #detail(String)}</li>
  * </ul>
  *
@@ -100,7 +100,7 @@ public interface DoctorUserService extends IService<DoctorUser> {
     /**
      * 设置问诊设置（doctor-api: DoctorUserV2Controller.setVisit）
      */
-    DoctorVisitSet setVisit(DoctorVisitSetRequest request);
+    DoctorVisitSet setVisit(DoctorVisitSetDto request);
 
     /**
      * 查询欢迎语设置记录（doctor-api: DoctorUserV2Controller.getWelcomeMessage）
@@ -110,7 +110,7 @@ public interface DoctorUserService extends IService<DoctorUser> {
     /**
      * 设置欢迎语（doctor-api: DoctorUserV2Controller.setWelcomeMessage）
      */
-    DoctorWelcomeMessageSet setWelcomeMessage(DoctorWelcomeMessageRequest request);
+    DoctorWelcomeMessageSet setWelcomeMessage(DoctorWelcomeMessageDto request);
 
     /**
      * 医生详情（doctor-api: DoctorUserV2Controller.detail）

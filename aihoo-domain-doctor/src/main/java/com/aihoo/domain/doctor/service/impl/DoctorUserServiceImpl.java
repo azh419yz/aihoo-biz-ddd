@@ -174,7 +174,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
     }
 
     @Override
-    public DoctorVisitSet setVisit(DoctorVisitSetRequest request) {
+    public DoctorVisitSet setVisit(DoctorVisitSetDto request) {
         String loginUserId = AuthUtil.getLoginUserId();
         DoctorVisitSet doctorVisitSet = doctorVisitSetService.getOne(new LambdaQueryWrapper<DoctorVisitSet>()
                 .eq(DoctorVisitSet::getDoctorUserId, loginUserId));
@@ -196,7 +196,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
     }
 
     @Override
-    public DoctorWelcomeMessageSet setWelcomeMessage(DoctorWelcomeMessageRequest request) {
+    public DoctorWelcomeMessageSet setWelcomeMessage(DoctorWelcomeMessageDto request) {
         String loginUserId = AuthUtil.getLoginUserId();
         DoctorWelcomeMessageSet welcomeMessageSet = doctorWelcomeMessageSetService.getOne(new LambdaQueryWrapper<DoctorWelcomeMessageSet>()
                 .eq(DoctorWelcomeMessageSet::getDoctorUserId, loginUserId));

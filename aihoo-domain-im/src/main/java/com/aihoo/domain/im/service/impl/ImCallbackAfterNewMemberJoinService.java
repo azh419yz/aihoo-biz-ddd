@@ -1,6 +1,6 @@
 package com.aihoo.domain.im.service.impl;
 
-import com.aihoo.domain.im.dto.ImCallBackRequest;
+import com.aihoo.domain.im.dto.ImCallbackReqDto;
 import com.aihoo.domain.im.entity.ImGroupMember;
 import com.aihoo.domain.im.service.ImCallBackService;
 import com.aihoo.domain.im.service.ImGroupMemberService;
@@ -23,7 +23,7 @@ public class ImCallbackAfterNewMemberJoinService implements ImCallBackService {
     private final ImGroupMemberService imGroupMemberService;
 
     @Override
-    public void callBack(ImCallBackRequest request) {
+    public void callBack(ImCallbackReqDto request) {
         JSONObject join = JSONObject.parseObject(request.getCallBackBody());
         String groupId = join.getString("GroupId");
         if (StringUtils.isEmpty(groupId)) {

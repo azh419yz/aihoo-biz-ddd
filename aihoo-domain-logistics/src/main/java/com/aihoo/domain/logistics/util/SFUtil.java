@@ -1,12 +1,12 @@
 package com.aihoo.domain.logistics.util;
 
-import com.aihoo.domain.logistics.dto.sf.AddressRequest;
-import com.aihoo.domain.logistics.dto.sf.CommonRequest;
-import com.aihoo.domain.logistics.dto.sf.CreateOrderRequest;
-import com.aihoo.domain.logistics.dto.sf.OrderPriceRequest;
-import com.aihoo.domain.logistics.dto.sl.CommonRespVo;
-import com.aihoo.domain.logistics.dto.sl.CreateOrderRespVo;
-import com.aihoo.domain.logistics.dto.sl.OrderPriceRespWrapperVo;
+import com.aihoo.domain.logistics.dto.sf.AddressDto;
+import com.aihoo.domain.logistics.dto.sf.CommonDto;
+import com.aihoo.domain.logistics.dto.sf.CreateOrderDto;
+import com.aihoo.domain.logistics.dto.sf.OrderPriceDto;
+import com.aihoo.domain.logistics.dto.sl.CommonRespDto;
+import com.aihoo.domain.logistics.dto.sl.CreateOrderRespDto;
+import com.aihoo.domain.logistics.dto.sl.OrderPriceRespWrapperDto;
 import com.alibaba.fastjson2.JSONObject;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -43,9 +43,9 @@ public class SFUtil {
     private static final String URL = "https://sfapi-sbox.sf-express.com/std/service";
     // 正式环境: https://bspgw.sf-express.com/std/service
 
-    public static BigDecimal queryPrice(OrderPriceRequest priceRequest) throws Exception {
+    public static BigDecimal queryPrice(OrderPriceDto priceRequest) throws Exception {
 
-        CommonRequest commonReq = new CommonRequest();
+        CommonDto commonReq = new CommonDto();
         String requestId = UUID.randomUUID().toString().replace("-", "");
         long timestamp = System.currentTimeMillis();
 
@@ -69,7 +69,7 @@ public class SFUtil {
             log.info("接口请求失败，结果:{}", responseJson);
             return new BigDecimal("0.0");
         }
-        CommonRespVo commonResp = JSONObject.parseObject(JSONObject.parseObject(responseJson).getString("apiResultData"), CommonRespVo.class);
+        CommonRespDto commonResp = JSONObject.parseObject(JSONObject.parseObject(responseJson).getString("apiResultData"), CommonRespDto.class);
         boolean isSuccess = false;
         if ("S0000".equals(commonResp.getErrorCode())) {
             isSuccess = true;
@@ -82,7 +82,7 @@ public class SFUtil {
 
             if (msgDataStr != null && !msgDataStr.trim().isEmpty()) {
                 try {
-                    OrderPriceRespWrapperVo wrapper = JSONObject.parseObject(msgDataStr, OrderPriceRespWrapperVo.class);
+                    OrderPriceRespWrapperDto wrapper = JSONObject.parseObject(msgDataStr, OrderPriceRespWrapperDto.class);
 
                     if (wrapper != null && wrapper.getDeliverTmDto() != null) {
                         return wrapper.getDeliverTmDto().get(0).getFee();
@@ -113,7 +113,7 @@ public class SFUtil {
         return "";
     }
 
-    public static String createOrder(CreateOrderRequest bizRequest) throws Exception {
+    public static String createOrder(CreateOrderDto bizRequest) throws Exception {
         String requestId = UUID.randomUUID().toString().replace("-", "");
         long timestamp = System.currentTimeMillis();
         String bizJson = JSONObject.toJSONString(bizRequest);
@@ -130,15 +130,15 @@ public class SFUtil {
             log.info("接口请求失败，结果:{}", responseJson);
             return "";
         }
-        CommonRespVo commonResp = JSONObject.parseObject(JSONObject.parseObject(responseJson).getString("apiResultData"), CommonRespVo.class);
+        CommonRespDto commonResp = JSONObject.parseObject(JSONObject.parseObject(responseJson).getString("apiResultData"), CommonRespDto.class);
         if (commonResp == null) {
             throw new RuntimeException("下单失败: apiResultData 为空");
         }
         if (!"S0000".equals(commonResp.getErrorCode())) {
             throw new RuntimeException("下单业务处理失败: " + commonResp.getErrorMsg() + " (" + commonResp.getErrorCode() + ")");
         }
-        CreateOrderRespVo respVo = JSONObject.parseObject(commonResp.getMsgData(), CreateOrderRespVo.class);
-        List<CreateOrderRespVo.WaybillNoInfo> waybill = respVo.getWaybillNoInfoList();
+        CreateOrderRespDto respVo = JSONObject.parseObject(commonResp.getMsgData(), CreateOrderRespDto.class);
+        List<CreateOrderRespDto.WaybillNoInfo> waybill = respVo.getWaybillNoInfoList();
         if (CollectionUtils.isEmpty(waybill)) {
             log.info("请求参数:{}请求回参:{}", bizRequest.getOrderId(), responseJson);
             return "";

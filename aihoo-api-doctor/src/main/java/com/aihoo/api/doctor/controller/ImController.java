@@ -3,8 +3,8 @@ package com.aihoo.api.doctor.controller;
 import com.aihoo.api.doctor.request.ImSendGroupMsgRequest;
 import com.aihoo.api.doctor.request.ImWithdrawMsgRequest;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.im.dto.ImMsgContentVo;
-import com.aihoo.domain.im.dto.ImMsgVo;
+import com.aihoo.domain.im.dto.ImMsgContentDto;
+import com.aihoo.domain.im.dto.ImMsgDto;
 import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
 import com.aihoo.domain.im.dto.ImWithdrawMsgRequestDto;
 import com.aihoo.domain.im.entity.ImMsg;
@@ -57,12 +57,12 @@ public class ImController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, ImMsgVo.class},
+                            oneOf = {BizResult.class, ImMsgDto.class},
                             description = "获取聊天记录"
                     )
             )
     )
-    public BizResult<List<ImMsgVo>> findImMsgByVisitNo(
+    public BizResult<List<ImMsgDto>> findImMsgByVisitNo(
             @Parameter(name = "visitNo", description = "问诊卡no", example = "V20210106182014643")
             String visitNo) {
         List<ImMsg> msgList = imMsgService.list(new LambdaQueryWrapper<ImMsg>()
@@ -71,15 +71,15 @@ public class ImController {
                         .or()
                         .isNull(ImMsg::getToAccount))
                 .orderByDesc(ImMsg::getCreateTime));
-        List<ImMsgVo> msgVos = msgList.stream().map(msg -> {
-            ImMsgVo msgVo = new ImMsgVo();
+        List<ImMsgDto> msgVos = msgList.stream().map(msg -> {
+            ImMsgDto msgVo = new ImMsgDto();
             BeanUtils.copyProperties(msg, msgVo);
             List<ImMsgContent> msgContent = imMsgContentService.list(new LambdaQueryWrapper<ImMsgContent>()
                     .eq(ImMsgContent::getImMsgId, msg.getId()));
             if (CollectionUtils.isNotEmpty(msgContent)) {
-                List<ImMsgContentVo> contentVos = Lists.newArrayList();
+                List<ImMsgContentDto> contentVos = Lists.newArrayList();
                 for (ImMsgContent imMsgContent : msgContent) {
-                    ImMsgContentVo imMsgContentVo = new ImMsgContentVo();
+                    ImMsgContentDto imMsgContentVo = new ImMsgContentDto();
                     imMsgContentVo.setImMsgId(imMsgContent.getImMsgId());
                     imMsgContentVo.setMsgType(imMsgContent.getMsgType());
                     JSONObject content = JSONObject.parseObject(imMsgContent.getMsgContent());

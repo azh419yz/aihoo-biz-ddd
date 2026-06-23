@@ -40,7 +40,7 @@ public class ImGroupController {
     public BizResult<ImCreateGroupRespVo> createGroup(@RequestBody ImCreateGroupRequest imCreateGroupRequest) {
         ImCreateGroupRequestDto dto = new ImCreateGroupRequestDto();
         BeanUtils.copyProperties(imCreateGroupRequest, dto);
-        com.aihoo.domain.im.dto.ImCreateGroupRespVo resp = tencentImGroupUtil.createGroup(dto);
+        com.aihoo.domain.im.dto.ImCreateGroupDto resp = tencentImGroupUtil.createGroup(dto);
         if (resp.isSuccess()) {
             ImGroup imGroup = new ImGroup();
             imGroup.setGroupId(resp.getGroupId());
@@ -58,7 +58,7 @@ public class ImGroupController {
     public BizResult<ImAddGroupMemberRespVo> addGroupMember(@RequestBody ImAddGroupMemberRequest req) {
         ImAddGroupMemberRequestDto dto = new ImAddGroupMemberRequestDto();
         BeanUtils.copyProperties(req, dto);
-        com.aihoo.domain.im.dto.ImAddGroupMemberRespVo resp = tencentImGroupUtil.addGroupMember(dto);
+        com.aihoo.domain.im.dto.ImAddGroupMemberRespDto resp = tencentImGroupUtil.addGroupMember(dto);
         if (resp.isSuccess()) {
             return BizResult.success(toAddVo(resp));
         }
@@ -71,7 +71,7 @@ public class ImGroupController {
     public BizResult<ImRespVo> deleteGroupMember(@RequestBody ImDeleteGroupMemberRequest req) {
         ImDeleteGroupMemberRequestDto dto = new ImDeleteGroupMemberRequestDto();
         BeanUtils.copyProperties(req, dto);
-        com.aihoo.domain.im.dto.ImRespVo resp = tencentImGroupUtil.deleteGroupMember(dto);
+        com.aihoo.domain.im.dto.ImRespDto resp = tencentImGroupUtil.deleteGroupMember(dto);
         if (resp.isSuccess()) {
             return BizResult.success(toRespVo(resp));
         }
@@ -85,7 +85,7 @@ public class ImGroupController {
         req.setMsgType(1);
         ImSendGroupMsgRequestDto dto = new ImSendGroupMsgRequestDto();
         BeanUtils.copyProperties(req, dto);
-        com.aihoo.domain.im.dto.ImSendGroupMsgRespVo resp = imGroupService.sendMsg(dto);
+        com.aihoo.domain.im.dto.ImSendGroupMsgRespDto resp = imGroupService.sendMsg(dto);
         if (resp.isSuccess()) {
             return BizResult.success(toSendVo(resp));
         }
@@ -98,7 +98,7 @@ public class ImGroupController {
     public BizResult<ImGetGroupMemberInfoRespVo> getGroupMember(ImGetGroupMemberInfoRequest req) {
         ImGetGroupMemberInfoRequestDto dto = new ImGetGroupMemberInfoRequestDto();
         BeanUtils.copyProperties(req, dto);
-        com.aihoo.domain.im.dto.ImGetGroupMemberInfoRespVo resp = tencentImGroupUtil.getGroupMemberInfo(dto);
+        com.aihoo.domain.im.dto.ImGetGroupMemberInfoRespDto resp = tencentImGroupUtil.getGroupMemberInfo(dto);
         if (resp.isSuccess()) {
             return BizResult.success(toGetVo(resp));
         }
@@ -107,35 +107,35 @@ public class ImGroupController {
         return BizResult.fail(500, "请求异常.");
     }
 
-    private ImCreateGroupRespVo toApiVo(com.aihoo.domain.im.dto.ImCreateGroupRespVo dto) {
+    private ImCreateGroupRespVo toApiVo(com.aihoo.domain.im.dto.ImCreateGroupDto dto) {
         if (dto == null) return null;
         ImCreateGroupRespVo vo = new ImCreateGroupRespVo();
         BeanUtils.copyProperties(dto, vo);
         return vo;
     }
 
-    private ImAddGroupMemberRespVo toAddVo(com.aihoo.domain.im.dto.ImAddGroupMemberRespVo dto) {
+    private ImAddGroupMemberRespVo toAddVo(com.aihoo.domain.im.dto.ImAddGroupMemberRespDto dto) {
         if (dto == null) return null;
         ImAddGroupMemberRespVo vo = new ImAddGroupMemberRespVo();
         BeanUtils.copyProperties(dto, vo);
         return vo;
     }
 
-    private ImGetGroupMemberInfoRespVo toGetVo(com.aihoo.domain.im.dto.ImGetGroupMemberInfoRespVo dto) {
+    private ImGetGroupMemberInfoRespVo toGetVo(com.aihoo.domain.im.dto.ImGetGroupMemberInfoRespDto dto) {
         if (dto == null) return null;
         ImGetGroupMemberInfoRespVo vo = new ImGetGroupMemberInfoRespVo();
         BeanUtils.copyProperties(dto, vo);
         return vo;
     }
 
-    private ImSendGroupMsgRespVo toSendVo(com.aihoo.domain.im.dto.ImSendGroupMsgRespVo dto) {
+    private ImSendGroupMsgRespVo toSendVo(com.aihoo.domain.im.dto.ImSendGroupMsgRespDto dto) {
         if (dto == null) return null;
         ImSendGroupMsgRespVo vo = new ImSendGroupMsgRespVo();
         BeanUtils.copyProperties(dto, vo);
         return vo;
     }
 
-    private ImRespVo toRespVo(com.aihoo.domain.im.dto.ImRespVo dto) {
+    private ImRespVo toRespVo(com.aihoo.domain.im.dto.ImRespDto dto) {
         if (dto == null) return null;
         ImRespVo vo = new ImRespVo();
         vo.setActionStatus(dto.getActionStatus());

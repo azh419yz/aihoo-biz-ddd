@@ -2,7 +2,7 @@ package com.aihoo.api.patient.controller;
 
 import com.aihoo.api.patient.vo.CallBackVo;
 import com.aihoo.properties.TencentProperties;
-import com.aihoo.domain.im.dto.ImCallBackRequest;
+import com.aihoo.domain.im.dto.ImCallbackReqDto;
 import com.aihoo.domain.im.enums.CallbackCommandEnum;
 import com.aihoo.domain.im.service.ImCallBackService;
 import com.aihoo.util.BeanRegistry;
@@ -49,7 +49,7 @@ public class ImCallbackController {
         String contenttype = request.getParameter("contenttype");
         String clientIP = request.getParameter("ClientIP");
         String optPlatform = request.getParameter("OptPlatform");
-        ImCallBackRequest callBackRequest = new ImCallBackRequest();
+        ImCallbackReqDto callBackRequest = new ImCallbackReqDto();
         callBackRequest.setSdkAppid(sdkAppid);
         callBackRequest.setContenttype(contenttype);
         callBackRequest.setCallbackCommand(callbackCommand);

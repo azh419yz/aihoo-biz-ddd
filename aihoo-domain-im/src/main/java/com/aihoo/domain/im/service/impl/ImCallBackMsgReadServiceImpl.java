@@ -1,6 +1,6 @@
 package com.aihoo.domain.im.service.impl;
 
-import com.aihoo.domain.im.dto.ImCallBackRequest;
+import com.aihoo.domain.im.dto.ImCallbackReqDto;
 import com.aihoo.domain.im.entity.ImMsg;
 import com.aihoo.domain.im.service.ImCallBackService;
 import com.aihoo.domain.im.service.ImMsgService;
@@ -19,7 +19,7 @@ public class ImCallBackMsgReadServiceImpl implements ImCallBackService {
     private final ImMsgService imMsgService;
 
     @Override
-    public void callBack(ImCallBackRequest request) {
+    public void callBack(ImCallbackReqDto request) {
         log.info("回调接口执行:{}", JSONObject.toJSONString(request));
 
         JSONObject jsonObject = JSONObject.parseObject(request.getCallBackBody());

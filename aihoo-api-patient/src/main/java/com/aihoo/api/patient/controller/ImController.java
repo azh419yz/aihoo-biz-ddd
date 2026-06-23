@@ -76,12 +76,12 @@ public class ImController extends BaseController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, ImSendMsgRespVo.class},
+                            oneOf = {BizResult.class, ImSendMsgRespDto.class},
                             description = "返回信息发送相关结果"
                     )
             )
     )
-    public BizResult<ImSendMsgRespVo> sendMsg(
+    public BizResult<ImSendMsgRespDto> sendMsg(
             @RequestBody
             @Parameter(
                     description = "发送消息请求参数",
@@ -91,9 +91,9 @@ public class ImController extends BaseController {
                             schema = @Schema(implementation = ImSendMsgRequest.class)))
             ImSendMsgRequest imSendMsgRequest) {
         try {
-            com.aihoo.domain.im.dto.ImSendMsgRequest dto = new com.aihoo.domain.im.dto.ImSendMsgRequest();
+            com.aihoo.domain.im.dto.ImSendMsgReqDto dto = new com.aihoo.domain.im.dto.ImSendMsgReqDto();
             BeanUtils.copyProperties(imSendMsgRequest, dto);
-            ImSendMsgRespVo imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
+            ImSendMsgRespDto imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
             if (imResponse != null && "OK".equals(imResponse.getActionStatus())) {
                 hosVisitService.updateMsg(imSendMsgRequest.getVisitNo(), imSendMsgRequest.getMsgContent());
             }
@@ -113,16 +113,16 @@ public class ImController extends BaseController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, ImSendMsgRespVo.class},
+                            oneOf = {BizResult.class, ImSendMsgRespDto.class},
                             description = "修改信息"
                     )
             )
     )
-    public BizResult<ImSendMsgRespVo> modifyMsg(@RequestBody ImSendMsgRequest imSendMsgRequest) {
+    public BizResult<ImSendMsgRespDto> modifyMsg(@RequestBody ImSendMsgRequest imSendMsgRequest) {
         try {
-            com.aihoo.domain.im.dto.ImSendMsgRequest dto = new com.aihoo.domain.im.dto.ImSendMsgRequest();
+            com.aihoo.domain.im.dto.ImSendMsgReqDto dto = new com.aihoo.domain.im.dto.ImSendMsgReqDto();
             BeanUtils.copyProperties(imSendMsgRequest, dto);
-            ImSendMsgRespVo imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
+            ImSendMsgRespDto imResponse = imService.callTim(ImServiceApiEnum.SEND_MSG, dto);
             if (imResponse != null && "OK".equals(imResponse.getActionStatus())) {
                 hosVisitService.updateMsg(imSendMsgRequest.getVisitNo(), imSendMsgRequest.getMsgContent());
             }
@@ -141,19 +141,19 @@ public class ImController extends BaseController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, ImRecentContactVo.class},
+                            oneOf = {BizResult.class, ImRecentContactDto.class},
                             description = "患者的会话列表"
                     )
             )
     )
-    public BizResult<ImRecentContactVo> recentcontact(@Validated @RequestBody ImContactRequest imContactRequest) {
+    public BizResult<ImRecentContactDto> recentcontact(@Validated @RequestBody ImContactRequest imContactRequest) {
         String apiName = "v4/recentcontact/get_list";
         try {
             ImContactRequestDto dto = new ImContactRequestDto();
             BeanUtils.copyProperties(imContactRequest, dto);
             String payLoad = JSON.toJSONString(dto);
             String apiResponse = imService.callTimV1(apiName, payLoad);
-            ImRecentContactVo recentContact = buildApiResponse(apiResponse);
+            ImRecentContactDto recentContact = buildApiResponse(apiResponse);
             fillNickNameAndHeadImg(recentContact);
             log.info("\n\n{}\n{}\n{}\n\n", apiName, payLoad, apiResponse);
             return BizResult.success(recentContact);
@@ -163,19 +163,19 @@ public class ImController extends BaseController {
         }
     }
 
-    private ImRecentContactVo buildApiResponse(String apiResponse) {
-        return JSON.parseObject(apiResponse, ImRecentContactVo.class);
+    private ImRecentContactDto buildApiResponse(String apiResponse) {
+        return JSON.parseObject(apiResponse, ImRecentContactDto.class);
     }
 
-    private void fillNickNameAndHeadImg(ImRecentContactVo recentContact) {
-        List<ImSessionItemVo> sessionItemList = recentContact.getSessionItem();
+    private void fillNickNameAndHeadImg(ImRecentContactDto recentContact) {
+        List<ImSessionItemDto> sessionItemList = recentContact.getSessionItem();
         if (sessionItemList == null || sessionItemList.isEmpty()) {
             return;
         }
 
         List<String> doctorIds = new ArrayList<String>();
         List<String> patientIds = new ArrayList<String>();
-        for (ImSessionItemVo sessionItem : sessionItemList) {
+        for (ImSessionItemDto sessionItem : sessionItemList) {
             String userId = sessionItem.getTo_Account();
             if (StringUtils.startsWith(userId, "DOCTOR_")) {
                 doctorIds.add(StringUtils.substringAfter(userId, "DOCTOR_"));
@@ -186,19 +186,19 @@ public class ImController extends BaseController {
 
         if (!doctorIds.isEmpty()) {
             List<DoctorUser> doctorUserList = doctorUserService.listByIds(doctorIds);
-            for (ImSessionItemVo sessionItem : sessionItemList) {
+            for (ImSessionItemDto sessionItem : sessionItemList) {
                 fillSessionItemByDoctor(sessionItem, doctorUserList);
             }
         }
         if (!patientIds.isEmpty()) {
             List<PatientUser> patientUserList = patientUserService.listByIds(patientIds);
-            for (ImSessionItemVo sessionItem : sessionItemList) {
+            for (ImSessionItemDto sessionItem : sessionItemList) {
                 fillSessionItemByPatient(sessionItem, patientUserList);
             }
         }
     }
 
-    private void fillSessionItemByDoctor(ImSessionItemVo sessionItem, List<DoctorUser> doctorUserList) {
+    private void fillSessionItemByDoctor(ImSessionItemDto sessionItem, List<DoctorUser> doctorUserList) {
         for (DoctorUser doctorUser : doctorUserList) {
             if (StringUtils.equals(sessionItem.getTo_Account(), "DOCTOR_" + doctorUser.getId())) {
                 sessionItem.setUserName(doctorUser.getName());
@@ -207,7 +207,7 @@ public class ImController extends BaseController {
         }
     }
 
-    private void fillSessionItemByPatient(ImSessionItemVo sessionItem, List<PatientUser> patientUserList) {
+    private void fillSessionItemByPatient(ImSessionItemDto sessionItem, List<PatientUser> patientUserList) {
         for (PatientUser patientUser : patientUserList) {
             if (StringUtils.equals(sessionItem.getTo_Account(), "PATIENT_" + patientUser.getId())) {
                 sessionItem.setUserName(patientUser.getName());
@@ -223,19 +223,19 @@ public class ImController extends BaseController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, ImMsgVo.class},
+                            oneOf = {BizResult.class, ImMsgDto.class},
                             description = "获取聊天记录"
                     )
             )
     )
-    public BizResult<List<ImMsgVo>> findImMsgByVisitNo(
+    public BizResult<List<ImMsgDto>> findImMsgByVisitNo(
             @Parameter(name = "visitNo", description = "问诊卡no", example = "V20210106182014643")
             String visitNo) {
         List<ImMsg> msgList = imMsgService.list(new LambdaQueryWrapper<ImMsg>()
                 .eq(ImMsg::getOrderNum, visitNo)
                 .orderByDesc(ImMsg::getCreateTime));
-        List<ImMsgVo> msgVos = msgList.stream().map(msg -> {
-            ImMsgVo msgVo = new ImMsgVo();
+        List<ImMsgDto> msgVos = msgList.stream().map(msg -> {
+            ImMsgDto msgVo = new ImMsgDto();
             msgVo.setMsgRandom(msg.getMsgRandom());
             msgVo.setMsgKey(msg.getMsgKey());
             msgVo.setOrderNum(msg.getOrderNum());
@@ -252,9 +252,9 @@ public class ImController extends BaseController {
             msgContentQueryWrapper.eq("im_msg_id", msg.getId());
             List<ImMsgContent> msgContent = imMsgContentService.list(msgContentQueryWrapper);
             if (CollectionUtils.isNotEmpty(msgContent)) {
-                List<ImMsgContentVo> contentVos = Lists.newArrayList();
+                List<ImMsgContentDto> contentVos = Lists.newArrayList();
                 for (ImMsgContent imMsgContent : msgContent) {
-                    ImMsgContentVo imMsgContentVo = new ImMsgContentVo();
+                    ImMsgContentDto imMsgContentVo = new ImMsgContentDto();
                     imMsgContentVo.setImMsgId(imMsgContent.getImMsgId());
                     imMsgContentVo.setMsgType(imMsgContent.getMsgType());
                     imMsgContentVo.setMsgContent(imMsgContent.getMsgContent());

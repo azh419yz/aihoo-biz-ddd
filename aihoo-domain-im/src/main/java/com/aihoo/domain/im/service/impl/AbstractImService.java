@@ -2,8 +2,8 @@ package com.aihoo.domain.im.service.impl;
 
 import cn.hutool.http.HttpRequest;
 import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
-import com.aihoo.domain.im.dto.ImSendMsgRequest;
-import com.aihoo.domain.im.dto.ImSendMsgRespVo;
+import com.aihoo.domain.im.dto.ImSendMsgReqDto;
+import com.aihoo.domain.im.dto.ImSendMsgRespDto;
 import com.aihoo.domain.im.dto.ImWithdrawMsgRequestDto;
 import com.aihoo.domain.im.entity.ImMsg;
 import com.aihoo.domain.im.entity.ImMsgContent;
@@ -38,7 +38,7 @@ public abstract class AbstractImService implements ImService {
     private ImMsgContentService imMsgContentService;
 
     @Override
-    public ImSendMsgRespVo callTim(ImServiceApiEnum api, ImSendMsgRequest imSendMsgRequest) {
+    public ImSendMsgRespDto callTim(ImServiceApiEnum api, ImSendMsgReqDto imSendMsgRequest) {
         String random = UUIDUtil.randomUUID32();
         String host = "https://console.tim.qq.com/" + api.getApiName() + "?sdkappid=" + tencentProperties.getSdkappid()
                 + "&identifier=" + tencentProperties.getAdminidentifier() + "&usersig=" + genAdminUserSign()
@@ -79,7 +79,7 @@ public abstract class AbstractImService implements ImService {
     @Override
     public boolean sendGroupMsg(ImSendGroupMsgRequestDto req) {
         log.info("sendGroupMsg request: {}", JSONObject.toJSONString(req));
-        com.aihoo.domain.im.dto.ImSendGroupMsgRespVo resp = tencentImGroupUtil.sendGroupMessage(req);
+        com.aihoo.domain.im.dto.ImSendGroupMsgRespDto resp = tencentImGroupUtil.sendGroupMessage(req);
         log.info("sendGroupMsg response: actionStatus={}, errorCode={}, errorInfo={}, msgTime={}, msgSeq={}",
                 resp.getActionStatus(), resp.getErrorCode(), resp.getErrorInfo(), resp.getMsgTime(), resp.getMsgSeq());
         if (resp.isSuccess()) {
@@ -167,7 +167,7 @@ public abstract class AbstractImService implements ImService {
         return helper.replacePlaceholders(api.getApiTemplate(), props::getProperty);
     }
 
-    ImSendMsgRespVo buildResponse(String apiResponse) {
-        return JSON.parseObject(apiResponse, ImSendMsgRespVo.class);
+    ImSendMsgRespDto buildResponse(String apiResponse) {
+        return JSON.parseObject(apiResponse, ImSendMsgRespDto.class);
     }
 }

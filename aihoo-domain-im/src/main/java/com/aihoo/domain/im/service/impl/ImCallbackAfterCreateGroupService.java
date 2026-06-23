@@ -1,6 +1,6 @@
 package com.aihoo.domain.im.service.impl;
 
-import com.aihoo.domain.im.dto.ImCallBackRequest;
+import com.aihoo.domain.im.dto.ImCallbackReqDto;
 import com.aihoo.domain.im.entity.ImGroup;
 import com.aihoo.domain.im.service.ImCallBackService;
 import com.aihoo.domain.im.service.ImGroupService;
@@ -18,7 +18,7 @@ public class ImCallbackAfterCreateGroupService implements ImCallBackService {
     private final ImGroupService imGroupService;
 
     @Override
-    public void callBack(ImCallBackRequest request) {
+    public void callBack(ImCallbackReqDto request) {
         JSONObject createGroupRequest = JSONObject.parseObject(request.getCallBackBody());
         String groupId = createGroupRequest.getString("GroupId");
         if (StringUtils.isEmpty(groupId)) {

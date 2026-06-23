@@ -1,7 +1,7 @@
 package com.aihoo.domain.logistics.service.impl;
 
-import com.aihoo.domain.logistics.dto.sf.AddressRequest;
-import com.aihoo.domain.logistics.dto.sf.OrderPriceRequest;
+import com.aihoo.domain.logistics.dto.sf.AddressDto;
+import com.aihoo.domain.logistics.dto.sf.OrderPriceDto;
 import com.aihoo.domain.logistics.service.SFService;
 import com.aihoo.domain.logistics.util.SFUtil;
 import lombok.extern.log4j.Log4j2;
@@ -19,11 +19,11 @@ public class SFServiceImpl implements SFService {
     @Override
     public BigDecimal getExpressPrice(String from, String to) {
         try {
-            AddressRequest srcAddr = new AddressRequest();
+            AddressDto srcAddr = new AddressDto();
             srcAddr.setProvince(from);
-            AddressRequest destAddr = new AddressRequest();
+            AddressDto destAddr = new AddressDto();
             destAddr.setProvince(to);
-            OrderPriceRequest bizReq = new OrderPriceRequest();
+            OrderPriceDto bizReq = new OrderPriceDto();
             bizReq.setWeight(1.0);
             bizReq.setBusinessType("1");
             bizReq.setSearchPrice("1");

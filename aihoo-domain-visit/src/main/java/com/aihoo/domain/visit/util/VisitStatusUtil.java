@@ -1,6 +1,6 @@
 package com.aihoo.domain.visit.util;
 
-import com.aihoo.domain.visit.dto.VisitStatusVo;
+import com.aihoo.domain.visit.dto.VisitStatusDto;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -48,8 +48,8 @@ public class VisitStatusUtil {
         }
     }
 
-    public static VisitStatusVo getStatusFlow(String currentStatus) {
-        VisitStatusVo statusVo = new VisitStatusVo();
+    public static VisitStatusDto getStatusFlow(String currentStatus) {
+        VisitStatusDto statusVo = new VisitStatusDto();
         statusVo.setNow(currentStatus);
 
         List<String> prevStatusList = prevStatusMap.getOrDefault(currentStatus, new ArrayList<>());

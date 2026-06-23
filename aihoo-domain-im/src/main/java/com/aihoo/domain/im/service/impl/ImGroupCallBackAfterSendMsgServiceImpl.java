@@ -1,6 +1,6 @@
 package com.aihoo.domain.im.service.impl;
 
-import com.aihoo.domain.im.dto.ImCallBackRequest;
+import com.aihoo.domain.im.dto.ImCallbackReqDto;
 import com.aihoo.domain.im.service.ImCallBackService;
 import com.aihoo.domain.im.service.ImMsgService;
 import com.alibaba.fastjson2.JSONObject;
@@ -18,7 +18,7 @@ public class ImGroupCallBackAfterSendMsgServiceImpl implements ImCallBackService
     private final ImMsgService imMsgService;
 
     @Override
-    public void callBack(ImCallBackRequest request) {
+    public void callBack(ImCallbackReqDto request) {
         JSONObject body = JSONObject.parseObject(request.getCallBackBody());
         JSONObject customData = body.getJSONObject("CloudCustomData");
         body.put("visitNo", MapUtils.getString(customData, "visitNo"));

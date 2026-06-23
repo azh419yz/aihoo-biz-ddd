@@ -15,7 +15,7 @@ public interface HosVisitService extends IService<HosVisit> {
 
     JSONArray patientList(Map<String, Object> map);
 
-    HosVisit createOrder(HosVisitCreateRequest request);
+    HosVisit createOrder(HosVisitCreateDto request);
 
     void hosVisitPay(String id);
 
@@ -32,15 +32,15 @@ public interface HosVisitService extends IService<HosVisit> {
      */
     Long countByDoctorUserId(String doctorUserId);
 
-    void addHealthInfo(HosVisitInfoRequest request);
+    void addHealthInfo(HosVisitInfoDto request);
 
-    void addBaseInfo(HosVisitInfoRequest request);
+    void addBaseInfo(HosVisitInfoDto request);
 
-    void updateBaseInfo(HosVisitInfoRequest request);
+    void updateBaseInfo(HosVisitInfoDto request);
 
-    HosVisitHealthInfoVo getHealthInfo(String hosVisitId);
+    HosVisitHealthInfoDto getHealthInfo(String hosVisitId);
 
-    HosVisitBaseInfoVo getBaseInfo(String hosVisitId);
+    HosVisitBaseInfoRespDto getBaseInfo(String hosVisitId);
 
     long countHosVisitByPatientUserId(String patientUserId);
 

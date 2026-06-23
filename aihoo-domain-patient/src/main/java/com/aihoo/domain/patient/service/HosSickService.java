@@ -77,4 +77,5 @@ public interface HosSickService extends IService<HosSick> {
      * 写入 IM 用户签名。
      */
     void setImUserSig(String hosSickId, String imUserId, String userSig);
+
 }

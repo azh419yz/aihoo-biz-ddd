@@ -2,15 +2,15 @@ package com.aihoo.domain.im.util;
 
 import com.aihoo.domain.im.constant.ImRequestUrlConstant;
 import com.aihoo.domain.im.dto.ImAddGroupMemberRequestDto;
-import com.aihoo.domain.im.dto.ImAddGroupMemberRespVo;
+import com.aihoo.domain.im.dto.ImAddGroupMemberRespDto;
 import com.aihoo.domain.im.dto.ImCreateGroupRequestDto;
-import com.aihoo.domain.im.dto.ImCreateGroupRespVo;
+import com.aihoo.domain.im.dto.ImCreateGroupDto;
 import com.aihoo.domain.im.dto.ImDeleteGroupMemberRequestDto;
 import com.aihoo.domain.im.dto.ImGetGroupMemberInfoRequestDto;
-import com.aihoo.domain.im.dto.ImGetGroupMemberInfoRespVo;
-import com.aihoo.domain.im.dto.ImRespVo;
+import com.aihoo.domain.im.dto.ImGetGroupMemberInfoRespDto;
+import com.aihoo.domain.im.dto.ImRespDto;
 import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
-import com.aihoo.domain.im.dto.ImSendGroupMsgRespVo;
+import com.aihoo.domain.im.dto.ImSendGroupMsgRespDto;
 import com.aihoo.properties.TencentProperties;
 import com.aihoo.util.ImUtils;
 import com.alibaba.fastjson2.JSON;
@@ -45,7 +45,7 @@ public class TencentImGroupUtil {
                 tencentProperties.getSdkappid(), tencentProperties.getPrivstr());
     }
 
-    private <T extends ImRespVo> T executeRequest(String command, Object reqParams, Class<T> responseClass) {
+    private <T extends ImRespDto> T executeRequest(String command, Object reqParams, Class<T> responseClass) {
         T result;
         try {
             String url = ImRequestUrlConstant.GROUP_URL + command +
@@ -103,32 +103,32 @@ public class TencentImGroupUtil {
         }
     }
 
-    private void fillErrorResponse(ImRespVo response, int errorCode, String errorInfo) {
+    private void fillErrorResponse(ImRespDto response, int errorCode, String errorInfo) {
         response.setActionStatus("FAIL");
         response.setErrorCode(errorCode);
         response.setErrorInfo(errorInfo);
     }
 
-    public ImCreateGroupRespVo createGroup(ImCreateGroupRequestDto req) {
-        return executeRequest(ImRequestUrlConstant.CREATE_GROUP_URL, req, ImCreateGroupRespVo.class);
+    public ImCreateGroupDto createGroup(ImCreateGroupRequestDto req) {
+        return executeRequest(ImRequestUrlConstant.CREATE_GROUP_URL, req, ImCreateGroupDto.class);
     }
 
-    public ImAddGroupMemberRespVo addGroupMember(ImAddGroupMemberRequestDto req) {
-        return executeRequest(ImRequestUrlConstant.ADD_MEMBER_URL, req, ImAddGroupMemberRespVo.class);
+    public ImAddGroupMemberRespDto addGroupMember(ImAddGroupMemberRequestDto req) {
+        return executeRequest(ImRequestUrlConstant.ADD_MEMBER_URL, req, ImAddGroupMemberRespDto.class);
     }
 
-    public ImRespVo deleteGroupMember(ImDeleteGroupMemberRequestDto req) {
-        return executeRequest(ImRequestUrlConstant.DELETE_MEMBER_URL, req, ImRespVo.class);
+    public ImRespDto deleteGroupMember(ImDeleteGroupMemberRequestDto req) {
+        return executeRequest(ImRequestUrlConstant.DELETE_MEMBER_URL, req, ImRespDto.class);
     }
 
-    public ImSendGroupMsgRespVo sendGroupMessage(ImSendGroupMsgRequestDto req) {
+    public ImSendGroupMsgRespDto sendGroupMessage(ImSendGroupMsgRequestDto req) {
         if (req.getRandom() == null) {
             req.setRandom((long) (Math.random() * 100000000));
         }
-        return executeRequest(ImRequestUrlConstant.SEND_GROUP_MSG, req, ImSendGroupMsgRespVo.class);
+        return executeRequest(ImRequestUrlConstant.SEND_GROUP_MSG, req, ImSendGroupMsgRespDto.class);
     }
 
-    public ImGetGroupMemberInfoRespVo getGroupMemberInfo(ImGetGroupMemberInfoRequestDto req) {
+    public ImGetGroupMemberInfoRespDto getGroupMemberInfo(ImGetGroupMemberInfoRequestDto req) {
         if (req.getOffset() == null) {
             req.setOffset(0);
         }
@@ -137,6 +137,6 @@ public class TencentImGroupUtil {
         } else if (req.getLimit() > 500) {
             req.setLimit(500);
         }
-        return executeRequest(ImRequestUrlConstant.GET_GROUP_MEMBER_INFO, req, ImGetGroupMemberInfoRespVo.class);
+        return executeRequest(ImRequestUrlConstant.GET_GROUP_MEMBER_INFO, req, ImGetGroupMemberInfoRespDto.class);
     }
 }

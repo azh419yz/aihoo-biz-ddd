@@ -57,7 +57,7 @@ public class HosVisitController {
             )
     )
     public BizResult<HosVisit> createOrder(@Validated @RequestBody HosVisitCreateRequest request) {
-        com.aihoo.domain.visit.dto.HosVisitCreateRequest dto = new com.aihoo.domain.visit.dto.HosVisitCreateRequest();
+        com.aihoo.domain.visit.dto.HosVisitCreateDto dto = new com.aihoo.domain.visit.dto.HosVisitCreateDto();
         BeanUtils.copyProperties(request, dto);
         return BizResult.success(hosVisitService.createOrder(dto));
     }
@@ -233,14 +233,14 @@ public class HosVisitController {
         }
     }
 
-    private com.aihoo.domain.visit.dto.HosVisitCreateRequest toVisitDto(HosVisitCreateRequest request) {
-        com.aihoo.domain.visit.dto.HosVisitCreateRequest dto = new com.aihoo.domain.visit.dto.HosVisitCreateRequest();
+    private com.aihoo.domain.visit.dto.HosVisitCreateDto toVisitDto(HosVisitCreateRequest request) {
+        com.aihoo.domain.visit.dto.HosVisitCreateDto dto = new com.aihoo.domain.visit.dto.HosVisitCreateDto();
         BeanUtils.copyProperties(request, dto);
         return dto;
     }
 
-    private com.aihoo.domain.visit.dto.HosVisitInfoRequest toVisitDto(HosVisitInfoRequest request) {
-        com.aihoo.domain.visit.dto.HosVisitInfoRequest dto = new com.aihoo.domain.visit.dto.HosVisitInfoRequest();
+    private com.aihoo.domain.visit.dto.HosVisitInfoDto toVisitDto(HosVisitInfoRequest request) {
+        com.aihoo.domain.visit.dto.HosVisitInfoDto dto = new com.aihoo.domain.visit.dto.HosVisitInfoDto();
         dto.setHosVisitId(request.getHosVisitId());
         dto.setHealthInfo(request.getHealthInfo());
         if (request.getBaseInfo() != null) {
@@ -251,14 +251,14 @@ public class HosVisitController {
         return dto;
     }
 
-    private HosVisitHealthInfoVo toHealthInfoVo(com.aihoo.domain.visit.dto.HosVisitHealthInfoVo dto) {
+    private HosVisitHealthInfoVo toHealthInfoVo(com.aihoo.domain.visit.dto.HosVisitHealthInfoDto dto) {
         if (dto == null) return null;
         HosVisitHealthInfoVo vo = new HosVisitHealthInfoVo();
         BeanUtils.copyProperties(dto, vo);
         return vo;
     }
 
-    private HosVisitBaseInfoVo toBaseInfoVo(com.aihoo.domain.visit.dto.HosVisitBaseInfoVo dto) {
+    private HosVisitBaseInfoVo toBaseInfoVo(com.aihoo.domain.visit.dto.HosVisitBaseInfoRespDto dto) {
         if (dto == null) return null;
         HosVisitBaseInfoVo vo = new HosVisitBaseInfoVo();
         BeanUtils.copyProperties(dto, vo);

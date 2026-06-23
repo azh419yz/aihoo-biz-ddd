@@ -271,4 +271,5 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
                 .set(HosSick::getImUserSig, userSig);
         baseMapper.update(updateWrapper);
     }
+
 }

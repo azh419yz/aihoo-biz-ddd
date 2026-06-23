@@ -6,7 +6,7 @@ import com.aihoo.api.patient.request.MdtOrderPayRequest;
 import com.aihoo.api.patient.request.MdtOrderSaveRequest;
 import com.aihoo.api.patient.vo.MdtOrderPageVo;
 import com.aihoo.api.patient.vo.MdtOrderSaveRespVo;
-import com.aihoo.api.patient.vo.MdtOrderViewVo;
+import com.aihoo.domain.order.dto.MdtOrderViewDto;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
@@ -24,6 +24,9 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Tag(name = "MdtOrderV2", description = "患者端-订单相关接口")
 @RestController
@@ -46,8 +49,17 @@ public class MdtOrderController {
                     )
             )
     )
-    public BizResult<PageResult<com.aihoo.domain.order.dto.MdtOrderPageVo>> pageOrderListByPatientUserId(@Parameter PageParam<MdtOrder> pageParam) {
-        return BizResult.success(mdtOrderService.pageOrderListByPatientUserId(pageParam));
+    public BizResult<PageResult<com.aihoo.api.patient.vo.MdtOrderPageVo>> pageOrderListByPatientUserId(@Parameter PageParam<MdtOrder> pageParam) {
+        PageResult<com.aihoo.domain.order.dto.MdtOrderPageRespDto> page = mdtOrderService.pageOrderListByPatientUserId(pageParam);
+        List<com.aihoo.api.patient.vo.MdtOrderPageVo> voList = page.getData() == null ? new ArrayList<>() : page.getData().stream().map(this::toPageVo).toList();
+        return BizResult.success(new PageResult<>(voList, page.getCount()));
+    }
+
+    private com.aihoo.api.patient.vo.MdtOrderPageVo toPageVo(com.aihoo.domain.order.dto.MdtOrderPageRespDto dto) {
+        if (dto == null) return null;
+        com.aihoo.api.patient.vo.MdtOrderPageVo vo = new com.aihoo.api.patient.vo.MdtOrderPageVo();
+        BeanUtils.copyProperties(dto, vo);
+        return vo;
     }
 
     @PostMapping
@@ -63,10 +75,17 @@ public class MdtOrderController {
                     )
             )
     )
-    public BizResult<com.aihoo.domain.order.dto.MdtOrderSaveRespVo> saveOrder(@RequestBody MdtOrderSaveRequest order) {
+    public BizResult<com.aihoo.api.patient.vo.MdtOrderSaveRespVo> saveOrder(@RequestBody MdtOrderSaveRequest order) {
         MdtOrder mdtOrder = new MdtOrder();
         BeanUtils.copyProperties(order, mdtOrder);
-        return BizResult.success(mdtOrderService.saveOrder(mdtOrder));
+        return BizResult.success(toSaveRespVo(mdtOrderService.saveOrder(mdtOrder)));
+    }
+
+    private com.aihoo.api.patient.vo.MdtOrderSaveRespVo toSaveRespVo(com.aihoo.domain.order.dto.MdtOrderSaveRespDto dto) {
+        if (dto == null) return null;
+        com.aihoo.api.patient.vo.MdtOrderSaveRespVo vo = new com.aihoo.api.patient.vo.MdtOrderSaveRespVo();
+        BeanUtils.copyProperties(dto, vo);
+        return vo;
     }
 
     @PostMapping("/pay")
@@ -95,12 +114,12 @@ public class MdtOrderController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, MdtOrderViewVo.class},
+                            oneOf = {BizResult.class, MdtOrderViewDto.class},
                             description = "根据id查询订单"
                     )
             )
     )
-    public BizResult<MdtOrderViewVo> selectOrderById(@Parameter(name = "orderNum", description = "订单号", required = true)
+    public BizResult<MdtOrderViewDto> selectOrderById(@Parameter(name = "orderNum", description = "订单号", required = true)
                                                      @RequestParam String orderNum) {
         return BizResult.success(toVo(mdtOrderService.selectMdtOrderViewVo(orderNum)));
     }
@@ -113,20 +132,20 @@ public class MdtOrderController {
             content = @Content(
                     mediaType = "application/json",
                     schema = @Schema(
-                            oneOf = {BizResult.class, IPage.class, MdtOrderViewVo.class},
+                            oneOf = {BizResult.class, IPage.class, MdtOrderViewDto.class},
                             description = "查看全部会诊订单"
                     )
             )
     )
-    public BizResult<IPage<com.aihoo.domain.order.dto.MdtOrderViewVo>> list(@ParameterObject MdtOrderListRequest req) {
+    public BizResult<IPage<com.aihoo.domain.order.dto.MdtOrderViewDto>> list(@ParameterObject MdtOrderListRequest req) {
         MdtOrderListRequestDto dto = new MdtOrderListRequestDto();
         BeanUtils.copyProperties(req, dto);
         return BizResult.success(mdtOrderService.selectMdtOrderViewList(dto));
     }
 
-    private MdtOrderViewVo toVo(com.aihoo.domain.order.dto.MdtOrderViewVo dto) {
+    private MdtOrderViewDto toVo(com.aihoo.domain.order.dto.MdtOrderViewDto dto) {
         if (dto == null) return null;
-        MdtOrderViewVo vo = new MdtOrderViewVo();
+        MdtOrderViewDto vo = new MdtOrderViewDto();
         BeanUtils.copyProperties(dto, vo);
         return vo;
     }
