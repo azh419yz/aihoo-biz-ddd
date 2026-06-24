@@ -3,12 +3,6 @@ package com.aihoo.domain.doctor.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医生用户 DTO（domain 层）。{@link com.aihoo.domain.doctor.entity.DoctorUser} 的浅拷贝投影，
- * 不含 prescriptionCount/visitCount/proposalCount 等需要跨域聚合的字段，那些由 controller 装配。
- *
- * <p>service 返回，controller 负责转换为 api 层 vo。
- */
 @Data
 @Schema(description = "医生用户 DTO")
 public class DoctorUserDto {

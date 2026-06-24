@@ -3,9 +3,9 @@ package com.aihoo.api.doctor.controller;
 import com.aihoo.api.doctor.request.TcmDiseaseListRequest;
 import com.aihoo.api.doctor.vo.TcmDiseaseVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.tcm.dto.TcmDiseaseDto;
-import com.aihoo.domain.tcm.dto.TcmDiseaseListRequestDto;
-import com.aihoo.domain.tcm.service.TcmDiseaseService;
+import com.aihoo.domain.hospital.dto.TcmDiseaseDto;
+import com.aihoo.domain.hospital.dto.TcmDiseaseListRequestDto;
+import com.aihoo.domain.hospital.service.TcmDiseaseService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -20,9 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 中医疾病管理
- */
 @Tag(name = "Disease", description = "医生端-中医疾病接口")
 @RestController
 @RequestMapping("/api/v2/disease")

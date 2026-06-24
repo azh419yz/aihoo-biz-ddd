@@ -5,12 +5,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 地区 Vo（合并自旧 AreaVo/DAreaVo，结构相同）。
- *
- * @author mcp
- * @since 2020-08-10
- */
 @Data
 public class AreaVo {
 

@@ -10,15 +10,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Banner service。
- *
- * <p>跨域依赖（Rule H 暂授权）：
- * <ul>
- *   <li>doctor 域 DoctorUserService / DoctorUserMapper — findDoctorAll / getBannerDetails 中查询医生</li>
- *   <li>mdt 实体暂未在 DDD 中独立成域（仅有 order 域的 MdtOrder），findDiseaseAll / teams 方法暂返回空列表，迁移时按需补 mdt 域</li>
- * </ul>
- */
 public interface BannerService extends IService<Banner> {
 
     PageResult<Map<String, Object>> bannerList(Map<String, Object> map);

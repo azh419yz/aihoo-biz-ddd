@@ -42,7 +42,7 @@
 1. Bean 冲突 → 删除 im 域 BeanRegistry
 2. @MapperScan 加 `com.aihoo.push`
 3. @ComponentScan 加 push/alicloud
-4. upload.properties 从 aihoo-common 复制到 sk
+4. upload.properties 从 aihoo-common 复制到 common resources
 5. @Resource → @Autowired（HosVisitServiceImpl.pushMessageServiceImpl）
 6. AuthUtil.getLoginUser 类型差异处理
 

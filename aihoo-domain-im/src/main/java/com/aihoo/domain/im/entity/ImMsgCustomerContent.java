@@ -8,10 +8,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * IM 客服消息内容表。
- * <p>2026-06-18 迁自 patient-api/ImMsgCustomerContent。
- */
 @Data
 @TableName("t_im_msg_customer_content")
 public class ImMsgCustomerContent implements Serializable {

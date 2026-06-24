@@ -3,11 +3,6 @@ package com.aihoo.domain.visit.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 问诊复诊 DTO（domain 层）。
- *
- * <p>service 返回，controller 负责转换为 api 层 vo。
- */
 @Data
 @Schema(description = "问诊复诊 DTO")
 public class VisitChatDto {

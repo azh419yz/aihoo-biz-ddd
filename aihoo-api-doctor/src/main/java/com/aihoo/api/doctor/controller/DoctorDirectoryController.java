@@ -25,10 +25,6 @@ import java.util.Random;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * 医生通讯录 controller（迁自 doctor-api: DoctorDirectoryV2Controller）。
- * 2026-06-18 拆解循环依赖：患者信息合并逻辑从 DoctorDirectoryServiceImpl 上移到本 controller。
- */
 @Tag(name = "doctorDirectory", description = "医生端-通讯录")
 @RestController
 @RequiredArgsConstructor

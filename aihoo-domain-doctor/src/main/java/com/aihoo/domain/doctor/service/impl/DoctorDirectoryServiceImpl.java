@@ -15,11 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * 医生通讯录 service 实现（迁自 doctor-api: DoctorDirectoryServiceImpl）。
- * 2026-06-18 拆解循环依赖：移除 HosSickService 注入，仅返回 doctor 域字段；
- * 患者信息（avatar/sickName/sickSex/sickAge/mobile/saveTime）由 api-doctor controller 合并填充。
- */
 @Log4j2
 @Service
 @RequiredArgsConstructor

@@ -27,12 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 就诊人信息表 前端控制器（迁自 patient-api 的 HosSickV2Controller）。
- *
- * <p>2026-06-18 拆解循环依赖：patient service 不再聚合 visit/prescription/doctor，
- * controller 调 HosVisitService + HosPrescriptionService + DoctorUserService 自行组装。
- */
 @Tag(name = "HosSickV2", description = "患者端-就诊人相关接口")
 @RestController
 @RequestMapping("/api/v2/hosSick")
@@ -44,9 +38,7 @@ public class HosSickController {
     private final HosPrescriptionService hosPrescriptionService;
     private final DoctorUserService doctorUserService;
 
-    /**
-     * 查询所有就诊人信息
-     */
+    
     @GetMapping("/queryByPatientUserId")
     @Operation(summary = "查询所有就诊人信息")
     @ApiResponse(
@@ -62,7 +54,7 @@ public class HosSickController {
     )
     public BizResult<List<HosSickVo>> queryHosSickByPatientUserId(@RequestParam(required = false) String doctorId) {
         List<HosSickDto> dtos = hosSickService.queryHosSickByDoctorId(doctorId);
-        // controller 层聚合：填充每个 sick 的最新问诊 status / imGroupId
+
         java.util.Map<String, HosVisit> latestVisitMap = new java.util.HashMap<>();
         if (doctorId != null && !doctorId.isBlank()) {
             for (HosSickDto dto : dtos) {
@@ -75,9 +67,7 @@ public class HosSickController {
         return BizResult.success(dtos.stream().map(dto -> toVo(dto, latestVisitMap.get(dto.getId()))).toList());
     }
 
-    /**
-     * 查询单个就诊人信息
-     */
+    
     @GetMapping("/queryByHosSickId")
     @Operation(summary = "查询单个就诊人信息")
     @ApiResponse(
@@ -96,9 +86,7 @@ public class HosSickController {
         return BizResult.success(toVo(dto, null));
     }
 
-    /**
-     * 认证就诊人
-     */
+    
     @PostMapping("/check")
     @Operation(summary = "认证就诊人")
     @ApiResponse(
@@ -122,9 +110,7 @@ public class HosSickController {
         return BizResult.success(resp);
     }
 
-    /**
-     * 删除就诊人
-     */
+    
     @DeleteMapping("/delete/{hosSickId}")
     @Operation(summary = "删除就诊人")
     @ApiResponse(
@@ -142,9 +128,7 @@ public class HosSickController {
         return BizResult.success(hosSickService.removeHosSick(hosSickId));
     }
 
-    /**
-     * 增加就诊人
-     */
+    
     @PostMapping("/save")
     @Operation(summary = "增加就诊人")
     @ApiResponse(
@@ -166,9 +150,7 @@ public class HosSickController {
         return BizResult.success("添加就诊人成功", toVo(hosSickService.saveHosSick(dto), null));
     }
 
-    /**
-     * 修改就诊人
-     */
+    
     @PutMapping("/update")
     @Operation(summary = "修改就诊人")
     @ApiResponse(
@@ -194,7 +176,7 @@ public class HosSickController {
         if (dto == null) return null;
         HosSickVo vo = new HosSickVo();
         BeanUtils.copyProperties(dto, vo);
-        // controller 层聚合：填充 status / imGroupId（来自最新问诊）
+
         if (latestVisit != null) {
             String status = latestVisit.getStatus();
             if ("UNSUBMITTED".equals(status) || "SUBMITTED".equals(status) || "STARTED".equals(status)) {
@@ -203,7 +185,7 @@ public class HosSickController {
                 vo.setImGroupId(latestVisit.getImGroupId());
             }
         }
-        // controller 层聚合：填充 visits（含 doctorName/doctorHeadImg + prescriptions）
+
         List<HosVisit> visits = hosVisitService.listVisitsByHosSickId(dto.getId());
         if (visits != null && !visits.isEmpty()) {
             List<HosVisitVo> visitVos = visits.stream().map(this::toVisitVo).toList();

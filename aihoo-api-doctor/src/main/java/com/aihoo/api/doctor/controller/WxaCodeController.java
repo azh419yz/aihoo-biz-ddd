@@ -14,9 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 小程序码生成接口
- */
 @Tag(name = "wxacode", description = "医生端-小程序码相关接口")
 @Slf4j
 @RestController
@@ -26,11 +23,7 @@ public class WxaCodeController {
     @Autowired
     private WeChatApiService weChatApiService;
 
-    /**
-     * 生成小程序码接口
-     *
-     * @return 小程序码的Base64编码
-     */
+    
     @PostMapping("/generate")
     public BizResult<WxaCodeVo> generateWxaCode() {
         WxaCodeRequest request = new WxaCodeRequest();
@@ -42,23 +35,21 @@ public class WxaCodeController {
         log.info("收到生成小程序码请求，页面路径：{}，参数：{}", request.getPage(), request.getScene());
 
         try {
-            // 获取Access Token
+
             String accessToken = weChatApiService.getAccessToken();
 
-            // 构建请求参数
             JSONObject requestData = new JSONObject();
             requestData.put("scene", request.getScene() != null ? request.getScene() : "");
             requestData.put("page", request.getPage());
             requestData.put("width", request.getWidth());
             requestData.put("auto_color", request.getAutoColor());
             requestData.put("is_hyaline", request.getIsHyaline());
-            requestData.put("check_path", false);  // 不检查page参数
+            requestData.put("check_path", false);
 
             if (!request.getAutoColor()) {
                 requestData.put("line_color", request.getLineColor());
             }
 
-            // 生成小程序码
             String qrcodeBase64 = weChatApiService.generateWxaCode(accessToken, requestData);
             WxaCodeVo WxaCodeVo = new WxaCodeVo();
             WxaCodeVo.setQrcode(qrcodeBase64);

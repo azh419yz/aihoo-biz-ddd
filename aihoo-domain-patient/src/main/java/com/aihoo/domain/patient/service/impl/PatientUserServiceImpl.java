@@ -32,14 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * 患者用户 service 实现（迁自 patient-api 的 PatientUserServiceImpl，
- * 仅保留 api-patient controller 实际调用的方法）。
- *
- * <p>2026-06-18 拆解循环依赖：移除 {@code MdtOrderService}（order 域）和 {@code HosVisitService}（visit 域）注入，
- * weChatLogin/queryPatientUserById/allowPrivacyPolicy 不再聚合 orderCount/hosSickCount/visitCount，返回 PatientUser entity，
- * 由 api-patient PatientUserController 在 controller 层做多域计数聚合。
- */
 @Service
 @RequiredArgsConstructor
 public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, PatientUser> implements PatientUserService {
@@ -55,7 +47,7 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
     @Override
     public PatientUser weChatLogin(String code) {
         String openid = "", sessionKey = "", oldToken = "";
-        //TODO: 模拟登录
+
         if ("1234".equals(code)) {
             openid = "oT6JW1--IGBPD6sFE2SR41aEpfT8";
             sessionKey = "123456";
@@ -99,7 +91,6 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
         return patientUser;
     }
 
-    //缓存token
     private void redisSetToken(String oldToken, String redisKey, PatientUser patientUser, boolean notEmpty) {
         redisService.set(redisKey, patientUser, RedisConstant.TOKEN_SURVIVE_TIME);
         if (notEmpty) {
@@ -110,14 +101,13 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
     @Override
     public void updatePhone(String mobile) {
         String userId = AuthUtil.getLoginUserId();
-        // 把原手机号置空
+
         LambdaUpdateWrapper<PatientUser> clearWrapper = new LambdaUpdateWrapper<>();
         clearWrapper.ne(PatientUser::getId, userId);
         clearWrapper.eq(PatientUser::getMobile, mobile);
         clearWrapper.set(PatientUser::getMobile, null);
         baseMapper.update(clearWrapper);
 
-        // 修改当前用户的手机号
         LambdaUpdateWrapper<PatientUser> wrapper = new LambdaUpdateWrapper<>();
         wrapper.eq(PatientUser::getId, userId);
         wrapper.set(PatientUser::getMobile, mobile);
@@ -178,7 +168,7 @@ public class PatientUserServiceImpl extends ServiceImpl<PatientUserMapper, Patie
         Object phoneObj = redisService.get("wechat_phone_" + code);
         String phoneNumber = phoneObj == null ? null : phoneObj.toString();
         if (phoneNumber == null || phoneNumber.isBlank()) {
-            // 缓存失效，临时走 wechat API
+
             WeChatMobileDTO weChatMobile = getWeChatMobile(code);
             phoneNumber = weChatMobile.getPhoneInfo().getPurePhoneNumber();
         }

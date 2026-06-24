@@ -12,10 +12,10 @@ import com.aihoo.domain.doctor.mapper.DoctorUserMapper;
 import com.aihoo.domain.doctor.service.DoctorUserService;
 import com.aihoo.domain.doctor.service.DoctorVisitSetService;
 import com.aihoo.domain.doctor.service.DoctorWelcomeMessageSetService;
-import com.aihoo.domain.drug.entity.Hospital;
-import com.aihoo.domain.drug.entity.HospitalDepartment;
-import com.aihoo.domain.drug.service.HospitalDepartmentService;
-import com.aihoo.domain.drug.service.HospitalService;
+import com.aihoo.domain.hospital.entity.Hospital;
+import com.aihoo.domain.hospital.entity.HospitalDepartment;
+import com.aihoo.domain.hospital.service.HospitalDepartmentService;
+import com.aihoo.domain.hospital.service.HospitalService;
 import com.aihoo.domain.sys.service.DictService;
 import com.aihoo.enums.DictTypeEnum;
 import com.aihoo.exception.BizException;
@@ -48,9 +48,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * 医生用户表 service 实现（迁自 doctor-api 的 DoctorUserServiceImpl + 合并 patient-api 的同名 service）。
- */
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -87,7 +84,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             limit = Long.parseLong(map.get("limit").toString());
         }
         Page<DoctorUser> setPage = new Page<>(page, limit);
-        //列表排序规则 index 没有值排在后面， 已经认证通过的排在前面，然后按照index排列
+
         IPage<DoctorUser> iPage = this.baseMapper.selectDoctorUserPage(setPage, map);
         List<DoctorUser> doctorUserList = iPage.getRecords();
         if (org.springframework.util.CollectionUtils.isEmpty(doctorUserList)) {
@@ -137,9 +134,6 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         if ("0".equals(doctorUser.getStatus())) {
             throw new BizException(com.aihoo.common.BizResultCode.DOCTOR_ACCOUNT_DISABLED);
         }
-//        if (!"PASS".equals(doctorUser.getIsAuth())) {
-//            throw new BizException(com.aihoo.common.BizResultCode.DOCTOR_ACCOUNT_NO_AUTH);
-//        }
 
         String oldToken = doctorUser.getToken();
         String accessToken = UUID.randomUUID().toString().replace("-", "");
@@ -241,7 +235,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         LambdaQueryWrapper<DoctorUser> queryWrapper = new LambdaQueryWrapper<DoctorUser>()
                 .eq(DoctorUser::getIsCancel, "0")
                 .eq(DoctorUser::getStatus, "1")
-//                .eq(DoctorUser::getIsAuth, "PASS")
+
                 .like(StringUtil.isNotBlank(name), DoctorUser::getName, name);
         List<DoctorUser> doctorUserList = doctorUserMapper.selectList(queryWrapper);
         if (CollectionUtils.isEmpty(doctorUserList)) {
@@ -318,11 +312,11 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void doctorUserAdd(DoctorUserAddRequestDto req, HttpServletRequest httpRequest) throws Exception {
-        // 1. 校验身份证格式
+
         if (!IdentityCardUtils.isIdCard(req.getPapersNumbers().trim())) {
             throw new BizException("身份证格式不正确");
         }
-        // 2. 校验手机号格式 + 唯一
+
         if (req.getMobile() == null || req.getMobile().length() != 11) {
             throw new BizException("请填写11位正确的手机号码");
         }
@@ -332,24 +326,24 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         if (mobileExists != null && mobileExists > 0) {
             throw new BizException("该手机号已经注册");
         }
-        // 3. 校验证件号唯一
+
         Long papersExists = doctorUserMapper.selectCount(new QueryWrapper<DoctorUser>()
                 .eq("papers_numbers", req.getPapersNumbers().trim())
                 .eq("is_cancel", "0"));
         if (papersExists != null && papersExists > 0) {
             throw new BizException("证件号码重复");
         }
-        // 4. 校验医院存在
+
         Hospital hospital = hospitalService.getById(req.getHospitalId().trim());
         if (hospital == null) {
             throw new BizException("未查询到id对应医院名称 id :" + req.getHospitalId());
         }
-        // 5. 校验科室存在
+
         String departName = hospitalDepartmentService.findDepartmentNameByCode(req.getDepartCode().trim());
         if (StringUtils.isEmpty(departName)) {
             throw new BizException("未查询到departCode对应科室名称");
         }
-        // 6. 校验职称/人员类别/职务/证件 类型都能查到
+
         String officeHolderName = dictService.getDoctorNameByTypeAndCode(
                 DictTypeEnum.DOCT_TITLE.getType(), req.getOfficeHolderCode().trim());
         if (StringUtils.isEmpty(officeHolderName)) {
@@ -371,10 +365,8 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             throw new BizException("未找到对应的证件类型");
         }
 
-        // 7. 计算性别/年龄/生日
         Map<String, String> idInfo = IdentityCardUtils.getCarMessage(req.getPapersNumbers().trim());
 
-        // 8. 组装 DoctorUser
         DoctorUser doctorUser = new DoctorUser();
         doctorUser.setCreateUserId(SecurityUtils.getLoginUserId());
         doctorUser.setMobile(req.getMobile().trim());
@@ -413,7 +405,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         doctorUser.setSex(idInfo.get("sex"));
         doctorUser.setAge(idInfo.get("age"));
         doctorUser.setBirthday(idInfo.get("birthday"));
-        // 证书类字段
+
         doctorUser.setMedicalLicensePageOne(StringUtils.hasText(req.getMedicalLicensePageOne()) ? req.getMedicalLicensePageOne().trim() : null);
         doctorUser.setMedicalLicensePageTwo(StringUtils.hasText(req.getMedicalLicensePageTwo()) ? req.getMedicalLicensePageTwo().trim() : null);
         doctorUser.setMedicalLicenseNo(StringUtils.hasText(req.getMedicalLicenseNo()) ? req.getMedicalLicenseNo().trim() : null);
@@ -426,15 +418,12 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             doctorUser.setArea(req.getArea().trim());
         }
 
-        // 9. 插入 DoctorUser
         doctorUserMapper.insert(doctorUser);
 
-        // 10. 插入问诊设置（空记录）
         DoctorVisitSet visitSet = new DoctorVisitSet();
         visitSet.setDoctorUserId(doctorUser.getId());
         doctorVisitSetService.save(visitSet);
 
-        // 11. 插入欢迎语设置（空记录）
         DoctorWelcomeMessageSet welcome = new DoctorWelcomeMessageSet();
         welcome.setDoctorUserId(doctorUser.getId());
         doctorWelcomeMessageSetService.save(welcome);
@@ -451,7 +440,6 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             throw new BizException("医生不存在 id=" + req.getId());
         }
 
-        // 手机号校验
         if (StringUtils.hasText(req.getMobile()) && !req.getMobile().equals(doctorUser.getMobile())) {
             if (req.getMobile().length() != 11) {
                 throw new BizException("请填写11位正确的手机号码");
@@ -479,7 +467,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         if (StringUtils.hasText(req.getBeGoodAtText())) {
             doctorUser.setBeGoodAtText(req.getBeGoodAtText());
         }
-        // tag 允许置空
+
         if (!StringUtils.hasText(req.getTag())) {
             doctorUser.setTag(null);
         } else {
@@ -537,7 +525,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
             }
             doctorUser.setPapersName(papersName);
             doctorUser.setPapersCode(req.getPapersCode().trim());
-            // 证件号码也校验
+
             if (StringUtils.hasText(req.getPapersNumbers())) {
                 if (!IdentityCardUtils.isIdCard(req.getPapersNumbers())) {
                     throw new BizException("身份证格式不正确");
@@ -564,7 +552,7 @@ public class DoctorUserServiceImpl extends ServiceImpl<DoctorUserMapper, DoctorU
         if (StringUtils.hasText(req.getDoctorType())) {
             doctorUser.setDoctorType(req.getDoctorType().trim());
         }
-        // 证书
+
         if (StringUtils.hasText(req.getMedicalLicensePageOne()))
             doctorUser.setMedicalLicensePageOne(req.getMedicalLicensePageOne().trim());
         if (StringUtils.hasText(req.getMedicalLicensePageTwo()))

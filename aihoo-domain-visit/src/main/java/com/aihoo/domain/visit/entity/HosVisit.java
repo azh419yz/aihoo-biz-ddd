@@ -8,9 +8,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 在线问诊信息表（迁自 patient-api 的 HosVisit）。
- */
 @Data
 @TableName("t_hos_visit")
 public class HosVisit implements Serializable {

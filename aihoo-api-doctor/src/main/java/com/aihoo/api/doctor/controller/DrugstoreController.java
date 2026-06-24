@@ -5,13 +5,13 @@ import com.aihoo.api.doctor.vo.DrugstoreVo;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.drug.dto.SearchDrugstoreRequestDto;
-import com.aihoo.domain.drug.entity.Drugstore;
-import com.aihoo.domain.drug.entity.DrugstoreMedicineStatusRel;
-import com.aihoo.domain.drug.entity.DrugstoreProvinceRel;
-import com.aihoo.domain.drug.service.DrugstoreMedicineStatusRelService;
-import com.aihoo.domain.drug.service.DrugstoreProvinceRelService;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.dto.SearchDrugstoreRequestDto;
+import com.aihoo.domain.hospital.entity.Drugstore;
+import com.aihoo.domain.hospital.entity.DrugstoreMedicineStatusRel;
+import com.aihoo.domain.hospital.entity.DrugstoreProvinceRel;
+import com.aihoo.domain.hospital.service.DrugstoreMedicineStatusRelService;
+import com.aihoo.domain.hospital.service.DrugstoreProvinceRelService;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -31,9 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * 药店管理（迁自 doctor-api: DrugstoreController）。
- */
 @Tag(name = "Drugstore", description = "医生端-药店相关接口")
 @RestController
 @RequestMapping("/api/v2/drugstore")

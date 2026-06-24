@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @Tag(name = "ChatV2", description = "医生端-问诊复诊相关接口")
 @RestController
 @RequestMapping("/api/v2/doctorChat")

@@ -5,9 +5,6 @@ import lombok.Data;
 
 import java.math.BigDecimal;
 
-/**
- * 顺丰价格查询响应。
- */
 @Data
 public class OrderPriceRespDto {
     @JSONField(name = "businessType")

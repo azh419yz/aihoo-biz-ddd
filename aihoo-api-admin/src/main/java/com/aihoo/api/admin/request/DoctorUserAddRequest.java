@@ -4,9 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * 医生新增请求（运营端 DoctorUserController.doctorUserAdd 入参）。
- */
 @Data
 @Schema(description = "医生新增请求")
 public class DoctorUserAddRequest {

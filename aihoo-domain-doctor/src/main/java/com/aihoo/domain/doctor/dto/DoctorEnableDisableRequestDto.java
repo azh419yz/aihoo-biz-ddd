@@ -4,9 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * 医生启用/禁用请求 DTO（admin-api: DoctorUserController.enableDisable 入参）。
- */
 @Data
 @Schema(description = "医生启用/禁用请求")
 public class DoctorEnableDisableRequestDto {

@@ -5,9 +5,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 顺丰下单响应。
- */
 @Data
 public class CreateOrderRespDto {
 

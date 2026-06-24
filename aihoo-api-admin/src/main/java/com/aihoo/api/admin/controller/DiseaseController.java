@@ -3,8 +3,8 @@ package com.aihoo.api.admin.controller;
 import com.aihoo.common.BaseController;
 import com.aihoo.common.JsonResult;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.drug.entity.Disease;
-import com.aihoo.domain.drug.service.DiseaseService;
+import com.aihoo.domain.hospital.entity.Disease;
+import com.aihoo.domain.hospital.service.DiseaseService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,9 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/**
- * 疾病管理
- */
 @RestController
 @RequestMapping("/api/v1/disease")
 public class DiseaseController extends BaseController {
@@ -23,9 +20,7 @@ public class DiseaseController extends BaseController {
     @Resource
     private DiseaseService diseaseService;
 
-    /**
-     * 疾病列表
-     */
+    
     @PostMapping("/list")
     public PageResult<Disease> list(@RequestBody Map<String, Object> map) {
         try {
@@ -36,9 +31,7 @@ public class DiseaseController extends BaseController {
         }
     }
 
-    /**
-     * 疾病新增
-     */
+    
     @PostMapping("/add")
     public JsonResult add(@RequestBody Map<String, Object> map) {
         try {
@@ -56,9 +49,7 @@ public class DiseaseController extends BaseController {
         }
     }
 
-    /**
-     * 启用禁用
-     */
+    
     @PostMapping("/diseaseEnableDisable")
     public JsonResult diseaseEnableDisable(@RequestBody Map<String, Object> map) {
         try {

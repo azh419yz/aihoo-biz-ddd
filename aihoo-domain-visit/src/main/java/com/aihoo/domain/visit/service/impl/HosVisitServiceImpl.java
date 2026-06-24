@@ -1,6 +1,5 @@
 package com.aihoo.domain.visit.service.impl;
 
-
 import com.aihoo.domain.doctor.entity.DoctorDirectory;
 import com.aihoo.domain.doctor.entity.DoctorWelcomeMessageSet;
 import com.aihoo.domain.doctor.service.DoctorDirectoryService;
@@ -105,7 +104,6 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
             return new JSONArray();
         }
 
-        // 批量预查关联字段（doctor / sick）
         java.util.Set<String> doctorIdSet = hosVisitList.stream()
                 .map(HosVisit::getDoctorUserId).filter(Objects::nonNull).collect(java.util.stream.Collectors.toSet());
         java.util.Set<String> sickIdSet = hosVisitList.stream()
@@ -219,7 +217,7 @@ public class HosVisitServiceImpl extends ServiceImpl<HosVisitMapper, HosVisit> i
         }
 
         String doctorId = request.getDoctorId();
-        // 旧代码 doctorDetails 返回 DoctorUserVoV2；ddd 拆为 DoctorUserDetailsDto
+
         com.aihoo.domain.doctor.dto.DoctorUserDetailsDto doctorUser = doctorUserService.doctorDetails(doctorId);
         if (doctorUser == null) {
             throw new BizException(com.aihoo.common.BizResultCode.PATIENT_DOCTOR_NOT_FOUND);

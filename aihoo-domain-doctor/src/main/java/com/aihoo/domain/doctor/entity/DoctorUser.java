@@ -8,12 +8,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 医生用户表（迁移自 aihoo-biz-service/aihoo-doctor-api 的 DoctorUser）。
- *
- * @author mcp
- * @since 2020-09-18
- */
 @Data
 @TableName("t_doctor_user")
 public class DoctorUser implements Serializable {
@@ -29,9 +23,7 @@ public class DoctorUser implements Serializable {
     private String headImg;
     private String name;
     private String tag;
-    /**
-     * 排序
-     */
+    
     @TableField("`index`")
     private String index;
     private String memberNum;
@@ -64,13 +56,9 @@ public class DoctorUser implements Serializable {
     private String sex;
     private String age;
     private String birthday;
-    /**
-     * 成就
-     */
+    
     private String achievement;
-    /**
-     * '会诊医生类型   助理医生 ASSISTANT  会诊医生 CONSULTANT'
-     */
+    
     private String doctorType;
 
     private String medicalLicensePageOne;

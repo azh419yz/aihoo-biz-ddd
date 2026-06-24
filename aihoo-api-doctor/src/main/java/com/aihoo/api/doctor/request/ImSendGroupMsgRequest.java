@@ -6,9 +6,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 医生端-im 群消息发送请求。
- */
 @Data
 @Schema(description = "im群消息发送")
 public class ImSendGroupMsgRequest {

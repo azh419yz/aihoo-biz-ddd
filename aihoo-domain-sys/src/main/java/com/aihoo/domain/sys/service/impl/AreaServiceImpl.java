@@ -16,12 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * 地区表 服务实现（合并自旧 AreaServiceImpl（admin/doctor）与 DAreaServiceImpl（patient））。
- *
- * @author mcp
- * @since 2020-08-10
- */
 @Service
 @RequiredArgsConstructor
 public class AreaServiceImpl extends ServiceImpl<AreaMapper, Area> implements AreaService {

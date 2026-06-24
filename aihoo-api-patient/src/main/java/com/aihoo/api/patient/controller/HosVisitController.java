@@ -25,12 +25,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * <p>
- * 在线问诊信息表 前端控制器
- * </p>
- *
- */
 @Slf4j
 @Tag(name = "HosVisitV2", description = "患者端-问诊相关接口")
 @RestController
@@ -40,9 +34,7 @@ public class HosVisitController {
 
     private final HosVisitService hosVisitService;
 
-    /**
-     * 根据患者id和就诊人id创建订单，返回订单号
-     */
+    
     @PostMapping("/createOrder")
     @Operation(summary = "创建问诊单")
     @ApiResponse(
@@ -204,9 +196,7 @@ public class HosVisitController {
         return BizResult.success(toBaseInfoVo(hosVisitService.getBaseInfo(hosVisitId)));
     }
 
-    /**
-     * 查看患者问诊订单
-     */
+    
     @PostMapping("/patient/visitList")
     @Operation(summary = "查看患者相关问诊订单")
     @ApiResponse(

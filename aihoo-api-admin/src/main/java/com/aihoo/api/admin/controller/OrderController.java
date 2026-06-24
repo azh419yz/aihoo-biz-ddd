@@ -26,19 +26,12 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * @Classname OrderController
- * @Description 订单管理表
- * @Date 2020/9/22 16:28
- * @Created by ad
- */
 @Tag(name = "Order", description = "运营端-订单相关接口")
 @RestController
 @RequestMapping("/api/v1/order")
 @RequiredArgsConstructor
 public class OrderController {
     private final MdtOrderService mdtOrderService;
-
 
     @GetMapping("/unallocatedList")
     @Operation(summary = "待调配订单列表")

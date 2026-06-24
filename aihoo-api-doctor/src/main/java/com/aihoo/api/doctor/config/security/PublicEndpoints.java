@@ -4,10 +4,10 @@ public class PublicEndpoints {
     public static final String[] PUBLIC_URLS = {
             "/error",
             "/api/v1/doctorUser/",
-            "/api/v1/doctorUser/**",      // 登录不拦截
-            "/api/v1/api/",             // 登录不拦截
-            "/api/v1/api/**",             // 登录不拦截
-            "/api/v1/hosVisit/imSend",    // IM 发送消息测试接口
+            "/api/v1/doctorUser/**",
+            "/api/v1/api/",
+            "/api/v1/api/**",
+            "/api/v1/hosVisit/imSend",
             "/swagger-ui.html",
             "/swagger-ui/",
             "/swagger-ui/**",

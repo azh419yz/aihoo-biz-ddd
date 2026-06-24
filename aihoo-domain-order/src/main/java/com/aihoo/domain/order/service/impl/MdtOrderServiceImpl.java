@@ -6,8 +6,8 @@ import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
 import com.aihoo.domain.doctor.entity.DoctorUser;
 import com.aihoo.domain.doctor.service.DoctorUserService;
-import com.aihoo.domain.drug.entity.Drugstore;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.entity.Drugstore;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import com.aihoo.domain.order.dto.MdtOrderAdminDto;
 import com.aihoo.domain.order.dto.MdtOrderDrugExportEntity;
 import com.aihoo.domain.order.dto.MdtOrderExportEntity;
@@ -62,14 +62,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * mdt 订单 service 实现（按 controller 合并：patient-api + admin-api）。
- *
- * <p>patient 阶段提供：countOrderByPatientUserId / pageOrderListByPatientUserId / saveOrder /
- * payOrder / selectMdtOrderViewVo / selectMdtOrderViewList。</p>
- * <p>admin 阶段提供：getPage / count / printPdf / printExpress / completeAllocation /
- * saveRemarkAndPic / export / drugExport。</p>
- */
 @Slf4j
 @Service
 public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> implements MdtOrderService {
@@ -268,8 +260,6 @@ public class MdtOrderServiceImpl extends ServiceImpl<MdtOrderMapper, MdtOrder> i
         vo.setPrescription(prescriptionVo);
         return vo;
     }
-
-    // ============================== admin 阶段方法 ==============================
 
     @Override
     public PageResult<MdtOrderAdminDto> getPage(PageParam<MdtOrder> pageParam, SearchMdtOrderRequestDto request) {

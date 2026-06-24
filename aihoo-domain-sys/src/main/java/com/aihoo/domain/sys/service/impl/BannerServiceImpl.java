@@ -21,12 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Banner service 实现。
- *
- * <p>findDoctorAll / getBannerDetails 中的 doctor 域跨域查询通过 doctor 域 DoctorUserService 完成（Rule H 暂授权）。
- * <p>findDiseaseAll / teams 涉及 mdt 域，mdt 域尚未在 DDD 独立成域，暂返回空列表，迁移时按需补。
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -188,20 +182,19 @@ public class BannerServiceImpl extends ServiceImpl<BannerMapper, Banner> impleme
 
     @Override
     public List<Map<String, Object>> findDoctorAll() {
-        // 跨域查询：doctor 域 DoctorUserService 通过 list() 获取（IService 已自带，调用方需保证 doctor 域已注册）
-        // 当前不在 sys 域直接调用 doctor mapper，约定由 api 层或 controller 做跨域聚合（BannerController 改为不做此调用）
+
         return new ArrayList<>();
     }
 
     @Override
     public List<Map<String, Object>> findDiseaseAll() {
-        // mdt 域未独立成域，暂返回空列表
+
         return new ArrayList<>();
     }
 
     @Override
     public List<Map<String, Object>> teams(Map<String, Object> param) {
-        // mdt team 未独立成域，暂返回空列表
+
         return new ArrayList<>();
     }
 }

@@ -7,9 +7,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 就诊人健康档案（迁自 patient-api 的 HosSickHealthRecords）。
- */
 @Data
 @TableName("t_hos_sick_health_records")
 public class HosSickHealthRecords implements Serializable {

@@ -190,10 +190,7 @@ public class PatientUserController {
         }
     }
 
-    /**
-     * 聚合 PatientUser entity + 跨域计数到 PatientUserApiVo。
-     * 2026-06-18 拆解循环依赖：orderCount/hosSickCount/visitCount 在 controller 层聚合，patient service 不再跨域调用。
-     */
+    
     private PatientUserApiVo toVo(PatientUser patientUser) {
         if (patientUser == null) return null;
         PatientUserApiVo vo = new PatientUserApiVo();

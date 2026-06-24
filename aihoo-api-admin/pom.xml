@@ -24,10 +24,10 @@
     </properties>
 
     <dependencies>
-        <!-- shared-kernel -->
+        <!-- common -->
         <dependency>
             <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-infra-shared-kernel</artifactId>
+            <artifactId>aihoo-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -38,17 +38,17 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- hospital 域（原 drug + tcm 合并；DoctorUserController.getExistHospitalAll 用 HospitalService，Rule H 授权） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-hospital</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- visit 域（InnerController 调用 HosPrescriptionService，Rule H 授权） -->
         <dependency>
             <groupId>com.aihoo</groupId>
             <artifactId>aihoo-domain-visit</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- drug 域（DoctorUserController.getExistHospitalAll 用 HospitalService，Rule H 授权） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-drug</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

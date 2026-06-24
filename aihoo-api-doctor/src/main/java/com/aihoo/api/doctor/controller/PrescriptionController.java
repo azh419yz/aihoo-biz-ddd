@@ -25,9 +25,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * 医生端-处方相关接口（迁自 doctor-api: PrescriptionV2Controller）。
- */
 @Tag(name = "PrescriptionV2", description = "医生端-处方相关接口")
 @RestController
 @RequestMapping("/api/v2/pre")

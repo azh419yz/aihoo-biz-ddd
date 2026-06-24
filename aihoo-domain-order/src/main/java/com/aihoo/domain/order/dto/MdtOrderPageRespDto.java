@@ -2,9 +2,6 @@ package com.aihoo.domain.order.dto;
 
 import lombok.Data;
 
-/**
- * 订单分页响应 DTO（domain 内）。
- */
 @Data
 public class MdtOrderPageRespDto {
     private String id;

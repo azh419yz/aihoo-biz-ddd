@@ -4,12 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
-/**
- * 医生更新请求 DTO（admin-api: DoctorUserController.doctorUpdate 入参）。
- *
- * <p>仅基础数据字段（DoctorSet / DoctorSetTimes / DoctorAync / DoctorBalance / DoctorUserLog /
- * CommonLanguage / DicPractitioner / 排序重排 全部不在本接口范围）。</p>
- */
 @Data
 @Schema(description = "医生更新请求")
 public class DoctorUserUpdateRequestDto {

@@ -24,10 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * 内部调用 API（含处方笺 / OSS 上传）。
- * <p>跨域：HosPrescriptionService 在 visit 域（Rule H 授权）。
- */
 @Tag(name = "Inner", description = "内部调用相关接口")
 @RestController
 @RequestMapping("/api/inner")

@@ -29,7 +29,7 @@
         <dependencies>
             <dependency>
                 <groupId>com.aihoo</groupId>
-                <artifactId>aihoo-infra-shared-kernel</artifactId>
+                <artifactId>aihoo-common</artifactId>
                 <version>1.0.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
@@ -40,7 +40,7 @@
     <dependencies>
         <dependency>
             <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-infra-shared-kernel</artifactId>
+            <artifactId>aihoo-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

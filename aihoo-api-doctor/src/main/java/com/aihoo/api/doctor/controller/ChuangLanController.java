@@ -30,14 +30,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
-/**
- * <p>
- * 创蓝第三方接口
- * </p>
- *
- * @author wyz
- * @since 2026/3/4 16:32
- */
 @Tag(name = "Chuanglan", description = "医生端-创蓝登录接口")
 @RestController
 @RequestMapping("/api/v2/chuanglan")
@@ -106,13 +98,13 @@ public class ChuangLanController {
     private DoctorUserVo convert2Vo(DoctorUserDto doctorUserDto) {
         DoctorUserVo userVo = new DoctorUserVo();
         BeanUtils.copyProperties(doctorUserDto, userVo);
-        // 手机号
+
         userVo.setMobile(CodeUtils.stringSixMask(doctorUserDto.getMobile()));
-        // 开方数
+
         userVo.setPrescriptionCount(prescriptionService.countByDoctorUserId(doctorUserDto.getId()));
-        // 患者数
+
         userVo.setVisitCount(hosVisitService.countHostVisitByDoctor(doctorUserDto.getId()));
-        // 评价数
+
         userVo.setProposalCount(proposalService.countByDoctorUserId(doctorUserDto.getId()));
         return userVo;
     }

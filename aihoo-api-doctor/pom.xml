@@ -25,10 +25,10 @@
     </properties>
 
     <dependencies>
-        <!-- shared-kernel -->
+        <!-- common -->
         <dependency>
             <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-infra-shared-kernel</artifactId>
+            <artifactId>aihoo-common</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -36,6 +36,13 @@
         <dependency>
             <groupId>com.aihoo</groupId>
             <artifactId>aihoo-domain-doctor</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- hospital 域（原 drug + tcm 合并；DrugstoreController 引用 DrugstoreService，TcmDiseaseController 引用 TcmDiseaseService） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-hospital</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -60,24 +67,10 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- drug 域（DrugstoreController 引用 DrugstoreService） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-drug</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
         <!-- patient 域（HosSickV2Controller 引用 HosSickService） -->
         <dependency>
             <groupId>com.aihoo</groupId>
             <artifactId>aihoo-domain-patient</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- tcm 域（TcmDiseaseController/TcmSyndromeController 引用 TcmDiseaseService/TcmSyndromeService） -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-tcm</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

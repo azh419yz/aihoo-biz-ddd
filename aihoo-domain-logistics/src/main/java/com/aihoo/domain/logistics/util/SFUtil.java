@@ -27,11 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-/**
- * 顺丰开放平台 API 工具类。
- *
- * <p>当前支持：价格查询 {@link #queryPrice}、下单 {@link #createOrder}。
- */
 public class SFUtil {
     private static final Logger log = LoggerFactory.getLogger(SFUtil.class);
 
@@ -39,9 +34,7 @@ public class SFUtil {
     private static final String SECRET = "MU4Y1Z4y4OLJ1M1fZyFZLFPeJcIRFjU6";
     private static final String SERVICE_CODE = "EXP_RECE_QUERY_DELIVERTM";
 
-    // 沙箱环境
     private static final String URL = "https://sfapi-sbox.sf-express.com/std/service";
-    // 正式环境: https://bspgw.sf-express.com/std/service
 
     public static BigDecimal queryPrice(OrderPriceDto priceRequest) throws Exception {
 

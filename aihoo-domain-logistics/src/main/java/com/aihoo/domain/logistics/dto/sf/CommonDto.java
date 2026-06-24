@@ -3,9 +3,6 @@ package com.aihoo.domain.logistics.dto.sf;
 import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.Data;
 
-/**
- * 顺丰公共请求。
- */
 @Data
 public class CommonDto {
     @JSONField(name = "partnerID")

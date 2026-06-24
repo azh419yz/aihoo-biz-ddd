@@ -30,9 +30,6 @@ import com.aihoo.redis.RedisService;
 
 import static com.aihoo.api.doctor.config.security.PublicEndpoints.PUBLIC_URLS;
 
-/**
- * Token based authentication filter.
- */
 @Slf4j
 @Component
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -76,20 +73,17 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 刷新 token 过期时间
             redisService.expire(redisKey, RedisConstant.TOKEN_SURVIVE_TIME);
 
-            // 👇 关键：将用户信息存入 Spring Security 上下文
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(user, null, Collections.emptyList());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
-            // 👇 兼容原有 AuthUtil（可选，建议逐步移除）
             AuthUtil.setLoginUser(toLoginUser(user));
             log.info("\n\n{}\n{}\n{}\n{}\n\n", request.getRequestURI(), user.getId(), accessToken, user);
             filterChain.doFilter(request, response);
         } finally {
-            // 请求结束清除 ThreadLocal（兼容原逻辑）
+
             AuthUtil.clear();
         }
     }
@@ -103,7 +97,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK); // 保持 200，与原逻辑一致
+        response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json;charset=UTF-8");
         BizResult<?> result = BizResult.fail(BizResultCode.UNAUTHORIZED);
         response.getWriter().write(JSONUtil.toJson(result));

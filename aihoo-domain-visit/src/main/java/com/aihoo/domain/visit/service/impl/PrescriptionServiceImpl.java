@@ -1,7 +1,7 @@
 package com.aihoo.domain.visit.service.impl;
 
-import com.aihoo.domain.drug.entity.Drugstore;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.entity.Drugstore;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import com.aihoo.domain.im.dto.ImSendGroupMsgRequestDto;
 import com.aihoo.domain.im.service.ImService;
 import com.aihoo.domain.visit.dto.PrescriptionConsultationFeeDto;
@@ -220,7 +220,7 @@ public class PrescriptionServiceImpl extends ServiceImpl<HosPrescriptionMapper, 
             log.info("电子处方已生成,参数:{}", prescriptionId);
             return Boolean.TRUE;
         }
-        // JudgeService.generatePrescriptionPdf 在 DDD 阶段未迁移，按 CLAUDE.md 教训 7 保持简单桩：标记为 SIGN 但不生成 PDF。
+
         hosPrescription.setCheckStatus("SIGN");
         updateById(hosPrescription);
         log.warn("JudgeService 未实现，电子处方 PDF 未生成，仅更新状态");

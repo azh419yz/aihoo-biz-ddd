@@ -4,8 +4,8 @@ import com.aihoo.api.admin.vo.HospitalPageVo;
 import com.aihoo.common.BaseController;
 import com.aihoo.common.JsonResult;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.drug.entity.Hospital;
-import com.aihoo.domain.drug.service.HospitalService;
+import com.aihoo.domain.hospital.entity.Hospital;
+import com.aihoo.domain.hospital.service.HospitalService;
 import com.aihoo.exception.BizException;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 医院管理
- */
 @RestController
 @RequestMapping("/api/v1/hospital")
 public class HospitalController extends BaseController {
@@ -32,9 +29,7 @@ public class HospitalController extends BaseController {
     @Resource
     private HospitalService hospitalService;
 
-    /**
-     * 医院管理多条件分页查询
-     */
+    
     @PostMapping("/list")
     public PageResult<HospitalPageVo> list(@RequestBody Map<String, Object> map) {
         try {
@@ -54,9 +49,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 根据医院id 查询医院详情
-     */
+    
     @PostMapping("/controlHospital")
     public JsonResult controlHospital(@RequestBody Map<String, Object> map) {
         try {
@@ -74,9 +67,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 查询所有科室对应关系
-     */
+    
     @PostMapping("/departmentRelation")
     public JsonResult departmentRelation() {
         try {
@@ -88,9 +79,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 根据医院id 更新医院详情
-     */
+    
     @PostMapping("/hospitalUpdate")
     public JsonResult hospitalUpdate(@RequestBody Map<String, Object> map, HttpServletRequest request) {
         try {
@@ -110,9 +99,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 新增医院
-     */
+    
     @PostMapping("/hospitalInsert")
     public JsonResult hospitalInsert(@RequestBody Map<String, Object> map, HttpServletRequest request) {
         try {
@@ -124,9 +111,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 查询所有省市区联动信息
-     */
+    
     @PostMapping("/provincesRelation")
     public JsonResult provincesRelation() {
         try {
@@ -138,9 +123,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 根据id 更新医院状态
-     */
+    
     @PostMapping("/enableDisable")
     public JsonResult enableDisable(@RequestBody Map<String, Object> map, HttpServletRequest request) {
         try {
@@ -158,9 +141,7 @@ public class HospitalController extends BaseController {
         }
     }
 
-    /**
-     * 获取本系统已存在的医院
-     */
+    
     @PostMapping("/existHospitalAll")
     public JsonResult getExistHospitalAll() {
         List<Hospital> list = this.hospitalService.list();
@@ -176,9 +157,7 @@ public class HospitalController extends BaseController {
         return JsonResult.ok().put("data", jsonArray);
     }
 
-    /**
-     * 根据主键删除医院
-     */
+    
     @PostMapping("/delete")
     public JsonResult delete(@RequestBody Map<String, Object> map, HttpServletRequest request) {
         try {

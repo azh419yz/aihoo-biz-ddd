@@ -3,9 +3,6 @@ package com.aihoo.domain.doctor.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医生通讯录 DTO（迁自 doctor-api: DoctorDirectoryVo）。
- */
 @Data
 @Schema(description = "医生通讯录 DTO")
 public class DoctorDirectoryDto {

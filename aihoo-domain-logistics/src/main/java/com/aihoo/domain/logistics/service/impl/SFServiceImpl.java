@@ -9,9 +9,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 
-/**
- * 顺丰运费 service 实现（迁自 patient-api 的 SFServiceImpl）。
- */
 @Service
 @Log4j2
 public class SFServiceImpl implements SFService {

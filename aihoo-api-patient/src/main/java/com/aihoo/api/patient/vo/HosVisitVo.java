@@ -6,9 +6,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 问诊单 VO（迁自 patient-api 的 HosVisitVo）。
- */
 @Data
 public class HosVisitVo {
 

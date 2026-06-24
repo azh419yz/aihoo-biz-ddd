@@ -14,8 +14,8 @@ import com.aihoo.domain.doctor.dto.DoctorUserDetailsDto;
 import com.aihoo.domain.doctor.dto.DoctorUserUpdateRequestDto;
 import com.aihoo.domain.doctor.entity.DoctorUser;
 import com.aihoo.domain.doctor.service.DoctorUserService;
-import com.aihoo.domain.drug.entity.Hospital;
-import com.aihoo.domain.drug.service.HospitalService;
+import com.aihoo.domain.hospital.entity.Hospital;
+import com.aihoo.domain.hospital.service.HospitalService;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -33,19 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 医生管理（运营端，迁自 aihoo-biz-service/aihoo-admin/DoctorUserController）。
- *
- * <p>当前阶段（2026-06-18）仅实现基础数据 + DoctorVisitSet + DoctorWelcomeMessageSet：
- * <ul>
- *   <li>POST /api/v1/doctor/add — 医生新增</li>
- *   <li>POST /api/v1/doctor/update — 医生更新</li>
- *   <li>POST /api/v1/doctor/doctorDetails — 医生详情</li>
- *   <li>POST /api/v1/doctor/list — 医生列表</li>
- *   <li>POST /api/v1/doctor/existHospitalAll — 已存在医院</li>
- *   <li>POST /api/v1/doctor/get/hospitalDepartmentAll — 医院科室</li>
- * </ul>
- */
 @Tag(name = "DoctorUser", description = "运营端-医生管理")
 @RestController
 @RequestMapping("/api/v1/doctor")

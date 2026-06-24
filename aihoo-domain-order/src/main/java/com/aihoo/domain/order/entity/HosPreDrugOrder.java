@@ -9,10 +9,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 药品配送信息表。
- * <p>2026-06-18 迁自 patient-api/HosPreDrugOrder。
- */
 @Data
 @TableName("t_hos_pre_drug_order")
 @Schema(description = "药品配送信息表")

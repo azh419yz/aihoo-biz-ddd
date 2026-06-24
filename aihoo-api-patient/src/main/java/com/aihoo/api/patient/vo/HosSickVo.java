@@ -7,9 +7,6 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 
-/**
- * 就诊人 VO（迁自 patient-api 的 HosSickVo）。
- */
 @Data
 @Schema(description = "就诊人VO")
 public class HosSickVo {

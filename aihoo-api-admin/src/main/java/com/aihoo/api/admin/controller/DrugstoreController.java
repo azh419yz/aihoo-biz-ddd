@@ -7,13 +7,13 @@ import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.drug.dto.SaveUpdateDrugstoreRequestDto;
-import com.aihoo.domain.drug.entity.Drugstore;
-import com.aihoo.domain.drug.entity.DrugstoreMedicineStatusRel;
-import com.aihoo.domain.drug.entity.DrugstoreProvinceRel;
-import com.aihoo.domain.drug.service.DrugstoreMedicineStatusRelService;
-import com.aihoo.domain.drug.service.DrugstoreProvinceRelService;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.dto.SaveUpdateDrugstoreRequestDto;
+import com.aihoo.domain.hospital.entity.Drugstore;
+import com.aihoo.domain.hospital.entity.DrugstoreMedicineStatusRel;
+import com.aihoo.domain.hospital.entity.DrugstoreProvinceRel;
+import com.aihoo.domain.hospital.service.DrugstoreMedicineStatusRelService;
+import com.aihoo.domain.hospital.service.DrugstoreProvinceRelService;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,9 +38,7 @@ public class DrugstoreController {
     private final DrugstoreProvinceRelService provinceRelService;
     private final DrugstoreMedicineStatusRelService medicineStatusRelService;
 
-    /**
-     * 带条件分页查询药房列表
-     */
+    
     @GetMapping("/list")
     @Operation(summary = "药房列表")
     public BizResult<PageResult<DrugstoreVo>> list(@ParameterObject PageParam<Drugstore> pageParam,
@@ -52,9 +50,7 @@ public class DrugstoreController {
         return BizResult.success(toDrugstoreVoPage(page));
     }
 
-    /**
-     * 创建药房信息
-     */
+    
     @PostMapping("/insert")
     @Operation(summary = "创建药房")
     public BizResult<Void> createDrugstore(@Validated(SaveUpdateDrugstoreRequest.Save.class) @RequestBody SaveUpdateDrugstoreRequest request) {
@@ -64,9 +60,7 @@ public class DrugstoreController {
         return result ? BizResult.success("创建成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "创建失败");
     }
 
-    /**
-     * 修改药房信息
-     */
+    
     @PutMapping("/update")
     @Operation(summary = "修改药房")
     public BizResult<Void> updateDrugstore(@Validated(SaveUpdateDrugstoreRequest.Update.class) @RequestBody SaveUpdateDrugstoreRequest request) {
@@ -76,9 +70,7 @@ public class DrugstoreController {
         return result ? BizResult.success("修改成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "修改失败");
     }
 
-    /**
-     * 删除药房信息
-     */
+    
     @DeleteMapping("/delete")
     @Operation(summary = "删除药房")
     public BizResult<Void> deleteDrugstore(@RequestParam String id) {
@@ -86,9 +78,7 @@ public class DrugstoreController {
         return result ? BizResult.success("删除成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "删除失败");
     }
 
-    /**
-     * 启用禁用药房
-     */
+    
     @PostMapping("/enableDisable")
     @Operation(summary = "启用禁用药房")
     public BizResult<Void> enableDisable(@RequestBody SaveUpdateDrugstoreRequest request) {

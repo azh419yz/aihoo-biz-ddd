@@ -3,8 +3,8 @@ package com.aihoo.api.admin.controller;
 import com.aihoo.common.BaseController;
 import com.aihoo.common.JsonResult;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.drug.entity.Department;
-import com.aihoo.domain.drug.service.DepartmentService;
+import com.aihoo.domain.hospital.entity.Department;
+import com.aihoo.domain.hospital.service.DepartmentService;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -18,9 +18,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 科室管理
- */
 @RestController
 @RequestMapping("/api/v1/departments")
 public class DepartmentsController extends BaseController {
@@ -28,9 +25,7 @@ public class DepartmentsController extends BaseController {
     @Resource
     private DepartmentService departmentsService;
 
-    /**
-     * 一级科室对应的名称和编码
-     */
+    
     @PostMapping("/level/codeAndName")
     public JsonResult levelCodeAndName() {
         try {
@@ -52,9 +47,7 @@ public class DepartmentsController extends BaseController {
         }
     }
 
-    /**
-     * 查询
-     */
+    
     @PostMapping("/list")
     public PageResult<Department> list(@RequestBody Map<String, Object> map) {
         try {
@@ -65,9 +58,7 @@ public class DepartmentsController extends BaseController {
         }
     }
 
-    /**
-     * 科室新增
-     */
+    
     @PostMapping("/add")
     public JsonResult add(@RequestBody Map<String, Object> map) {
         try {
@@ -86,9 +77,7 @@ public class DepartmentsController extends BaseController {
         }
     }
 
-    /**
-     * 启用禁用
-     */
+    
     @PostMapping("/departmentEnableDisable")
     public JsonResult departmentEnableDisable(@RequestBody Map<String, Object> map) {
         try {
@@ -106,9 +95,7 @@ public class DepartmentsController extends BaseController {
         }
     }
 
-    /**
-     * 更新科室
-     */
+    
     @PostMapping("/update")
     public JsonResult departmentUpdate(@RequestBody Map<String, Object> map) {
         try {
@@ -121,9 +108,7 @@ public class DepartmentsController extends BaseController {
         }
     }
 
-    /**
-     * 查看下级科室
-     */
+    
     @PostMapping("/subordinate")
     public JsonResult departmentSubordinate(@RequestBody Map<String, Object> map) {
         try {
@@ -138,9 +123,7 @@ public class DepartmentsController extends BaseController {
         }
     }
 
-    /**
-     * 查看上级科室
-     */
+    
     @PostMapping("/superior")
     public JsonResult departmentSuperior(@RequestBody Map<String, Object> map) {
         try {

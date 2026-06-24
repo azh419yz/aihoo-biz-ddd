@@ -9,9 +9,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
-/**
- * 就诊人信息表（迁自 patient-api 的 HosSick）。
- */
 @Data
 @TableName("t_hos_sick")
 public class HosSick implements Serializable {

@@ -21,12 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 医生端-获取患者详情（迁自 doctor-api: HosSickV2Controller）。
- *
- * <p>2026-06-18 拆解循环依赖：patient service 不再聚合 visit/prescription/doctor，
- * controller 调 HosVisitService + HosPrescriptionService + DoctorUserService 自行组装。
- */
 @Tag(name = "HosSick", description = "医生端-获取患者详情")
 @RestController
 @RequestMapping("/api/v2/sick")

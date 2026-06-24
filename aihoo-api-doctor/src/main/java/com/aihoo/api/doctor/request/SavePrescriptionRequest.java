@@ -7,9 +7,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 医生端-开方保存请求。
- */
 @Data
 public class SavePrescriptionRequest {
 

@@ -3,9 +3,6 @@ package com.aihoo.api.doctor.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医生通讯录 VO（api-doctor 输出，迁自 doctor-api: DoctorDirectoryVo）。
- */
 @Data
 @Schema(description = "医生通讯录 VO")
 public class DoctorDirectoryVo {

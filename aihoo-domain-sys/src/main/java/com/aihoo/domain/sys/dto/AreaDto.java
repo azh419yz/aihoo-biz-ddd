@@ -5,13 +5,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 地区 Dto（合并自旧 AreaVo/DAreaVo，结构相同）。
- * 由 service 返回，controller 负责转换为 api 层 vo。
- *
- * @author mcp
- * @since 2020-08-10
- */
 @Data
 public class AreaDto {
 

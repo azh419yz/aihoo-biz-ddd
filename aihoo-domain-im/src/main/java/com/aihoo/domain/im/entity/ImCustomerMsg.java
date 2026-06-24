@@ -9,10 +9,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * IM 客服消息表（admin ↔ patient）。
- * <p>2026-06-18 迁自 patient-api/ImCustomerMsg。
- */
 @Data
 @TableName("t_im_customer_msg")
 public class ImCustomerMsg implements Serializable {

@@ -7,24 +7,16 @@ import java.util.List;
 
 @Data
 public class DrugstoreVo {
-    /**
-     * 主键ID
-     */
+    
     private String id;
 
-    /**
-     * 创建时间
-     */
+    
     private String createTime;
 
-    /**
-     * 更新时间
-     */
+    
     private String updateTime;
 
-    /**
-     * 创建人id
-     */
+    
     private String createUserId;
 
     @Schema(name = "name", description = "药房名称")

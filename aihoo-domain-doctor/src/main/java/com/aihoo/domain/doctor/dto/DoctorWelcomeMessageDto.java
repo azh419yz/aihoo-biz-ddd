@@ -4,9 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-/**
- * 欢迎语设置 request DTO（迁自 doctor-api: DoctorWelcomeMessageRequest）。
- */
 @Data
 @Schema(description = "欢迎语设置请求")
 public class DoctorWelcomeMessageDto {

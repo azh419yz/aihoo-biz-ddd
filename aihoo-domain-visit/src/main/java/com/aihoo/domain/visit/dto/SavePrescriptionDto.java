@@ -4,11 +4,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 医生端-开方保存 DTO（domain 内）。
- *
- * <p>字段与 SavePrescriptionRequest 一致，controller 通过 BeanUtils.copyProperties 转换。
- */
 @Data
 public class SavePrescriptionDto {
 

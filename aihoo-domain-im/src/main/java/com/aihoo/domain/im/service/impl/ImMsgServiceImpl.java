@@ -27,11 +27,6 @@ import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Map;
 
-/**
- * IM 消息 service 实现（迁自 patient-api/ImMsgServiceImpl，2026-06-18 完整迁移）。
- * <p>跨域引用：visit（HosVisit/HosRevisit/HosPrescription）、order（HosPreDrugOrder/MdtOrder）、
- * doctor（DoctorUser）、push（PushMessage）。
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor

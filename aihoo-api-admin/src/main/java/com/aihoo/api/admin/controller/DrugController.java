@@ -4,12 +4,12 @@ import com.aihoo.api.admin.request.SaveUpdateDrugRequest;
 import com.aihoo.api.admin.request.SearchDrugRequest;
 import com.aihoo.api.admin.vo.DrugVo;
 import com.aihoo.common.*;
-import com.aihoo.domain.drug.dto.SaveUpdateDrugRequestDto;
-import com.aihoo.domain.drug.dto.SearchDrugRequestDto;
-import com.aihoo.domain.drug.entity.Drug;
-import com.aihoo.domain.drug.excel.DrugEntity;
-import com.aihoo.domain.drug.service.DrugService;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.dto.SaveUpdateDrugRequestDto;
+import com.aihoo.domain.hospital.dto.SearchDrugRequestDto;
+import com.aihoo.domain.hospital.entity.Drug;
+import com.aihoo.domain.hospital.excel.DrugEntity;
+import com.aihoo.domain.hospital.service.DrugService;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import com.aihoo.domain.sys.excel.ExcelUtils;
 import com.aihoo.exception.BizException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,9 +31,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 处方药品管理
- */
 @Tag(name = "DrugController", description = "运营端-药品相关接口")
 @RestController
 @RequestMapping("/api/v1/drug")
@@ -43,9 +40,7 @@ public class DrugController {
     private final DrugService drugService;
     private final DrugstoreService drugstoreService;
 
-    /**
-     * 药品管理多条件分页查询
-     */
+    
     @Operation(summary = "药品列表")
     @ApiResponse(
             responseCode = "200",
@@ -78,9 +73,7 @@ public class DrugController {
         return BizResult.success(voPage);
     }
 
-    /**
-     * 药品的启用与禁用
-     */
+    
     @Operation(summary = "启用禁用药品")
     @PostMapping("/enableDisable")
     public BizResult<Void> enableDisable(@RequestBody SaveUpdateDrugRequest request) {
@@ -88,9 +81,7 @@ public class DrugController {
         return boo ? BizResult.success("操作成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "操作失败");
     }
 
-    /**
-     * 添加药品
-     */
+    
     @Operation(summary = "添加药品")
     @PostMapping("/insert")
     public BizResult<Void> create(@Validated(SaveUpdateDrugRequest.Save.class) @RequestBody SaveUpdateDrugRequest request) {
@@ -100,9 +91,7 @@ public class DrugController {
         return result ? BizResult.success("添加成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "添加失败");
     }
 
-    /**
-     * 修改药品
-     */
+    
     @Operation(summary = "修改药品")
     @PutMapping("/update")
     public BizResult<Void> update(@Validated(SaveUpdateDrugRequest.Update.class) @RequestBody SaveUpdateDrugRequest request) {
@@ -112,9 +101,7 @@ public class DrugController {
         return result ? BizResult.success("更新成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "更新失败");
     }
 
-    /**
-     * 删除药品
-     */
+    
     @Operation(summary = "删除药品")
     @DeleteMapping("/delete")
     public BizResult<Void> delete(@RequestParam String id) {
@@ -122,9 +109,7 @@ public class DrugController {
         return result ? BizResult.success("删除成功") : BizResult.fail(BizResultCode.INTERNAL_ERROR, "删除失败");
     }
 
-    /**
-     * 药品excel解析
-     */
+    
     @Operation(summary = "药品excel解析")
     @PostMapping("/drugExcelParsing")
     public JsonResult drugExcelParsing(@RequestParam("file") MultipartFile file) {
@@ -140,9 +125,7 @@ public class DrugController {
         }
     }
 
-    /**
-     * 药品批量导出
-     */
+    
     @Operation(summary = "药品批量导出")
     @GetMapping("/drugBulkExport")
     public void drugBulkExport(@RequestParam(value = "name", required = false) String name,

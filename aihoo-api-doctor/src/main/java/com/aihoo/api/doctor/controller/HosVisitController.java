@@ -1,6 +1,5 @@
 package com.aihoo.api.doctor.controller;
 
-
 import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.common.JsonResult;
@@ -24,9 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 医生端-问诊相关接口（迁自 doctor-api: HosVisitV2Controller）。
- */
 @Tag(name = "HosVisitV2", description = "医生端-问诊相关接口")
 @RestController
 @RequestMapping("/api/v2/hosVisit")

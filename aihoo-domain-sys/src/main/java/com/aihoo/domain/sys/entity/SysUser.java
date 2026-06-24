@@ -7,9 +7,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 管理员用户表（迁自 admin/system/model/SysUser）。
- */
 @Data
 @TableName("t_sys_user")
 public class SysUser implements Serializable {

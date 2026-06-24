@@ -5,11 +5,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * 医生端-问诊详情 DTO（迁自 doctor-api: HosOrder）。
- *
- * <p>由 {@code HosVisitService.visitData} 返回，含 makeVisitbtnJson 业务方法。
- */
 @Data
 @Schema(description = "医生端-问诊详情")
 public class HosOrderDto {
@@ -87,8 +82,7 @@ public class HosOrderDto {
     private String visitbtnJson;
 
     public void makeVisitbtnJson() {
-        // 占位：老 doctor-api 用 reflectasm/jackson 生成按钮 JSON。
-        // DDD 阶段保持空，由 controller 根据 status 自行生成（不在此处强实现）。
+
         this.visitbtnJson = "{}";
     }
 }

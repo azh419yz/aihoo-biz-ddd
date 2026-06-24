@@ -3,9 +3,6 @@ package com.aihoo.api.admin.vo;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医生 VO（运营端 DoctorUserController 出参）。
- */
 @Data
 @Schema(description = "医生 VO")
 public class DoctorUserVo {

@@ -2,7 +2,7 @@ package com.aihoo.api.patient.controller;
 
 import com.aihoo.api.patient.vo.VisitSelectDrugstoreVo;
 import com.aihoo.common.BizResult;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,12 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * 药房 controller（患者端，迁自 patient-api 的 DrugstoreV2Controller）。
- *
- * @author wyz
- * @since 2026/3/15
- */
 @RestController
 @Slf4j
 @RequiredArgsConstructor

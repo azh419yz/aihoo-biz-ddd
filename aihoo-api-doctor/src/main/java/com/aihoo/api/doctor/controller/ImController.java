@@ -34,9 +34,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * 医生端-im 相关接口（迁自 doctor-api: ImController）。
- */
 @Tag(name = "ImV2", description = "医生端-im相关接口")
 @Slf4j
 @RestController
@@ -83,7 +80,7 @@ public class ImController {
                     imMsgContentVo.setImMsgId(imMsgContent.getImMsgId());
                     imMsgContentVo.setMsgType(imMsgContent.getMsgType());
                     JSONObject content = JSONObject.parseObject(imMsgContent.getMsgContent());
-                    //后续拆分出去， 读取开方状态
+
                     if (msg.getLoadParam() != null && msg.getLoadParam().equals(1)
                             && "TIMCustomElem".equals(imMsgContent.getMsgType())) {
                         JSONObject dataJson = content.getJSONObject("Data");
@@ -96,7 +93,7 @@ public class ImController {
                                 content.put("Data", dataJson.toJSONString());
                             }
                         }
-                        // 动态更新问诊订单卡片状态
+
                         String msgType = dataJson.getString("msgType");
                         if ("VisitOrderCard".equals(msgType) || "RevisitOrderCard".equals(msgType)) {
                             String orderNum = dataJson.getString("orderNum");

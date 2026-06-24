@@ -22,13 +22,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * @description: 患者
- * @author: Mr.Li
- * @create: 2020-09-29 13:54
- *
- * <p>2026-06-18 拆解循环依赖：sickIds 由 controller 调 HosVisitService + HosRevisitService 取并集后传入 patient service。
- */
 @Tag(name = "PatientV2", description = "医生端-患者相关接口")
 @RestController
 @RequestMapping("/api/v2/patient")

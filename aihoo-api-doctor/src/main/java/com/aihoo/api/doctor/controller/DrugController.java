@@ -1,15 +1,14 @@
 package com.aihoo.api.doctor.controller;
 
-
 import com.aihoo.api.doctor.request.SearchDrugRequest;
 import com.aihoo.api.doctor.vo.DrugVo;
 import com.aihoo.common.BaseController;
 import com.aihoo.common.BizResult;
 import com.aihoo.common.PageParam;
 import com.aihoo.common.PageResult;
-import com.aihoo.domain.drug.dto.SearchDrugRequestDto;
-import com.aihoo.domain.drug.entity.Drug;
-import com.aihoo.domain.drug.service.DrugService;
+import com.aihoo.domain.hospital.dto.SearchDrugRequestDto;
+import com.aihoo.domain.hospital.entity.Drug;
+import com.aihoo.domain.hospital.service.DrugService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -25,9 +24,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 处方药品管理（迁自 doctor-api: DrugController）。
- */
 @Tag(name = "Drug", description = "医生端-药品相关接口")
 @RestController
 @RequestMapping("/api/v2/drug")

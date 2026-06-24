@@ -27,7 +27,14 @@
     <dependencies>
         <dependency>
             <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-infra-shared-kernel</artifactId>
+            <artifactId>aihoo-common</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <!-- hospital 域（原 drug + tcm 合并；药房信息查询） -->
+        <dependency>
+            <groupId>com.aihoo</groupId>
+            <artifactId>aihoo-domain-hospital</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
@@ -42,13 +49,6 @@
         <dependency>
             <groupId>com.aihoo</groupId>
             <artifactId>aihoo-domain-doctor</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
-        </dependency>
-
-        <!-- drug 域：药房信息查询 -->
-        <dependency>
-            <groupId>com.aihoo</groupId>
-            <artifactId>aihoo-domain-drug</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 

@@ -3,7 +3,6 @@ package com.aihoo.api.doctor;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
@@ -13,26 +12,8 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 
-/**
- * @author: sunjianbo
- * @date: 2019/7/23 9:58
- */
-@SpringBootApplication(scanBasePackages = {"com.aihoo.api.doctor", "com.aihoo.domain", "com.aihoo"})
-@MapperScan(basePackages = {"com.aihoo.domain.*.mapper"})
-@ComponentScan(basePackages = {
-        "com.aihoo.api.doctor",
-        "com.aihoo.domain",
-        "com.aihoo.util",
-        "com.aihoo.excel",
-        "com.aihoo.redis",
-        "com.aihoo.config",
-        "com.aihoo.properties",
-        "com.aihoo.security",
-        "com.aihoo.constant", "com.aihoo.oss",
-        "com.aihoo.wechat",
-        "com.aihoo.alicloud",
-        "com.aihoo.exception"
-})
+@SpringBootApplication(scanBasePackages = "com.aihoo")
+@MapperScan(basePackages = "com.aihoo.domain.*.mapper")
 @SecurityScheme(name = "accessToken", type = SecuritySchemeType.APIKEY, in = SecuritySchemeIn.HEADER)
 @OpenAPIDefinition(
         info = @Info(title = "Doctor API", version = "1.0", description = "Doctor API Documentation"),

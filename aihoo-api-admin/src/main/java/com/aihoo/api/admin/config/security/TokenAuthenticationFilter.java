@@ -30,9 +30,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Token based authentication filter.
- */
 @Slf4j
 @Component
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
@@ -45,13 +42,13 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
         String uri = request.getRequestURI();
         for (String path : PUBLIC_URLS) {
             if (path.endsWith("/**")) {
-                // 处理通配符路径，如 /api/v1/file/**
+
                 String prefix = path.substring(0, path.length() - 3);
                 if (uri.startsWith(prefix)) {
                     return true;
                 }
             } else {
-                // 处理精确路径
+
                 if (uri.equals(path)) {
                     return true;
                 }
@@ -82,10 +79,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
 
-            // 刷新 token 过期时间
             redisService.expire(redisKey, RedisConstant.SESSION_SURVIVE_TIME);
 
-            // 👇 关键：将用户信息存入 Spring Security 上下文
             SysUserDetails loginUser = new SysUserDetails(user, Collections.emptySet());
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(loginUser, null, Collections.emptyList());
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
@@ -94,12 +89,12 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             log.info("\n\n{}\n{}\n{}\n{}\n\n", request.getRequestURI(), user.getId(), accessToken, user);
             filterChain.doFilter(request, response);
         } finally {
-            // 清理ThreadLocal（如果需要的话）
+
         }
     }
 
     private void sendUnauthorizedResponse(HttpServletResponse response) throws IOException {
-        response.setStatus(HttpServletResponse.SC_OK); // 保持 200，与原逻辑一致
+        response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json;charset=UTF-8");
         BizResult<?> result = BizResult.fail(BizResultCode.UNAUTHORIZED);
         response.getWriter().write(JSONUtil.toJson(result));
@@ -112,7 +107,6 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 			return heouToken.substring(5);
 		}
 
-		// 也可以从Cookie中获取token
 		String tokenCookie = null;
 		if (request.getCookies() != null) {
 			for (Cookie cookie : request.getCookies()) {

@@ -3,9 +3,6 @@ package com.aihoo.api.doctor.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 扫码保存医生患者关系 request（迁自 doctor-api: SaveDoctorDirectoryRequest）。
- */
 @Data
 @Schema(description = "保存医生通讯录请求")
 public class SaveDoctorDirectoryRequest {

@@ -1,6 +1,5 @@
 package com.aihoo.api.patient.controller;
 
-
 import com.aihoo.api.patient.request.MdtOrderListRequest;
 import com.aihoo.api.patient.request.MdtOrderPayRequest;
 import com.aihoo.api.patient.request.MdtOrderSaveRequest;

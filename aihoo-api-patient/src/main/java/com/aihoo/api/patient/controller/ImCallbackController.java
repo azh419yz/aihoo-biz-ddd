@@ -18,15 +18,6 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-
-/**
- * <p>
- *
- * </p>
- *
- * @author wyz
- * @since 2026/2/27 13:20
- */
 @RestController
 @Slf4j
 @RequestMapping("/api/v2/im/call-back")
@@ -70,7 +61,6 @@ public class ImCallbackController {
             log.info("解析请求参数异常");
             return new CallBackVo("FAIL", "1", "请求参数转换异常");
         }
-
 
         CallbackCommandEnum command = CallbackCommandEnum.fromValue(callbackCommand);
         if (command.equals(CallbackCommandEnum.NONE)) {

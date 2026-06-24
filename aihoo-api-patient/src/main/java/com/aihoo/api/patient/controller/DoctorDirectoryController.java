@@ -21,14 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * <p>
- *
- * </p>
- *
- * @author wyz
- * @since 2026/3/5 16:01
- */
 @Tag(name = "doctorDirectory", description = "患者端-通讯录")
 @RestController
 @RequiredArgsConstructor
@@ -65,7 +57,6 @@ public class DoctorDirectoryController {
             }
         }
 
-        //判断是否已经存在该通讯录信息
         List<DoctorDirectory> dirs = doctorDirectoryService.list(new LambdaQueryWrapper<DoctorDirectory>()
                 .eq(doctorDirectory.getSickId() != null && doctorDirectory.getSickId() > 0, DoctorDirectory::getSickId, doctorDirectory.getSickId())
                 .eq(DoctorDirectory::getDoctorUserId, doctorDirectory.getDoctorUserId())

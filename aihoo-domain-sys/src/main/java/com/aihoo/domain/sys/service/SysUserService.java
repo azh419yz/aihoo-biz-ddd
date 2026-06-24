@@ -16,15 +16,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 系统用户 service。
- *
- * <p>controller 调用的方法（admin MainController/SysUserController）:
- * <ul>
- *   <li>doLogin / phoneLogin / sendPhoneCode - 登录相关</li>
- *   <li>listUser / addUser / update / updateStatus / resetPsw / updatePsw / isDelete - 用户管理</li>
- * </ul>
- */
 public interface SysUserService extends IService<SysUser> {
 
     SysUser getByUsername(String username);

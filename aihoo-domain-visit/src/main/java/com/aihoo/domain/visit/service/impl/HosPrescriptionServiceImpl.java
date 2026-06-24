@@ -3,8 +3,8 @@ package com.aihoo.domain.visit.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.aihoo.common.BizResultCode;
-import com.aihoo.domain.drug.entity.Drugstore;
-import com.aihoo.domain.drug.service.DrugstoreService;
+import com.aihoo.domain.hospital.entity.Drugstore;
+import com.aihoo.domain.hospital.service.DrugstoreService;
 import com.aihoo.domain.logistics.service.SFService;
 import com.aihoo.domain.visit.dto.*;
 import com.aihoo.domain.visit.entity.HosPrescription;
@@ -29,9 +29,6 @@ import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * 处方 service 实现（迁自 patient-api 的 HosPrescriptionServiceImpl）。
- */
 @Service
 @Log4j2
 public class HosPrescriptionServiceImpl extends ServiceImpl<HosPrescriptionMapper, HosPrescription> implements HosPrescriptionService {

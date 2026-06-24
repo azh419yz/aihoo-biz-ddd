@@ -4,9 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医生端-发送群消息响应 VO。
- */
 @Data
 @Schema(description = "im群发普通消息")
 public class ImSendGroupMsgRespVo {

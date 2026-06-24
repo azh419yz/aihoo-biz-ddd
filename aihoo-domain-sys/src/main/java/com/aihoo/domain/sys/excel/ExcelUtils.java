@@ -37,12 +37,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-/**
- * Excel 工具类（基于 Apache POI）。
- *
- * <p>从旧 admin 的 com.aihoo.admin.common.excel.ExcelUtils 迁入。
- * 包路径和内部 import 已统一到 shared-kernel（com.aihoo.*）。</p>
- */
 public class ExcelUtils {
     private static final Logger log = LoggerFactory.getLogger(ExcelUtils.class);
 
@@ -154,9 +148,7 @@ public class ExcelUtils {
         return dataList;
     }
 
-    /**
-     * 读取excel
-     */
+    
     public static <T> List<T> getExcelRead(String fileName, InputStream is, boolean isTitle, Map<Integer, String> param, Class<T> cls) throws Exception {
         try {
             Workbook workbook = getWorkbook(fileName, is);
@@ -192,7 +184,6 @@ public class ExcelUtils {
         }
     }
 
-
     public static Workbook getWorkbook(String fileName, InputStream is) throws Exception {
         Workbook workbook = null;
         try {
@@ -212,11 +203,9 @@ public class ExcelUtils {
         return workbook;
     }
 
-
     public static boolean isExcel2007(String filePath) {
         return filePath.matches("^.+\\.(?i)(xlsx)$");
     }
-
 
     public static String getValue(Cell cell) {
         String cellValue = null;
@@ -385,9 +374,7 @@ public class ExcelUtils {
         buildExcelDocument(fileName, wb, response);
     }
 
-    /**
-     * 浏览器下载excel
-     */
+    
     private static void buildExcelDocument(String fileName, Workbook wb, HttpServletResponse response) {
         try {
             response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
@@ -400,9 +387,7 @@ public class ExcelUtils {
         }
     }
 
-    /**
-     * 生成excel文件
-     */
+    
     private static void buildExcelFile(String path, Workbook wb) {
 
         File file = new File(path);

@@ -21,12 +21,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 医生用户表 前端控制器（患者端）。
- *
- * @author mcp
- * @since 2020-09-16
- */
 @Tag(name = "PatientUserV2", description = "患者端-患者相关接口")
 @RestController
 @RequestMapping("/api/v2/doctorUser")

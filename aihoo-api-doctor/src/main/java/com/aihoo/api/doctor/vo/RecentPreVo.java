@@ -9,9 +9,6 @@ import lombok.Data;
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- * 医生端-最近处方 VO（由 RecentPreDto 转换）。
- */
 @Data
 @Schema(description = "医生端-最近处方 VO")
 public class RecentPreVo {

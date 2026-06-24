@@ -12,9 +12,6 @@ import lombok.Data;
 import java.io.Serializable;
 import java.util.Collections;
 
-/**
- * 处方表（迁自 patient-api 的 HosPrescription）。
- */
 @Data
 @TableName("t_hos_prescription")
 public class HosPrescription implements Serializable {

@@ -5,13 +5,6 @@ import com.aihoo.domain.doctor.entity.DoctorVisitSet;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
-/**
- * 医生详情 Dto（合并 DoctorUser + DoctorVisitSet）。
- * 由 service 返回，controller 负责转换为 api 层 vo。
- *
- * @author mcp
- * @since 2026-06-15
- */
 @Data
 public class DoctorUserDetailsDto {
 

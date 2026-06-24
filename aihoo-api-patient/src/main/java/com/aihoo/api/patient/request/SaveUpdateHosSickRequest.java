@@ -8,9 +8,6 @@ import lombok.Data;
 
 import java.util.Date;
 
-/**
- * 新增/修改就诊人请求（迁自 patient-api 的 SaveUpdateHosSickRequest）。
- */
 @Data
 @Schema(description = "新增/修改就诊人请求")
 public class SaveUpdateHosSickRequest {

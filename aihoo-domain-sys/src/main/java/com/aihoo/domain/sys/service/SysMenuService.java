@@ -8,9 +8,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 菜单 service。
- */
 public interface SysMenuService extends IService<SysMenu> {
 
     List<Map<String, Object>> userMenuButton(Integer userId);

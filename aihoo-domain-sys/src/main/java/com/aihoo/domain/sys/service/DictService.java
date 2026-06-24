@@ -7,20 +7,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import java.util.List;
 import java.util.Map;
 
-/**
- * 字典 service。
- *
- * <p>旧 DiceService 改名 DictService（与 entity Dict 对齐）。
- * controller 用到的方法：getDoctorType、listByType
- */
 public interface DictService extends IService<Dict> {
 
     List<DictTypeItemDto> getDoctorType(String type);
 
     List<Map<String, String>> listByType(String type);
 
-    /**
-     * 根据字典 type + code 查询对应 name（迁自 aihoo-biz-service/aihoo-admin 的 DiceService.getDoctorNameByTypeAndCode）。
-     */
+    
     String getDoctorNameByTypeAndCode(String type, String code);
 }

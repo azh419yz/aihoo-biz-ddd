@@ -1,6 +1,5 @@
 package com.aihoo.api.patient.controller;
 
-
 import com.aihoo.api.patient.vo.AreaVo;
 import com.aihoo.common.BizResult;
 import com.aihoo.domain.sys.dto.AreaDto;
@@ -21,14 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * <p>
- * 省市区基础表 前端控制器
- * </p>
- *
- * @author mcp
- * @since 2020-09-17
- */
 @Tag(name = "Area", description = "患者端-地区相关接口")
 @RestController
 @RequestMapping("/api/v2/dArea")

@@ -7,9 +7,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 处方诊金表（迁自 patient-api 的 HosPrescriptionFee）。
- */
 @Data
 @TableName("t_hos_prescription_fee")
 public class HosPrescriptionFee implements Serializable {

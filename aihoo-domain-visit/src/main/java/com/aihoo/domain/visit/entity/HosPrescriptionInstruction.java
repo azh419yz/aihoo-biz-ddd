@@ -8,9 +8,6 @@ import lombok.Data;
 
 import java.io.Serializable;
 
-/**
- * 处方用法用量表（迁自 patient-api 的 HosPrescriptionInstruction）。
- */
 @Data
 @TableName("t_hos_prescription_instruction")
 public class HosPrescriptionInstruction implements Serializable {

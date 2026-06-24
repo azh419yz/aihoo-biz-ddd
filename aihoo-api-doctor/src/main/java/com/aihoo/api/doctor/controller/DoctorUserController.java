@@ -27,9 +27,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * 医生用户表 controller（迁自 doctor-api: DoctorUserV2Controller）。
- */
 @Tag(name = "DoctorUserV2", description = "医生端-医生相关接口")
 @RestController
 @RequestMapping("/api/v2/doctorUser")
@@ -59,9 +56,7 @@ public class DoctorUserController {
         if (null == doctorUser) {
             return BizResult.fail(BizResultCode.DOCTOR_MOBILE_NOT_BOUND);
         }
-//        if (!"PASS".equals(doctorUser.getIsAuth())) {
-//            return BizResult.fail(BizResultCode.DOCTOR_ACCOUNT_NO_AUTH);
-//        }
+
         if ("0".equals(doctorUser.getStatus())) {
             return BizResult.fail(BizResultCode.DOCTOR_ACCOUNT_DISABLED);
         }

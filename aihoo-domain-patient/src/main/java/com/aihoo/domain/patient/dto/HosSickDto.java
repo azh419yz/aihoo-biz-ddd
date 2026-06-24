@@ -7,12 +7,6 @@ import lombok.Data;
 import java.util.Date;
 import java.util.List;
 
-/**
- * 就诊人 dto（domain 层用，承载 service 返回值；由 controller 转 vo）。
- *
- * <p>2026-06-18 拆解循环依赖：移除 {@code visits} 字段（visit+prescription+doctor 跨域聚合逻辑上移到 api 层），
- * 移除 {@code status} / {@code imGroupId} 字段填充逻辑（visit 域查询上移到 api 层）。
- */
 @Data
 @Schema(description = "就诊人 DTO")
 public class HosSickDto {

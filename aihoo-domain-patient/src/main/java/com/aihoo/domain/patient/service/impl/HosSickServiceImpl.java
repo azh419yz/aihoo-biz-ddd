@@ -30,17 +30,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * 就诊人 service 实现（迁自 patient-api 的 HosSickServiceImpl）。
- *
- * <p>2026-06-18 拆解循环依赖：
- * <ul>
- *   <li>删除 5 个跨域注入：{@code HosVisitService} / {@code HosPrescriptionService} / {@code DoctorUserService} / {@code HosVisitMapper} / {@code HosRevisitMapper}</li>
- *   <li>{@code queryHosSickByDoctorId} 返回基础 DTO，status/imGroupId 由 api 层调 visit 域填充</li>
- *   <li>{@code queryHosSickByHosSickId} 返回基础 DTO，visits/doctor/prescription 由 api 层聚合</li>
- *   <li>{@code patientListBySickIds} 接收 sickIds 参数（visit+revisit 取并集由 api 层完成）</li>
- * </ul>
- */
 @Service
 public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> implements HosSickService {
 
@@ -89,8 +78,7 @@ public class HosSickServiceImpl extends ServiceImpl<HosSickMapper, HosSick> impl
 
     @Override
     public List<HosSickDto> queryHosSickByDoctorId(String doctorId) {
-        // 2026-06-18：返回基础 DTO（不含 status/imGroupId），由 api-patient HosSickController 调
-        // HosVisitService.latestHosVisit 填充最新问诊状态。
+
         return queryHosSickByPatientUserId();
     }
 

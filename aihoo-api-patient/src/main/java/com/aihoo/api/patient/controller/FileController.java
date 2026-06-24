@@ -1,6 +1,5 @@
 package com.aihoo.api.patient.controller;
 
-
 import com.aihoo.common.BizResult;
 import com.aihoo.common.BizResultCode;
 import com.aihoo.domain.sys.oss.OssComponent;

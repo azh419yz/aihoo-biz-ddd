@@ -4,9 +4,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
-/**
- * 问诊设置 request DTO（迁自 doctor-api: DoctorVisitSetRequest）。
- */
 @Data
 @Schema(description = "问诊设置请求")
 public class DoctorVisitSetDto {

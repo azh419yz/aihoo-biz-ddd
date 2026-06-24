@@ -8,8 +8,6 @@ import java.util.List;
 
 public interface DoctorDirectoryService extends IService<DoctorDirectory> {
 
-    /**
-     * 查询医生通讯录（迁自 doctor-api: DoctorDirectoryServiceImpl.findDoctorDirectoryList）。
-     */
+    
     List<DoctorDirectoryDto> findDoctorDirectoryList(String sickName);
 }
